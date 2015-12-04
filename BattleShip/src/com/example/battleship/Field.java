@@ -3,17 +3,8 @@ package com.example.battleship;
 import com.example.battleship.ships.Ship;
 
 public class Field {
-    /*
-	public final static int HIDDEN_STATE        = 0;
-    public final static int EMPTY_STATE         = 1;
-    public final static int CHECKED_FIELD_STATE = 2;
-    public final static int MINE_STATE          = 3;
-    public final static int KILLED_MINE_STATE   = 4;
-    public final static int SHIP_STATE          = 5;
-    public final static int PADDED_SHIP_STATE   = 6;
-    public final static int KILLED_SHIP_STATE   = 7;
-*/
-    private int x;
+
+	private int x;
     private int y;
     private FieldState state = FieldState.EMPTY_STATE;
     private SeaObject obj = null;
@@ -28,14 +19,17 @@ public class Field {
         setObj(obj);
     }
 
-    public boolean shotOnField() {
-    	if (obj != null && obj instanceof Ship) {
-    		state = FieldState.PADDED_SHIP_STATE;
-    		obj.shotOnObject(this);
-    		return true;
-    	} else if (obj instanceof Mine){
-    		state = FieldState.KILLED_MINE_STATE;
-    		obj.shotOnObject(this);
+    public boolean shotOnField(Ship ship) {
+    	if (obj != null) {
+	    	if (obj instanceof Ship) {
+	    		state = FieldState.PADDED_SHIP_STATE;
+	    		obj.shotOnObject(ship);
+	    		return true;
+	    	} 
+	    	if (obj instanceof Mine){
+	    		state = FieldState.KILLED_MINE_STATE;
+	    		obj.shotOnObject(ship);
+	    	} 
     	} else {
     		state = FieldState.CHECKED_FIELD_STATE;		
     	}

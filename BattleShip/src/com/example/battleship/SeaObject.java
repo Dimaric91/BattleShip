@@ -3,6 +3,7 @@ package com.example.battleship;
 import java.util.List;
 
 import com.example.battleship.Field;
+import com.example.battleship.ships.Ship;
 
 public abstract class SeaObject {
 	protected List<Field> fields;
@@ -22,5 +23,5 @@ public abstract class SeaObject {
 		this.fields = fields;
 	}
 	
-	public abstract void shotOnObject(Field field);
+	public abstract void shotOnObject(Ship ship);
 }

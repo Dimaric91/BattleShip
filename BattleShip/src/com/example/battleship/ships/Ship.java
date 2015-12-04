@@ -81,15 +81,18 @@ public abstract class Ship extends SeaObject {
 	
 	public void destroy() {
 		state = DEAD_STATE;
-		for (Field field : fields) {
-			field.removeObj();
-			field.setState(FieldState.KILLED_SHIP_STATE);
+		for (Field field2 : fields) {
+			field2.setState(FieldState.KILLED_SHIP_STATE);
+		}
+		
+		for (Field field2 : neighboirs) {
+			field2.setState(FieldState.CHECKED_FIELD_STATE);
 		}
 	}
 	
-	public Field hitOnMine() {
-		LinkedList<Field> aliveFields = new LinkedList<>();
-		Collections.copy(aliveFields, fields);
+	public Field getAliveField() {
+		LinkedList<Field> aliveFields = new LinkedList<>(fields);
+		//Collections.copy(aliveFields, fields);
 		for (Field field : fields) {
 			if (field.getState() == FieldState.PADDED_SHIP_STATE) {
 				aliveFields.remove(field);
@@ -102,24 +105,21 @@ public abstract class Ship extends SeaObject {
 		return size;
 	}
 	
-	@Override
-	public void shotOnObject(Field field) {
-		boolean isDead = true;
-		for (Field field2 : fields) {
-			if (field2.getState() != FieldState.PADDED_SHIP_STATE) {
-				isDead = false;
+	private boolean isDead() {
+		for (Field field : fields) {
+			if (field.getState() != FieldState.PADDED_SHIP_STATE) {
+				return false;
 			}
 		}
-		
-		if (isDead) {
-			state = DEAD_STATE;
-			for (Field field2 : fields) {
-				field2.setState(FieldState.KILLED_SHIP_STATE);
-			}
-			
-			for (Field field2 : neighboirs) {
-				field2.setState(FieldState.CHECKED_FIELD_STATE);
-			}
+		return true;
+	}
+	
+	@Override
+	public void shotOnObject(Ship ship) {
+		if (isDead()) {
+			destroy();
+		} else {
+			state = HIT_STATE;
 		}
 	}
 	
@@ -127,10 +127,10 @@ public abstract class Ship extends SeaObject {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + " at x = " + fields.get(0).getX()
 				+ ", y = " + fields.get(0).getY());
-		sb.append("\nneighbors = ");
-		for (Field field : neighboirs) {
-			sb.append(field);
-		}
+		//sb.append("\nneighbors = ");
+		//for (Field field : neighboirs) {
+		//	sb.append(field);
+		//}
 		return sb.toString();
 	}
 

@@ -29,6 +29,7 @@ public class AIPlayer extends Player {
 
 	@Override
 	public boolean shot(Ship ship) {
+		//TODO Add mine logic
 		Random rnd = new Random();
 		if (listOfNextShots == null) {
 			listOfNextShots = new ArrayList<>();
@@ -72,7 +73,7 @@ public class AIPlayer extends Player {
 		if (firstShotField == null || currentShot == null)
 			currentShot = listOfNextShots.remove(rnd.nextInt(listOfNextShots.size()));
 		System.out.println("AI shot on x = " + currentShot.getX() + ", y = " + currentShot.getY());
-		if (currentShot.shotOnField()) {
+		if (currentShot.shotOnField(ship)) {
 			if (firstShotField == null) {
 				firstShotField = currentShot;
 				direction = Direction.values()[rnd.nextInt(Direction.values().length)];

@@ -16,6 +16,7 @@ import com.example.battleship.ships.Destroyer;
 import com.example.battleship.ships.Ship;
 
 public abstract class Player {
+	private String name;   //TODO Use name
 	protected GameZone zone;
 	protected List<Mine> mines;
 	protected List<Ship> ships;
@@ -38,9 +39,6 @@ public abstract class Player {
 		zone = new GameZone(zoneSize);
 		mines = new LinkedList<>();
 		ships = new LinkedList<>();
-		for (int i = 0; i < mineCount; i++) {
-			mines.add(new Mine());
-		}
 		
 		if ( shipCount.length != 4 ) {
 			throw new Exception("Invalid shipCount");
@@ -62,6 +60,9 @@ public abstract class Player {
 			ships.add(new Destroyer(1));
 		}
 		
+		for (int i = 0; i < mineCount; i++) {
+			mines.add(new Mine());
+		}
 	}
 	
 	public void setEnemy(Player enemy) {
@@ -81,6 +82,7 @@ public abstract class Player {
 	public abstract void move(Ship ship) throws FieldNotFound, MissingFields, ShipIsHitted;
 	
 	protected void RandomMove() {
+		//TODO cnahge to enum
 		int[] direction = {Ship.DIRECTION_UP, Ship.DIRECTION_RIGHT, Ship.DIRECTION_DOWN, Ship.DIRECTION_LEFT};
 		Random rnd = new Random();
 		for (Ship ship : ships) {
@@ -98,6 +100,18 @@ public abstract class Player {
 				}
 			}
 			//System.out.println(ship.getClass().getSimpleName() + " move success!!");
+		}
+		
+		for (Mine mine : mines) {
+			while (true) {
+				try {
+					int x = rnd.nextInt(zone.getSize());
+					int y = rnd.nextInt(zone.getSize());
+					mine.move(zone.getField(x, y));
+					break;
+				} catch (MissingFields | FieldNotFound e) {
+				}
+			}
 		}
 	}
 	

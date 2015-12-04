@@ -1,13 +1,41 @@
 package com.example.battleship;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.example.battleship.Field;
+import com.example.battleship.ships.Ship;
 
 public class Mine extends SeaObject {
 
-	@Override
-	public void shotOnObject(Field field) {
-		// TODO Auto-generated method stub
-		
+	private boolean isDead = false;
+	
+	public Mine() {
 	}
 	
+	public Mine(List<Field> fields) {
+		super(fields);
+	}
+	
+	@Override
+	public void shotOnObject(Ship ship) {
+		if (!isDead) {
+			isDead = true;
+			ship.getAliveField().shotOnField(null);
+		}
+	}
+	
+	public void move(Field field) throws MissingFields {
+		if (field.getState() != FieldState.EMPTY_STATE) {
+			throw new MissingFields("Field is busy");
+		}
+		if (fields == null) {
+			fields = new LinkedList<>();
+		} else {
+			Field f = fields.remove(0);
+			f.removeObj();	
+		}
+		field.setObj(this);
+		fields.add(field);
+	}
 }

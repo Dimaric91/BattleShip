@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 import com.example.battleship.FieldNotFound;
+import com.example.battleship.Mine;
 import com.example.battleship.MissingFields;
 import com.example.battleship.ShipIsHitted;
 import com.example.battleship.ships.Ship;
@@ -31,8 +32,8 @@ public class LocalPlayer extends Player {
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {1, 1, 1, 1};
 		int zoneSize = 7;
-		Player player1 = new LocalPlayer(zoneSize, 0, shipCount);
-		Player player2 = new AIPlayer(zoneSize, 0, shipCount);
+		Player player1 = new LocalPlayer(zoneSize, 1, shipCount);
+		Player player2 = new AIPlayer(zoneSize, 1, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		
@@ -57,7 +58,7 @@ public class LocalPlayer extends Player {
 		
 		while (true) {
 			do {
-				if (current instanceof LocalPlayer) {
+				if (current instanceof Player) {
 					System.out.println("YOUR zone:");
 					System.out.println("========");
 					System.out.println(current.getZone());
@@ -103,6 +104,20 @@ public class LocalPlayer extends Player {
 				}
 				System.out.println(ship.getClass().getSimpleName() + " move success!!");
 		}
+		System.out.println("Placing mines. Mine count = " + mines.size());
+		for (Mine mine : mines) {
+			while (true) {
+				try (Scanner scan = new Scanner(System.in)){
+					int x = scan.nextInt();
+					int y = scan.nextInt();
+					mine.move(zone.getField(x, y));
+					break;
+				} catch (MissingFields | FieldNotFound e) {
+					System.err.println(e.getMessage());
+					System.err.println("Try again");
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -114,7 +129,7 @@ public class LocalPlayer extends Player {
 			System.out.print("y = ");
 			int y = scan.nextInt();
 			try {
-				return enemy.getZone().getField(x, y).shotOnField();
+				return enemy.getZone().getField(x, y).shotOnField(ship);
 			} catch (FieldNotFound e) {
 				System.out.println(e.getMessage());
 			}
