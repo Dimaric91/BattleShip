@@ -1,6 +1,5 @@
 package com.example.battleship.players;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -9,6 +8,7 @@ import java.util.Random;
 
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
+import com.example.battleship.FieldState;
 import com.example.battleship.ships.Ship;
 
 public class AIPlayer extends Player {
@@ -43,8 +43,8 @@ public class AIPlayer extends Player {
 		Iterator<Field> it = listOfNextShots.iterator();
 		while (it.hasNext()) {
 			Field f = it.next();
-			if (f.getState() != Field.EMPTY_STATE && f.getState() != Field.SHIP_STATE &&
-					f.getState() != Field.MINE_STATE) {
+			if (f.getState() != FieldState.EMPTY_STATE && f.getState() != FieldState.SHIP_STATE &&
+					f.getState() != FieldState.MINE_STATE) {
 				it.remove();
 			}
 		}

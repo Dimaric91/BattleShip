@@ -45,15 +45,13 @@ public class GameZone {
 	}
 	
 	public boolean isMove(List<Field> shipField, List<Field> neighborField) {
-		//TODO VulnFunction (shift 1)
-		
 		for (Field field : shipField) {
-			if (field.getState() != Field.EMPTY_STATE) {
+			if (field.getState() != FieldState.EMPTY_STATE) {
 				return false;
 			}
 		}
 		for (Field field : neighborField) {
-			if(field.getState() >= field.SHIP_STATE) {
+			if(field.getState().isShip()) {
 				return false;
 			}	
 		}

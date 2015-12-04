@@ -57,12 +57,14 @@ public class LocalPlayer extends Player {
 		
 		while (true) {
 			do {
-				System.out.println("YOUR zone:");
-				System.out.println("========");
-				System.out.println(current.getZone());
-				System.out.println("AI zone:");
-				System.out.println("========");
-				System.out.println(current.enemy.getZone().forEnemy());
+				if (current instanceof LocalPlayer) {
+					System.out.println("YOUR zone:");
+					System.out.println("========");
+					System.out.println(current.getZone());
+					System.out.println("AI zone:");
+					System.out.println("========");
+					System.out.println(current.enemy.getZone().forEnemy());
+				}
 				if (current.enemy.isGameOver()) {
 					System.out.println(current + " WIN!!!!");
 					return;

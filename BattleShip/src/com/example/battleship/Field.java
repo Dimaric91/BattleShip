@@ -3,7 +3,8 @@ package com.example.battleship;
 import com.example.battleship.ships.Ship;
 
 public class Field {
-    public final static int HIDDEN_STATE        = 0;
+    /*
+	public final static int HIDDEN_STATE        = 0;
     public final static int EMPTY_STATE         = 1;
     public final static int CHECKED_FIELD_STATE = 2;
     public final static int MINE_STATE          = 3;
@@ -11,10 +12,10 @@ public class Field {
     public final static int SHIP_STATE          = 5;
     public final static int PADDED_SHIP_STATE   = 6;
     public final static int KILLED_SHIP_STATE   = 7;
-
+*/
     private int x;
     private int y;
-    private int state = EMPTY_STATE;
+    private FieldState state = FieldState.EMPTY_STATE;
     private SeaObject obj = null;
 
     public Field(int x, int y) {
@@ -29,37 +30,37 @@ public class Field {
 
     public boolean shotOnField() {
     	if (obj != null && obj instanceof Ship) {
-    		state = PADDED_SHIP_STATE;
+    		state = FieldState.PADDED_SHIP_STATE;
     		obj.shotOnObject(this);
     		return true;
     	} else if (obj instanceof Mine){
-    		state = KILLED_MINE_STATE;
+    		state = FieldState.KILLED_MINE_STATE;
     		obj.shotOnObject(this);
     	} else {
-    		state = CHECKED_FIELD_STATE;		
+    		state = FieldState.CHECKED_FIELD_STATE;		
     	}
     	return false;
     }
 
-    public int getState() {
+    public FieldState getState() {
         return state;
     }
     
-    public void setState(int state) {
+    public void setState(FieldState state) {
 		this.state = state;
 	}
 
     public void removeObj() {
         this.obj = null;
-        this.state = EMPTY_STATE;
+        this.state = FieldState.EMPTY_STATE;
     }
 
     public void setObj(SeaObject obj) {
         this.obj = obj;
         if (obj instanceof Mine) {
-            this.state = MINE_STATE;
+            this.state = FieldState.MINE_STATE;
         } else {
-            this.state = SHIP_STATE;
+            this.state = FieldState.SHIP_STATE;
         }
     }
 
@@ -83,7 +84,7 @@ public class Field {
     
     @Override
     public String toString() {
-    	return Integer.toString(state);
+    	return state.toString();
     }
     
     public String toEnemy() {
@@ -91,9 +92,9 @@ public class Field {
     		case EMPTY_STATE:
     		case MINE_STATE:
     		case SHIP_STATE:
-    			return Integer.toString(HIDDEN_STATE);
+    			return FieldState.HIDDEN_STATE.toString();
     		default:
-    			return Integer.toString(state);
+    			return state.toString();
     	}
     }
     

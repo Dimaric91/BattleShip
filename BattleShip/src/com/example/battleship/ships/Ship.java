@@ -1,17 +1,13 @@
 package com.example.battleship.ships;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
-
 import com.example.battleship.FieldNotFound;
-import com.example.battleship.FieldsMismatch;
+import com.example.battleship.FieldState;
 import com.example.battleship.GameZone;
 import com.example.battleship.MissingFields;
 import com.example.battleship.SeaObject;
@@ -87,7 +83,7 @@ public abstract class Ship extends SeaObject {
 		state = DEAD_STATE;
 		for (Field field : fields) {
 			field.removeObj();
-			field.setState(Field.KILLED_SHIP_STATE);
+			field.setState(FieldState.KILLED_SHIP_STATE);
 		}
 	}
 	
@@ -95,7 +91,7 @@ public abstract class Ship extends SeaObject {
 		LinkedList<Field> aliveFields = new LinkedList<>();
 		Collections.copy(aliveFields, fields);
 		for (Field field : fields) {
-			if (field.getState() == Field.PADDED_SHIP_STATE) {
+			if (field.getState() == FieldState.PADDED_SHIP_STATE) {
 				aliveFields.remove(field);
 			}
 		}
@@ -110,7 +106,7 @@ public abstract class Ship extends SeaObject {
 	public void shotOnObject(Field field) {
 		boolean isDead = true;
 		for (Field field2 : fields) {
-			if (field2.getState() != Field.PADDED_SHIP_STATE) {
+			if (field2.getState() != FieldState.PADDED_SHIP_STATE) {
 				isDead = false;
 			}
 		}
@@ -118,11 +114,11 @@ public abstract class Ship extends SeaObject {
 		if (isDead) {
 			state = DEAD_STATE;
 			for (Field field2 : fields) {
-				field2.setState(Field.KILLED_SHIP_STATE);
+				field2.setState(FieldState.KILLED_SHIP_STATE);
 			}
 			
 			for (Field field2 : neighboirs) {
-				field2.setState(Field.CHECKED_FIELD_STATE);
+				field2.setState(FieldState.CHECKED_FIELD_STATE);
 			}
 		}
 	}
