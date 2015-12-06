@@ -20,6 +20,14 @@ public class Field {
     }
 
     public boolean shotOnField(Ship ship) {
+    	switch (state) {
+		case CHECKED_FIELD_STATE:
+		case KILLED_MINE_STATE:
+			return false;
+		case PADDED_SHIP_STATE:
+		case KILLED_SHIP_STATE:
+			return true;
+		}
     	if (obj != null) {
 	    	if (obj instanceof Ship) {
 	    		state = FieldState.PADDED_SHIP_STATE;
@@ -36,8 +44,19 @@ public class Field {
     	return false;
     }
 
-    public FieldState getState() {
-        return state;
+    public FieldState getState(boolean isEnemy) {
+    	if (isEnemy) {
+    		switch(state) {
+    		case EMPTY_STATE:
+    		case MINE_STATE:
+    		case SHIP_STATE:
+    			return FieldState.HIDDEN_STATE;
+    		default:
+    			return state;
+    		}
+    	} else {
+    		return state;
+    	}
     }
     
     public void setState(FieldState state) {

@@ -90,7 +90,7 @@ public abstract class Ship extends SeaObject {
 	public Field getAliveField() {
 		LinkedList<Field> aliveFields = new LinkedList<>(fields);
 		for (Field field : fields) {
-			if (field.getState() == FieldState.PADDED_SHIP_STATE) {
+			if (field.getState(false) == FieldState.PADDED_SHIP_STATE) {
 				aliveFields.remove(field);
 			}
 		}
@@ -103,7 +103,7 @@ public abstract class Ship extends SeaObject {
 	
 	private boolean isDead() {
 		for (Field field : fields) {
-			if (field.getState() == FieldState.SHIP_STATE) {
+			if (field.getState(false) == FieldState.SHIP_STATE) {
 				return false;
 			}
 		}

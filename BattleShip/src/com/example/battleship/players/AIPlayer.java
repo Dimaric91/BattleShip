@@ -48,8 +48,8 @@ public class AIPlayer extends Player {
 		Iterator<Field> it = poolOfNext.iterator();
 		while (it.hasNext()) {
 			Field f = it.next();
-			if (f.getState() != FieldState.EMPTY_STATE && f.getState() != FieldState.SHIP_STATE &&
-					f.getState() != FieldState.MINE_STATE) {
+			if (f.getState(false) != FieldState.EMPTY_STATE && f.getState(false) != FieldState.SHIP_STATE &&
+					f.getState(false) != FieldState.MINE_STATE) {
 				it.remove();
 			}
 		}

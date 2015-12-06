@@ -43,12 +43,12 @@ public class GameZone {
 	
 	public boolean isMove(List<Field> shipField, List<Field> neighborField) {
 		for (Field field : shipField) {
-			if (field.getState() != FieldState.EMPTY_STATE) {
+			if (field.getState(false) != FieldState.EMPTY_STATE) {
 				return false;
 			}
 		}
 		for (Field field : neighborField) {
-			if(field.getState().isShip()) {
+			if(field.getState(false).isShip()) {
 				return false;
 			}	
 		}

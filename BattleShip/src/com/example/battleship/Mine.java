@@ -27,7 +27,7 @@ public class Mine extends SeaObject {
 	}
 	
 	public void move(Field field) throws MissingFieldsException {
-		if (field.getState() != FieldState.EMPTY_STATE) {
+		if (field.getState(false) != FieldState.EMPTY_STATE) {
 			throw new MissingFieldsException("Field is busy");
 		}
 		if (fields == null) {

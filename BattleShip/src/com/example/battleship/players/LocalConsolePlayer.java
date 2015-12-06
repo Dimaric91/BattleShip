@@ -1,5 +1,6 @@
 package com.example.battleship.players;
 
+import java.util.Random;
 import java.util.Scanner;
 
 import com.example.battleship.Mine;
@@ -9,10 +10,10 @@ import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
 import com.example.battleship.Direction;
 
-public class LocalPlayer extends Player {
+public class LocalConsolePlayer extends Player {
 	
 	
-	public LocalPlayer(String name) throws Exception {
+	public LocalConsolePlayer(String name) throws Exception {
 		super(name);
 		//TODO Exception O_o ?!!!!
 		//System.out.println(zone);
@@ -20,7 +21,7 @@ public class LocalPlayer extends Player {
 		RandomMove();
 	}
 
-	public LocalPlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
+	public LocalConsolePlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
 		super(name, zoneSize, mineCount, shipCount);
 		RandomMove();
 		//firstMove();
@@ -29,7 +30,7 @@ public class LocalPlayer extends Player {
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {0, 3, 0, 0};
 		int zoneSize = 6;
-		Player player1 = new LocalPlayer("player1", zoneSize, 0, shipCount);
+		Player player1 = new LocalConsolePlayer("player1", zoneSize, 0, shipCount);
 		Player player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
@@ -56,7 +57,7 @@ public class LocalPlayer extends Player {
 		
 		while (true) {
 			do {
-				if (current instanceof LocalPlayer) {
+				if (current instanceof LocalConsolePlayer) {
 					System.out.println("YOUR zone:");
 					System.out.println("========");
 					System.out.println(current.getZone());
@@ -155,6 +156,7 @@ public class LocalPlayer extends Player {
 		ship.move(zone, zone.getField(x, y), Direction.values()[d]);
 	}
 
+	
 	@Override
 	public Ship getShip() {
 		for (int i = 0; i < ships.size(); i++) {
