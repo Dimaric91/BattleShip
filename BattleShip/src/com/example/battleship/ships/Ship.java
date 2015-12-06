@@ -40,13 +40,9 @@ public abstract class Ship extends SeaObject {
 		LinkedList<Field> newFields = new LinkedList<>(fields);
 		LinkedList<Field> newNeighbors = new LinkedList<>(zone.getNeighbors(newFields));
 		if (this.fields != null) {
-			for (Field field : this.fields) {
-				newFields.remove(field);
-				newNeighbors.remove(field);
-			}
-			for (Field field : zone.getNeighbors(this.fields)) {
-				newNeighbors.remove(field);
-			}
+			newFields.removeAll(this.fields);
+			newNeighbors.removeAll(this.fields);
+			newNeighbors.removeAll(zone.getNeighbors(this.fields));
 		}
 		
 		if (!zone.isMove(newFields,newNeighbors)) {
@@ -78,6 +74,9 @@ public abstract class Ship extends SeaObject {
 	}
 	
 	public void destroy() {
+		if (state == DEAD_STATE) {
+			return;
+		}
 		state = DEAD_STATE;
 		for (Field field2 : fields) {
 			field2.setState(FieldState.KILLED_SHIP_STATE);

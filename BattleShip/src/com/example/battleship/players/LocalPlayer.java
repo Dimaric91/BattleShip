@@ -28,13 +28,13 @@ public class LocalPlayer extends Player {
 	
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {0, 2, 0, 0};
-		int zoneSize = 6;
+		int zoneSize = 5;
 		Player player1 = new LocalPlayer("player1", zoneSize, 1, shipCount);
 		Player player2 = new AIPlayer("player2", zoneSize, 1, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		
-		
+		/*
 		Scanner scan = new Scanner(System.in);
 		do {
 			player2.shot(player2.getShip());
@@ -49,9 +49,9 @@ public class LocalPlayer extends Player {
 				break;
 			}
 		} while (scan.nextInt() == 1);
+		*/
 		
-		
-		/* 
+		 
 		Player current = player1;
 		
 		while (true) {

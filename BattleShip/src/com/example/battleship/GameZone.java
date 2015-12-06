@@ -1,6 +1,7 @@
 package com.example.battleship;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.example.battleship.Field;
@@ -55,22 +56,20 @@ public class GameZone {
 	}
 	
 	public List<Field> getNeighbors(List<Field> shipField) {
-		LinkedList<Field> lst = new LinkedList<>();
+		HashSet<Field> ret = new HashSet<>();
 		for (Field field : shipField) {
 			for (int i = field.getX() - 1; i <= field.getX() + 1; i++) {
 				for (int j = field.getY() - 1; j <= field.getY() + 1; j++) {
 						try {
-							lst.add(getField(i, j));
+							ret.add(getField(i, j));
 						} catch (FieldNotFoundException e) {
 						}
 				}
 			}
 							
 		}
-		for (Field field : shipField) {
-			while(lst.remove(field));
-		}
-		return lst;
+		ret.removeAll(shipField);
+		return new ArrayList<>(ret);
 	}
 	
 	@Override

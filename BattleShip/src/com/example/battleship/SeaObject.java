@@ -1,7 +1,6 @@
 package com.example.battleship;
 
 import java.util.List;
-
 import com.example.battleship.Field;
 import com.example.battleship.ships.Ship;
 
