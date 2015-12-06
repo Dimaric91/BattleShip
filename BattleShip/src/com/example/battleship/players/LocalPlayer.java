@@ -27,10 +27,10 @@ public class LocalPlayer extends Player {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int[] shipCount = {0, 2, 0, 0};
-		int zoneSize = 5;
-		Player player1 = new LocalPlayer("player1", zoneSize, 1, shipCount);
-		Player player2 = new AIPlayer("player2", zoneSize, 1, shipCount);
+		int[] shipCount = {0, 3, 0, 0};
+		int zoneSize = 6;
+		Player player1 = new LocalPlayer("player1", zoneSize, 0, shipCount);
+		Player player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		
