@@ -1,6 +1,5 @@
 package com.example.battleship;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,14 +34,10 @@ public class GameZone {
 		return fields[x][y];
 	}
 	
-	public Field getField(Field start, Direction direction) {
+	public Field getField(Field start, Direction direction) throws FieldNotFoundException {
 		int x = start.getX() + direction.getValue() / 2;
 		int y = start.getY() + direction.getValue() % 2;
-		try {
-			return getField(x, y);
-		} catch (FieldNotFoundException e) {
-			return null;
-		}
+		return getField(x, y);
 	}
 	
 	public boolean isMove(List<Field> shipField, List<Field> neighborField) {
@@ -119,7 +114,7 @@ public class GameZone {
 		for (int i = 0; i < fields.length; i++) {
 			result.append(i + " |");
 			for (int j = 0; j < fields.length; j++) {
-				result.append(fields[i][j].toEnemy() + " ");
+				result.append(fields[i][j].forEnemy() + " ");
 			}
 			result.append("\n");
 		}

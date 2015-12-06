@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.example.battleship.Direction;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.exception.FieldNotFoundException;
@@ -16,22 +17,24 @@ import com.example.battleship.ships.Destroyer;
 import com.example.battleship.ships.Ship;
 
 public abstract class Player {
-	private String name;   //TODO Use name
+	private String name;
 	protected GameZone zone;
 	protected List<Mine> mines;
 	protected List<Ship> ships;
 	protected Player enemy;
 	
-	public Player() throws Exception {
-		this(10);
+	public Player(String username) throws Exception {
+		this(username, 10);
 	}
 	
-	public Player(int zoneSize) throws Exception {
+	public Player(String username, int zoneSize) throws Exception {
+		this.name = username;
 		int[] shipCount = {1, 2, 3, 4};
 		initialize(zoneSize, 2, shipCount);
 	}
 	
-	public Player(int zoneSize, int mineCount, int[] shipCount) throws Exception {
+	public Player(String username, int zoneSize, int mineCount, int[] shipCount) throws Exception {
+		this.name = username;
 		initialize(zoneSize, mineCount, shipCount);
 	}
 
@@ -77,29 +80,35 @@ public abstract class Player {
 		return zone;
 	}
 	
-	public abstract boolean shot(Ship ship);
+	public boolean isGameOver() {
+		LinkedList<Ship> lst = new LinkedList<>(ships);
+		for (Ship ship : lst) {
+			if (ship.getState() == Ship.DEAD_STATE) {
+				ships.remove(ship);
+			}
+		}
+		return ships.isEmpty();
+	}
 	
-	public abstract void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException;
+	public String getName() {
+		return name;
+	}
 	
 	protected void RandomMove() {
-		//TODO cnahge to enum
-		int[] direction = {Ship.DIRECTION_UP, Ship.DIRECTION_RIGHT, Ship.DIRECTION_DOWN, Ship.DIRECTION_LEFT};
 		Random rnd = new Random();
 		for (Ship ship : ships) {
 			while (true) {
 				try {
-					//System.out.println(ship.getClass().getSimpleName() + "; size = " + ship.getSize());
 					int x = rnd.nextInt(zone.getSize());
 					int y = rnd.nextInt(zone.getSize());
-					int d = rnd.nextInt(direction.length);
-					ship.move(zone, zone.getField(x, y), direction[d]);
+					int d = rnd.nextInt(Direction.values().length);
+					ship.move(zone, zone.getField(x, y), Direction.values()[d]);
 					break;
 				} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
 					//System.err.println(e.getMessage());
 					//System.err.println("Try again");
 				}
 			}
-			//System.out.println(ship.getClass().getSimpleName() + " move success!!");
 		}
 		
 		for (Mine mine : mines) {
@@ -115,16 +124,10 @@ public abstract class Player {
 		}
 	}
 	
-	public abstract Ship getShip();
-
-	public boolean isGameOver() {
-		LinkedList<Ship> lst = new LinkedList<>(ships);
-		for (Ship ship : lst) {
-			if (ship.getState() == Ship.DEAD_STATE) {
-				ships.remove(ship);
-			}
-		}
-		return ships.isEmpty();
-	}
 	
+	public abstract boolean shot(Ship ship);
+	
+	public abstract void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException;
+	
+	public abstract Ship getShip();
 }

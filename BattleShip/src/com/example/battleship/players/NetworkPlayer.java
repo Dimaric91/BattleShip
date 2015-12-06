@@ -4,8 +4,8 @@ import com.example.battleship.ships.Ship;
 
 public class NetworkPlayer extends Player {
 
-	public NetworkPlayer() throws Exception {
-		super();
+	public NetworkPlayer(String name) throws Exception {
+		super(name);
 	}
 
 	@Override

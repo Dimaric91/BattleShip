@@ -9,6 +9,7 @@ import java.util.Random;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
+import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.ships.Ship;
 
 public class AIPlayer extends Player {
@@ -18,12 +19,12 @@ public class AIPlayer extends Player {
 	private Direction direction;
 	private Field currentShot;
 	
-	public AIPlayer() throws Exception {
-		super();
+	public AIPlayer(String name) throws Exception {
+		super(name);
 	}
 
-	public AIPlayer(int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		super(zoneSize, mineCount, shipCount);
+	public AIPlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
+		super(name, zoneSize, mineCount, shipCount);
 		RandomMove();
 	}
 
@@ -51,13 +52,21 @@ public class AIPlayer extends Player {
 		}
 		
 		if (firstShotField != null) {
-			currentShot = enemy.getZone().getField(currentShot, direction);
+			try {
+				currentShot = enemy.getZone().getField(currentShot, direction);
+			} catch (FieldNotFoundException e) {
+				currentShot = null;
+			}
 			if (currentShot == null || !listOfNextShots.remove(currentShot)) { 
 				ArrayList<Direction> directions = new ArrayList<>(Arrays.asList(Direction.values()));
 				Iterator<Direction> dirIt = directions.iterator();
 				while(dirIt.hasNext()) {
 					direction = dirIt.next();
-					currentShot = enemy.getZone().getField(firstShotField, direction);
+					try {
+						currentShot = enemy.getZone().getField(firstShotField, direction);
+					} catch (FieldNotFoundException e) {
+						currentShot = null;
+					}
 					if (listOfNextShots.remove(currentShot)) {
 						break;
 					}

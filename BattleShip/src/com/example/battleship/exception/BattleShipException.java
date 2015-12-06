@@ -1,5 +1,6 @@
 package com.example.battleship.exception;
 
+@SuppressWarnings("serial")
 public class BattleShipException extends Exception {
 
 	public BattleShipException() {

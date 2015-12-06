@@ -81,7 +81,7 @@ public class Field {
     	return state.toString();
     }
     
-    public String toEnemy() {
+    public String forEnemy() {
     	switch(state) {
     		case EMPTY_STATE:
     		case MINE_STATE:

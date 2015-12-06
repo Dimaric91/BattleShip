@@ -1,9 +1,5 @@
 package com.example.battleship.players;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Random;
 import java.util.Scanner;
 
 import com.example.battleship.Mine;
@@ -11,54 +7,56 @@ import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
-import com.example.battleship.Field;
+import com.example.battleship.Direction;
 
 public class LocalPlayer extends Player {
 	
 	
-	public LocalPlayer() throws Exception {
-		super();
+	public LocalPlayer(String name) throws Exception {
+		super(name);
 		//TODO Exception O_o ?!!!!
 		//System.out.println(zone);
 		//firstMove();
 		RandomMove();
 	}
 
-	public LocalPlayer(int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		super(zoneSize, mineCount, shipCount);
+	public LocalPlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
+		super(name, zoneSize, mineCount, shipCount);
 		RandomMove();
+		//firstMove();
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int[] shipCount = {1, 1, 1, 1};
-		int zoneSize = 7;
-		Player player1 = new LocalPlayer(zoneSize, 1, shipCount);
-		Player player2 = new AIPlayer(zoneSize, 1, shipCount);
+		int[] shipCount = {0, 2, 0, 0};
+		int zoneSize = 6;
+		Player player1 = new LocalPlayer("player1", zoneSize, 1, shipCount);
+		Player player2 = new AIPlayer("player2", zoneSize, 1, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		
-		/*
+		
 		Scanner scan = new Scanner(System.in);
-		while (scan.nextInt() == 1) {
+		do {
 			player2.shot(player2.getShip());
-			//System.out.println("AI zone:");
-			//System.out.println("========");
-			//System.out.println(player2.getZone());
+			System.out.println("AI zone:");
+			System.out.println("========");
+			System.out.println(player2.getZone());
 			System.out.println("YOUR zone:");
 			System.out.println("========");
 			System.out.println(player2.getEnemy().getZone());
 			if(player1.isGameOver()) {
 				System.out.println("AI WIN!!!");
+				break;
 			}
-		}
-		*/
+		} while (scan.nextInt() == 1);
 		
-		 
+		
+		/* 
 		Player current = player1;
 		
 		while (true) {
 			do {
-				if (current instanceof Player) {
+				if (current instanceof LocalPlayer) {
 					System.out.println("YOUR zone:");
 					System.out.println("========");
 					System.out.println(current.getZone());
@@ -67,14 +65,20 @@ public class LocalPlayer extends Player {
 					System.out.println(current.enemy.getZone().forEnemy());
 				}
 				if (current.enemy.isGameOver()) {
-					System.out.println(current + " WIN!!!!");
+					System.out.println(current.getName() + " WIN!!!!");
+					System.out.println(player1.getName() + " zone:");
+					System.out.println("========");
+					System.out.println(player1.getZone());
+					System.out.println(player2.getName() + " zone:");
+					System.out.println("========");
+					System.out.println(player2.getZone());
 					return;
 				}
 			} while (current.shot(current.getShip()));
 			current = current.enemy;
 		}
-		
-		/*while (true) {
+		/*
+		while (true) {
 			try {
 				player1.move(player1.getShip());
 				System.out.println(player1.getZone());
@@ -88,26 +92,25 @@ public class LocalPlayer extends Player {
 	}
 
 	private void firstMove() {
+		Scanner scan = new Scanner(System.in);
 		for (Ship ship : ships) {
+				System.out.println("Game Zone:\n" + zone);
 				while (true) {
-					try (Scanner scan = new Scanner(System.in)) {
-						System.out.println(ship.getClass().getSimpleName() + "; size = " + ship.getSize());
-						int x = scan.nextInt();
-						int y = scan.nextInt();
-						int direction = scan.nextInt();
-						ship.move(zone, zone.getField(x, y), direction);
+					try {
+						move(ship);
 						break;
-					} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
+					} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException | ArrayIndexOutOfBoundsException e) {
 						System.err.println(e.getMessage());
 						System.err.println("Try again");
 					}
 				}
-				System.out.println(ship.getClass().getSimpleName() + " move success!!");
+				//System.out.println(ship.getClass().getSimpleName() + " move success!!");
 		}
 		System.out.println("Placing mines. Mine count = " + mines.size());
 		for (Mine mine : mines) {
+			System.out.println("Game Zone:\n" + zone);
 			while (true) {
-				try (Scanner scan = new Scanner(System.in)){
+				try {
 					int x = scan.nextInt();
 					int y = scan.nextInt();
 					mine.move(zone.getField(x, y));
@@ -143,9 +146,13 @@ public class LocalPlayer extends Player {
 		int x = scan.nextInt();
 		System.out.print("y = ");
 		int y = scan.nextInt();
+		System.out.println("Input directions:");
+		for (Direction d : Direction.values()) {
+			System.out.println(d.ordinal() + " - " + d);
+		}
 		System.out.print("direction = ");
-		int dir = scan.nextInt();
-		ship.move(zone, zone.getField(x, y), dir);
+		int d = scan.nextInt();
+		ship.move(zone, zone.getField(x, y), Direction.values()[d]);
 	}
 
 	@Override
