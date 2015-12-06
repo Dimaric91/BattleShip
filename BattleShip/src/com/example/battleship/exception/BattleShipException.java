@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.exception;
 
 public class BattleShipException extends Exception {
 

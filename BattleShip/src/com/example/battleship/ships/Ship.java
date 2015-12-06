@@ -6,12 +6,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import com.example.battleship.FieldNotFound;
 import com.example.battleship.FieldState;
 import com.example.battleship.GameZone;
-import com.example.battleship.MissingFields;
 import com.example.battleship.SeaObject;
-import com.example.battleship.ShipIsHitted;
+import com.example.battleship.exception.FieldNotFoundException;
+import com.example.battleship.exception.MissingFieldsException;
+import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.Field;
 
 public abstract class Ship extends SeaObject {
@@ -36,9 +36,9 @@ public abstract class Ship extends SeaObject {
 		this.size = size;
 	}
 	
-	public void move(GameZone zone, List<Field> fields) throws MissingFields {
+	public void move(GameZone zone, List<Field> fields) throws MissingFieldsException {
 		if (fields.size() != size){
-			throw new MissingFields();
+			throw new MissingFieldsException();
 		}
 		// TODO Fields in line????
 		if (this.fields != null) {
@@ -53,7 +53,7 @@ public abstract class Ship extends SeaObject {
 		this.neighboirs = zone.getNeighbors(fields);
 	}
 	
-	public void move(GameZone zone, Field head, int direction) throws FieldNotFound, MissingFields, ShipIsHitted {
+	public void move(GameZone zone, Field head, int direction) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {
 		ArrayList<Field> lst = new ArrayList<>();
 		for (int i = 0, x = head.getX(), y = head.getY(); i < size; i++, x += direction / 2, 
 				y += direction % 2) {
@@ -71,10 +71,10 @@ public abstract class Ship extends SeaObject {
 			}
 		}
 		if (state != ALIVE_STATE) {
-			throw new ShipIsHitted(this.toString() + " is hitted");
+			throw new ShipIsHittedException(this.toString() + " is hitted");
 		}
 		if (!zone.isMove(freeFields,freeNeighbors)) {
-			throw new MissingFields("Fields is busy");
+			throw new MissingFieldsException("Fields is busy");
 		} 
 		this.move(zone, lst);
 	}

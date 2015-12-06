@@ -6,10 +6,10 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 
-import com.example.battleship.FieldNotFound;
 import com.example.battleship.Mine;
-import com.example.battleship.MissingFields;
-import com.example.battleship.ShipIsHitted;
+import com.example.battleship.exception.FieldNotFoundException;
+import com.example.battleship.exception.MissingFieldsException;
+import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
 import com.example.battleship.Field;
 
@@ -97,7 +97,7 @@ public class LocalPlayer extends Player {
 						int direction = scan.nextInt();
 						ship.move(zone, zone.getField(x, y), direction);
 						break;
-					} catch (FieldNotFound | MissingFields | ShipIsHitted e) {
+					} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
 						System.err.println(e.getMessage());
 						System.err.println("Try again");
 					}
@@ -112,7 +112,7 @@ public class LocalPlayer extends Player {
 					int y = scan.nextInt();
 					mine.move(zone.getField(x, y));
 					break;
-				} catch (MissingFields | FieldNotFound e) {
+				} catch (MissingFieldsException | FieldNotFoundException e) {
 					System.err.println(e.getMessage());
 					System.err.println("Try again");
 				}
@@ -130,14 +130,14 @@ public class LocalPlayer extends Player {
 			int y = scan.nextInt();
 			try {
 				return enemy.getZone().getField(x, y).shotOnField(ship);
-			} catch (FieldNotFound e) {
+			} catch (FieldNotFoundException e) {
 				System.out.println(e.getMessage());
 			}
 		}
 	}
 
 	@Override
-	public void move(Ship ship) throws FieldNotFound, MissingFields, ShipIsHitted {
+	public void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {
 		Scanner scan = new Scanner(System.in);
 		System.out.print("x = ");
 		int x = scan.nextInt();

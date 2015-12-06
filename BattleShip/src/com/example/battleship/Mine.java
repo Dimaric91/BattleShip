@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.example.battleship.Field;
+import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.ships.Ship;
 
 public class Mine extends SeaObject {
@@ -25,9 +26,9 @@ public class Mine extends SeaObject {
 		}
 	}
 	
-	public void move(Field field) throws MissingFields {
+	public void move(Field field) throws MissingFieldsException {
 		if (field.getState() != FieldState.EMPTY_STATE) {
-			throw new MissingFields("Field is busy");
+			throw new MissingFieldsException("Field is busy");
 		}
 		if (fields == null) {
 			fields = new LinkedList<>();

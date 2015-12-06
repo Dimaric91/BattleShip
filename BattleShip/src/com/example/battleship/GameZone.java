@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.example.battleship.Field;
+import com.example.battleship.exception.FieldNotFoundException;
 
 public class GameZone {
 	private Field[][] fields;
@@ -27,9 +28,9 @@ public class GameZone {
 		return fields;
 	}
 	
-	public Field getField(int x, int y) throws FieldNotFound {
+	public Field getField(int x, int y) throws FieldNotFoundException {
 		if(x < 0 || x >= fields.length || y < 0 || y >= fields.length) {
-			throw new FieldNotFound("Field on " + x + ", " + y + " not found");
+			throw new FieldNotFoundException("Field on " + x + ", " + y + " not found");
 		} 
 		return fields[x][y];
 	}
@@ -39,7 +40,7 @@ public class GameZone {
 		int y = start.getY() + direction.getValue() % 2;
 		try {
 			return getField(x, y);
-		} catch (FieldNotFound e) {
+		} catch (FieldNotFoundException e) {
 			return null;
 		}
 	}
@@ -65,7 +66,7 @@ public class GameZone {
 				for (int j = field.getY() - 1; j <= field.getY() + 1; j++) {
 						try {
 							lst.add(getField(i, j));
-						} catch (FieldNotFound e) {
+						} catch (FieldNotFoundException e) {
 						}
 				}
 			}
