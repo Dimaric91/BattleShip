@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.players;
 
 import java.util.Random;
 
@@ -14,14 +14,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.example.battleship.Field;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
-import com.example.battleship.players.AIPlayer;
-import com.example.battleship.players.LocalConsolePlayer;
-import com.example.battleship.players.Player;
 import com.example.battleship.ships.Ship;
 
 public class LocalGUIPlayer extends Player {
@@ -51,12 +50,12 @@ public class LocalGUIPlayer extends Player {
 		shell.setLayout(layout);
 		shell.setText("BattleShip! " + getName() + " move...");
 		
-		Canvas can1 = new Canvas(shell, SWT.BORDER);
-		can1.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
-		Canvas can2 = new Canvas(shell, SWT.BORDER);
-		can2.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
+		ourZone = new Canvas(shell, SWT.BORDER);
+		ourZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
+		enemyZone = new Canvas(shell, SWT.BORDER);
+		enemyZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
 		
-		can2.addMouseListener(new MouseAdapter() {
+		enemyZone.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				//can.redraw();
@@ -68,15 +67,20 @@ public class LocalGUIPlayer extends Player {
 					} catch (FieldNotFoundException e1) {
 						e1.printStackTrace();
 					}
-					can2.redraw();
-					can1.redraw();
-				} else {
-					can2.redraw();
+					enemyZone.redraw();
+					ourZone.redraw();
+					if (getEnemy().isGameOver()) {
+						MessageBox message = new MessageBox(shell);
+						message.setMessage(getName() + " win!");
+						message.setText(getName() + "win");
+						message.open();
+						dispose();
+					}
 				}
 			}
 		});
 		
-		can2.addPaintListener(new PaintListener() {
+		enemyZone.addPaintListener(new PaintListener() {
 			
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -84,7 +88,7 @@ public class LocalGUIPlayer extends Player {
 			}
 		});
 		
-		can1.addPaintListener(new PaintListener() {
+		ourZone.addPaintListener(new PaintListener() {
 			
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -112,8 +116,8 @@ public class LocalGUIPlayer extends Player {
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {1, 2, 3, 4};
 		int zoneSize = 10;
-		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 2, shipCount);
-		AIPlayer player2 = new AIPlayer("player2", zoneSize, 2, shipCount);
+		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 0, shipCount);
+		AIPlayer player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		

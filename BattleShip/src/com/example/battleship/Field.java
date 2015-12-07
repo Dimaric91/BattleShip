@@ -27,21 +27,22 @@ public class Field {
 		case PADDED_SHIP_STATE:
 		case KILLED_SHIP_STATE:
 			return true;
-		}
-    	if (obj != null) {
-	    	if (obj instanceof Ship) {
-	    		state = FieldState.PADDED_SHIP_STATE;
-	    		obj.shotOnObject(ship);
-	    		return true;
-	    	} 
-	    	if (obj instanceof Mine){
-	    		state = FieldState.KILLED_MINE_STATE;
-	    		obj.shotOnObject(ship);
-	    	} 
-    	} else {
-    		state = FieldState.CHECKED_FIELD_STATE;		
+		default:
+	    	if (obj != null) {
+		    	if (obj instanceof Ship) {
+		    		state = FieldState.PADDED_SHIP_STATE;
+		    		obj.shotOnObject(ship);
+		    		return true;
+		    	} 
+		    	if (obj instanceof Mine){
+		    		state = FieldState.KILLED_MINE_STATE;
+		    		obj.shotOnObject(ship);
+		    	} 
+	    	} else {
+	    		state = FieldState.CHECKED_FIELD_STATE;		
+	    	}
+	    	return false;
     	}
-    	return false;
     }
 
     public FieldState getState(boolean isEnemy) {
