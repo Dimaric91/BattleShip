@@ -33,16 +33,16 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private int shotX = -1;
 	private int shotY = -1;
 	
-	public LocalGUIPlayer(String username) throws Exception {
+	public LocalGUIPlayer(Display disp, String username) throws Exception {
 		super(username);
 		RandomMove();
-		this.disp = new Display();
+		this.disp = disp;
 		this.shell = createShell(this.disp);
 	}
-	public LocalGUIPlayer(String username, int zoneSize, int mineCount, int[] shipCount) throws Exception {
+	public LocalGUIPlayer(Display disp, String username, int zoneSize, int mineCount, int[] shipCount) throws Exception {
 		super(username, zoneSize, mineCount, shipCount);
 		RandomMove();
-		this.disp = new Display();
+		this.disp = disp;
 		this.shell = createShell(this.disp);
 	}
 
@@ -116,7 +116,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		return disp;
 	}
 	
-	public static void main(String[] args) throws Exception {
+	/*public static void main(String[] args) throws Exception {
 		int[] shipCount = {1, 2, 3, 4};
 		int zoneSize = 10;
 		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 0, shipCount);
@@ -125,7 +125,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		player2.setEnemy(player1);
 		
 		player1.run();
-	}
+	}*/
 
 	private void drawRectangle(GC gc, Color color, int x, int y) {
 		gc.setBackground(color);
