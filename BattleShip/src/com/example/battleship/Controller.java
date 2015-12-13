@@ -1,6 +1,9 @@
 package com.example.battleship;
 
+import org.eclipse.swt.widgets.MessageBox;
+
 import com.example.battleship.players.AIPlayer;
+import com.example.battleship.players.LocalConsolePlayer;
 import com.example.battleship.players.LocalGUIPlayer;
 import com.example.battleship.players.Player;
 
@@ -17,13 +20,46 @@ public class Controller implements Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int[] shipCount = {1, 2, 3, 4};
-		int zoneSize = 10;
-		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 2, shipCount);
-		AIPlayer player2 = new AIPlayer("player2", zoneSize, 2, shipCount);
+		int[] shipCount = {1, 1, 0, 0};
+		int zoneSize = 6;
+		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 0, shipCount);
+		AIPlayer player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
 		
 		Controller c = new Controller(player1, player2);
 		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Player current = player1;
+				while (true) {
+					while (current.shot(current.getShip())) {
+						player1.getDisp().asyncExec(player1);
+						if (current.getEnemy().isGameOver()) {
+							String winner = current.getName();
+							player1.getDisp().syncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									player1.run();
+									MessageBox message = new MessageBox(player1.getDisp().getActiveShell());
+									message.setMessage(winner + " win!");
+									message.setText(winner + "win");
+									message.open();
+									player1.dispose();
+								}
+							});
+							return;
+						}
+					} 
+					current = current.getEnemy();
+					player1.getDisp().asyncExec(player1);
+				}
+				
+			}
+		}).start();
+		
+		player1.start();
 	}
 
 	@Override

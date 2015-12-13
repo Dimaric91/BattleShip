@@ -1,5 +1,6 @@
 package com.example.battleship.players;
 
+import com.example.battleship.Field;
 import com.example.battleship.ships.Ship;
 
 public class NetworkPlayer extends Player {

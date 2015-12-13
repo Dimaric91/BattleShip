@@ -9,6 +9,7 @@ import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
 import com.example.battleship.Direction;
+import com.example.battleship.Field;
 
 public class LocalConsolePlayer extends Player {
 	

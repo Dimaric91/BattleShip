@@ -23,12 +23,15 @@ import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
 
-public class LocalGUIPlayer extends Player {
+public class LocalGUIPlayer extends Player implements Runnable{
 
 	private Display disp;
 	private Shell shell;
 	private Canvas ourZone;
 	private Canvas enemyZone;
+	
+	private int shotX = -1;
+	private int shotY = -1;
 	
 	public LocalGUIPlayer(String username) throws Exception {
 		super(username);
@@ -43,6 +46,11 @@ public class LocalGUIPlayer extends Player {
 		this.shell = createShell(this.disp);
 	}
 
+	public void redraw() {
+		ourZone.redraw();
+		enemyZone.redraw();
+	}
+	
 	private Shell createShell(Display disp) {
 		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
 		GridLayout layout = new GridLayout(2, false);
@@ -60,22 +68,8 @@ public class LocalGUIPlayer extends Player {
 			public void mouseDown(MouseEvent e) {
 				//can.redraw();
 				if (e.button == 1) {
-					int x = e.x / 25;
-					int y = e.y / 25;
-					try {
-						getEnemy().getZone().getField(x, y).shotOnField(getShip());
-					} catch (FieldNotFoundException e1) {
-						e1.printStackTrace();
-					}
-					enemyZone.redraw();
-					ourZone.redraw();
-					if (getEnemy().isGameOver()) {
-						MessageBox message = new MessageBox(shell);
-						message.setMessage(getName() + " win!");
-						message.setText(getName() + "win");
-						message.open();
-						dispose();
-					}
+					shotX = e.x / 25;
+					shotY = e.y / 25;
 				}
 			}
 		});
@@ -106,12 +100,21 @@ public class LocalGUIPlayer extends Player {
 				disp.sleep();
 			}
 		}
+		dispose();	
 	}
-
+	
+	@Override
+	public void run() {
+		redraw();
+	}
+	
 	public void dispose() {
 		disp.dispose();
 	}
 
+	public Display getDisp() {
+		return disp;
+	}
 	
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {1, 2, 3, 4};
@@ -121,8 +124,7 @@ public class LocalGUIPlayer extends Player {
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		
-		player1.start();
-		player1.dispose();
+		player1.run();
 	}
 
 	private void drawRectangle(GC gc, Color color, int x, int y) {
@@ -169,8 +171,24 @@ public class LocalGUIPlayer extends Player {
 
 	@Override
 	public boolean shot(Ship ship) {
-		// TODO Auto-generated method stub
-		return false;
+		while (true) {
+			boolean ret;
+			while(shotX == -1 && shotY == -1) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
+		
+			try {
+				ret = enemy.getZone().getField(shotX, shotY).shotOnField(ship);
+				return ret;
+			} catch (FieldNotFoundException e) {
+			} finally {
+				shotX = -1;
+				shotY = -1;
+			}
+		}
 	}
 
 	@Override
