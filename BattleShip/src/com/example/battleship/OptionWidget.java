@@ -1,5 +1,9 @@
 package com.example.battleship;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Properties;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -14,6 +18,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 
 public class OptionWidget {
 	private Display disp;
@@ -39,22 +44,35 @@ public class OptionWidget {
 	private Button loadButton;
 	private Button applyButton;
 	
-	private int fieldSize;
-	private boolean isRandom;
-	private int[] ships;
-	private int mine;
+	private Properties options;
+	private Group userGroup;
+	private Label userLabel;
+	private Text userText;
 	
 	public OptionWidget(Display disp) {
 		this.disp = disp;
 		this.shell = createShell(disp);
+		this.options = new Properties();
 	}
 
 	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
+		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
 		shell.setText("BattleShip -> Option");
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
 		layout.horizontalSpacing = 8;
+		
+		userGroup = new Group(shell, SWT.NONE);
+		userGroup.setText("Имя пользователя");
+		userGroup.setLayout(new GridLayout(2, false));
+		userGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		userLabel = new Label(userGroup, SWT.NONE);
+		userLabel.setText("Имя пользователя = ");
+		userLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		
+		userText = new Text(userGroup, SWT.BORDER);
+		userText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		
 		sizeFieldGroup = new Group(shell, SWT.NONE);
 		sizeFieldGroup.setLayout(new GridLayout(2, false));
@@ -73,9 +91,7 @@ public class OptionWidget {
 	
 		randomButton = new Button(sizeFieldGroup, SWT.CHECK);
 		randomButton.setText("Случайное расположение кораблей?");
-		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
-		gd.horizontalSpan = 2;
-		randomButton.setLayoutData(gd);
+		randomButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 ,1));
 		
 		randomButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -122,7 +138,7 @@ public class OptionWidget {
 		cruiserCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		destroyerLabel = new Label(countGroup, SWT.NONE);
-		destroyerLabel.setText("Количество крейсеров = ");
+		destroyerLabel.setText("Количество эсминцев = ");
 		destroyerLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		destroyerCount = new Spinner(countGroup, SWT.READ_ONLY);
@@ -133,9 +149,7 @@ public class OptionWidget {
 		
 		mineUseButton = new Button(countGroup, SWT.CHECK);
 		mineUseButton.setText("Использовать мины?");
-		gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
-		gd.horizontalSpan = 2;
-		mineUseButton.setLayoutData(gd);
+		mineUseButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 , 1));
 		
 		mineUseButton.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -177,18 +191,7 @@ public class OptionWidget {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
-					fieldSize = sizeCount.getSelection();
-					isRandom = randomButton.getSelection();
-					ships = new int[4];
-					ships[0] = aerocarierCount.getSelection();
-					ships[1] = battleshipCount.getSelection();
-					ships[2] = cruiserCount.getSelection();
-					ships[3] = destroyerCount.getSelection();
-					if (mineUseButton.getSelection()) {
-						mine = mineCount.getSelection();
-					} else {
-						mine = 0;
-					}
+					readOptions();
 					disposeShell();
 				}
 			}
@@ -230,24 +233,37 @@ public class OptionWidget {
 		shell.dispose();
 	}
 	
-	public int getFieldSize() {
-		return fieldSize;
-	}
-	
-	public boolean isRandom() {
-		return isRandom;
-	}
-	
-	public int[] getShips() {
-		return ships;
-	}
-	
-	public int getMine() {
-		return mine;
-	}
-	
 	public static void main(String[] args) {
 		OptionWidget opt = new OptionWidget(new Display());
 		opt.start();
+	}
+	
+	private void readOptions() {
+		options.setProperty("username", userText.getText());
+		options.setProperty("fieldSize", Integer.toString(sizeCount.getSelection()));
+		options.setProperty("isRandom", Boolean.toString(randomButton.getSelection()));
+		
+		options.setProperty("aerocarierCount", Integer.toString(aerocarierCount.getSelection()));
+		options.setProperty("battleshipCount", Integer.toString(battleshipCount.getSelection()));
+		options.setProperty("cruiserCount", Integer.toString(cruiserCount.getSelection()));
+		options.setProperty("destroyerCount", Integer.toString(destroyerCount.getSelection()));
+		
+		if (mineUseButton.getSelection()) {
+			options.setProperty("mineCount", Integer.toString(mineCount.getSelection()));
+		} else {
+			options.setProperty("mineCount", "0");
+		}
+	}
+	
+	public void validateOptions() {
+		if (options.isEmpty()) {
+			return;
+		}
+		
+		
+	}
+	
+	public Properties getOptions() {
+		return options;
 	}
 }

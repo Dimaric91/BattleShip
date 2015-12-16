@@ -1,5 +1,6 @@
 package com.example.battleship.players;
 
+import java.util.Properties;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -14,25 +15,19 @@ import com.example.battleship.Field;
 public class LocalConsolePlayer extends Player {
 	
 	
-	public LocalConsolePlayer(String name) throws Exception {
-		super(name);
-		//TODO Exception O_o ?!!!!
-		//System.out.println(zone);
-		//firstMove();
-		RandomMove();
-	}
 
-	public LocalConsolePlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		super(name, zoneSize, mineCount, shipCount);
+	public LocalConsolePlayer(String name, Properties property) {
+		super(name, property);
 		RandomMove();
 		//firstMove();
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		int[] shipCount = {0, 3, 0, 0};
 		int zoneSize = 6;
-		Player player1 = new LocalConsolePlayer("player1", zoneSize, 0, shipCount);
-		Player player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
+		//!!!!!
+		Player player1 = new LocalConsolePlayer("player1", new Properties());
+		Player player2 = new AIPlayer("player2", new Properties());
 		player1.setEnemy(player2);
 		player2.setEnemy(player1);
 		

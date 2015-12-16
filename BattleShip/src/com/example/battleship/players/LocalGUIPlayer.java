@@ -1,5 +1,6 @@
 package com.example.battleship.players;
 
+import java.util.Properties;
 import java.util.Random;
 
 import org.eclipse.swt.SWT;
@@ -14,6 +15,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,17 +35,11 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private int shotX = -1;
 	private int shotY = -1;
 	
-	public LocalGUIPlayer(Display disp, String username) throws Exception {
-		super(username);
+	public LocalGUIPlayer(Display disp, String username, Properties property) {
+		super(username, property);
 		RandomMove();
 		this.disp = disp;
-		this.shell = createShell(this.disp);
-	}
-	public LocalGUIPlayer(Display disp, String username, int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		super(username, zoneSize, mineCount, shipCount);
-		RandomMove();
-		this.disp = disp;
-		this.shell = createShell(this.disp);
+		//this.shell = createShell(this.disp);
 	}
 
 	public void redraw() {
@@ -52,15 +48,22 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	}
 	
 	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
+		Shell shell = new Shell(disp, SWT.DIALOG_TRIM);
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
 		shell.setText("BattleShip! " + getName() + " move...");
 		
-		ourZone = new Canvas(shell, SWT.BORDER);
+		Group ourGroup = new Group(shell, SWT.NONE);
+		ourGroup.setText(getName() + " ships");
+		ourGroup.setLayout(new GridLayout());
+		Group enemyGroup = new Group(shell, SWT.NONE);
+		enemyGroup.setText(getEnemy().getName() + " ships");
+		enemyGroup.setLayout(new GridLayout());
+		
+		ourZone = new Canvas(ourGroup, SWT.BORDER);
 		ourZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
-		enemyZone = new Canvas(shell, SWT.BORDER);
+		enemyZone = new Canvas(enemyGroup, SWT.BORDER);
 		enemyZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
 		
 		enemyZone.addMouseListener(new MouseAdapter() {
@@ -94,6 +97,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	}
 	
 	public void start() {
+		shell = createShell(disp);
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!disp.readAndDispatch()) {

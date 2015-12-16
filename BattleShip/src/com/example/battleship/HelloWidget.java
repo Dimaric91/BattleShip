@@ -1,6 +1,8 @@
 package com.example.battleship;
 
 
+import java.util.Properties;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -24,17 +26,15 @@ public class HelloWidget {
 	private Button networkButton;
 	private Button optionsButton;
 	
-	private int optFieldSize;
-	private boolean isRandom;
-	private int[] optShipCount;
-	private int optMineCount;
-	
+	private Properties optProperty;
 	private boolean isSetOption;
+	private boolean isNetwork;
 	
 	public HelloWidget(Display disp) {
 		this.disp = disp;
 		this.shell = createShell(this.disp);
 		isSetOption = false;
+		isNetwork = false;
 	}
 
 	private Shell createShell(Display disp) {
@@ -63,8 +63,8 @@ public class HelloWidget {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
-					if (!isSetOption) {
-						startOptions();
+					if (!isSetOption()) {
+						StartOptionWidget();
 					}
 					disposeShell();
 				}
@@ -88,7 +88,7 @@ public class HelloWidget {
 		optionsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				startOptions();
+				StartOptionWidget();
 			}
 		});
 		
@@ -97,14 +97,10 @@ public class HelloWidget {
 		return shell;
 	}
 	
-	private void startOptions() {
+	private void StartOptionWidget() {
 		OptionWidget option = new OptionWidget(disp);
 		option.start();
-		optFieldSize = option.getFieldSize();
-		optShipCount = option.getShips();
-		isRandom = option.isRandom();
-		optMineCount = option.getMine();
-		isSetOption = true;
+		optProperty = option.getOptions();
 	}
 	
 	public void start() {
@@ -125,23 +121,11 @@ public class HelloWidget {
 		shell.dispose();
 	}
 	
-	public int getOptFieldSize() {
-		return optFieldSize;
-	}
-	
-	public int getOptMineCount() {
-		return optMineCount;
-	}
-	
-	public boolean isRandom() {
-		return isRandom;
-	}
-	
-	public int[] getOptShipCount() {
-		return optShipCount;
-	}
-	
 	public boolean isSetOption() {
-		return isSetOption;
+		return (optProperty != null) && !optProperty.isEmpty();
+	}
+	
+	public Properties getOptions() {
+		return optProperty;
 	}
 }

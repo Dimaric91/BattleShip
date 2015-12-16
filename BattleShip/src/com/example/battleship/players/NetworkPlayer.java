@@ -1,14 +1,16 @@
 package com.example.battleship.players;
 
+import java.util.Properties;
+
 import com.example.battleship.Field;
 import com.example.battleship.ships.Ship;
 
 public class NetworkPlayer extends Player {
 
-	public NetworkPlayer(String name) throws Exception {
-		super(name);
+	public NetworkPlayer(String username, Properties property) {
+		super(username, property);
 	}
-
+	
 	@Override
 	public boolean shot(Ship ship) {
 		return false;

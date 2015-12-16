@@ -2,6 +2,7 @@ package com.example.battleship.players;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 
 import com.example.battleship.Direction;
@@ -23,47 +24,33 @@ public abstract class Player {
 	protected List<Ship> ships;
 	protected Player enemy;
 	
-	public Player(String username) throws Exception {
-		this(username, 10);
-	}
-	
-	public Player(String username, int zoneSize) throws Exception {
+	public Player(String username, Properties property) {
 		this.name = username;
-		int[] shipCount = {1, 2, 3, 4};
-		initialize(zoneSize, 2, shipCount);
-	}
-	
-	public Player(String username, int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		this.name = username;
-		initialize(zoneSize, mineCount, shipCount);
+		initialize(property);
 	}
 
-	protected void initialize(int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		zone = new GameZone(zoneSize);
+	protected void initialize(Properties property) {
+		zone = new GameZone(Integer.parseInt(property.getProperty("fieldSize")));
 		mines = new LinkedList<>();
 		ships = new LinkedList<>();
 		
-		if ( shipCount.length != 4 ) {
-			throw new Exception("Invalid shipCount");
-		}
-		
-		for (int i = 0; i < shipCount[0]; i++) {
+		for (int i = 0; i < Integer.parseInt(property.getProperty("aerocarierCount")); i++) {
 			ships.add(new Aerocarrier(4));
 		}
 		
-		for (int i = 0; i < shipCount[1]; i++) {
+		for (int i = 0; i < Integer.parseInt(property.getProperty("battleshipCount")); i++) {
 			ships.add(new Battleship(3));
 		}
 		
-		for (int i = 0; i < shipCount[2]; i++) {
+		for (int i = 0; i < Integer.parseInt(property.getProperty("cruiserCount")); i++) {
 			ships.add(new Cruiser(2));
 		}
 		
-		for (int i = 0; i < shipCount[3]; i++) {
+		for (int i = 0; i < Integer.parseInt(property.getProperty("destroyerCount")); i++) {
 			ships.add(new Destroyer(1));
 		}
 		
-		for (int i = 0; i < mineCount; i++) {
+		for (int i = 0; i < Integer.parseInt(property.getProperty("mineCount")); i++) {
 			mines.add(new Mine());
 		}
 	}

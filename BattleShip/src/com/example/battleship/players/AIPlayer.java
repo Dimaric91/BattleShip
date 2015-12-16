@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
 import com.example.battleship.Direction;
@@ -22,12 +23,8 @@ public class AIPlayer extends Player {
 	private Direction currentDirection;
 	private Field currentShot;
 	
-	public AIPlayer(String name) throws Exception {
-		super(name);
-	}
-
-	public AIPlayer(String name, int zoneSize, int mineCount, int[] shipCount) throws Exception {
-		super(name, zoneSize, mineCount, shipCount);
+	public AIPlayer(String name, Properties property) {
+		super(name, property);
 		RandomMove();
 	}
 

@@ -1,5 +1,9 @@
 package com.example.battleship;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Properties;
+
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
@@ -24,7 +28,7 @@ public class Controller implements Runnable {
 	
 	public static void main(String[] args) throws Exception {
 		int[] shipCount = {1, 2, 3, 4};
-		int zoneSize = 10;
+		//int zoneSize = 10;
 		Display disp = new Display();
 		HelloWidget hello = new HelloWidget(disp);
 		hello.start();
@@ -32,11 +36,9 @@ public class Controller implements Runnable {
 		if(!hello.isSetOption()) {
 			return;
 		}
-		
-		LocalGUIPlayer player1 = new LocalGUIPlayer(disp, "player1", 
-				hello.getOptFieldSize(), hello.getOptMineCount(), hello.getOptShipCount());
-		AIPlayer player2 = new AIPlayer("player2", 
-				hello.getOptFieldSize(), hello.getOptMineCount(), hello.getOptShipCount());
+
+		LocalGUIPlayer player1 = new LocalGUIPlayer(disp, hello.getOptions().getProperty("username"), hello.getOptions());
+		AIPlayer player2 = new AIPlayer("AI player", hello.getOptions());
 		
 		Controller c = new Controller(disp, player1, player2);
 		
@@ -56,8 +58,8 @@ public class Controller implements Runnable {
 								public void run() {
 									player1.run();
 									MessageBox message = new MessageBox(player1.getDisp().getActiveShell());
-									message.setMessage(winner + " win!");
-									message.setText(winner + "win");
+									message.setMessage("Player " + winner + " win!");
+									message.setText(winner + " win");
 									message.open();
 									player1.dispose();
 								}
