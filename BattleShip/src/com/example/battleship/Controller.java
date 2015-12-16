@@ -75,6 +75,7 @@ public class Controller implements Runnable {
 		}).start();
 		
 		player1.start();
+		disp.dispose();
 	}
 
 	@Override

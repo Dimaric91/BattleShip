@@ -66,7 +66,9 @@ public class HelloWidget {
 					if (!isSetOption()) {
 						StartOptionWidget();
 					}
-					disposeShell();
+					else {
+						disposeShell();
+					}
 				}
 			}
 		});
