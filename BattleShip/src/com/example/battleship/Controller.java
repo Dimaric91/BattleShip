@@ -23,8 +23,8 @@ public class Controller implements Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int[] shipCount = {0, 1, 0, 0};
-		int zoneSize = 5;
+		int[] shipCount = {1, 2, 3, 4};
+		int zoneSize = 10;
 		Display disp = new Display();
 		LocalGUIPlayer player1 = new LocalGUIPlayer(disp, "player1", zoneSize, 0, shipCount);
 		AIPlayer player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
