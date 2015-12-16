@@ -1,7 +1,6 @@
 package com.example.battleship.players;
 
 import java.util.Properties;
-import java.util.Random;
 import java.util.Scanner;
 
 import com.example.battleship.Mine;
@@ -10,7 +9,6 @@ import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Ship;
 import com.example.battleship.Direction;
-import com.example.battleship.Field;
 
 public class LocalConsolePlayer extends Player {
 	
@@ -23,8 +21,6 @@ public class LocalConsolePlayer extends Player {
 	}
 	
 	public static void main(String[] args) {
-		int[] shipCount = {0, 3, 0, 0};
-		int zoneSize = 6;
 		//!!!!!
 		Player player1 = new LocalConsolePlayer("player1", new Properties());
 		Player player2 = new AIPlayer("player2", new Properties());

@@ -1,7 +1,5 @@
 package com.example.battleship;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
@@ -73,6 +71,7 @@ public class OptionWidget {
 		
 		userText = new Text(userGroup, SWT.BORDER);
 		userText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
+		userText.setText(System.getProperty("user.name"));
 		
 		sizeFieldGroup = new Group(shell, SWT.NONE);
 		sizeFieldGroup.setLayout(new GridLayout(2, false));
@@ -86,6 +85,7 @@ public class OptionWidget {
 		sizeCount = new Spinner(sizeFieldGroup, SWT.NONE);
 		sizeCount.setMinimum(0);
 		sizeCount.setMaximum(40);
+		sizeCount.setSelection(10);
 		sizeCount.setIncrement(1);
 		sizeCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 	
@@ -115,6 +115,7 @@ public class OptionWidget {
 		aerocarierCount.setMinimum(0);
 		aerocarierCount.setMaximum(5);
 		aerocarierCount.setIncrement(1);
+		aerocarierCount.setSelection(1);
 		aerocarierCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		battleshipLabel = new Label(countGroup, SWT.NONE);
@@ -125,6 +126,7 @@ public class OptionWidget {
 		battleshipCount.setMinimum(0);
 		battleshipCount.setMaximum(6);
 		battleshipCount.setIncrement(1);
+		battleshipCount.setSelection(1);
 		battleshipCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		cruiserLabel = new Label(countGroup, SWT.NONE);
@@ -135,6 +137,7 @@ public class OptionWidget {
 		cruiserCount.setMinimum(0);
 		cruiserCount.setMaximum(7);
 		cruiserCount.setIncrement(1);
+		cruiserCount.setSelection(2);
 		cruiserCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		destroyerLabel = new Label(countGroup, SWT.NONE);
@@ -145,6 +148,7 @@ public class OptionWidget {
 		destroyerCount.setMinimum(0);
 		destroyerCount.setMaximum(8);
 		destroyerCount.setIncrement(1);
+		destroyerCount.setSelection(3);
 		destroyerCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		mineUseButton = new Button(countGroup, SWT.CHECK);

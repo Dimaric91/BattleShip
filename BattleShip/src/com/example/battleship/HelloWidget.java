@@ -6,12 +6,9 @@ import java.util.Properties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -27,14 +24,9 @@ public class HelloWidget {
 	private Button optionsButton;
 	
 	private Properties optProperty;
-	private boolean isSetOption;
-	private boolean isNetwork;
-	
 	public HelloWidget(Display disp) {
 		this.disp = disp;
 		this.shell = createShell(this.disp);
-		isSetOption = false;
-		isNetwork = false;
 	}
 
 	private Shell createShell(Display disp) {
@@ -66,7 +58,7 @@ public class HelloWidget {
 					if (!isSetOption()) {
 						StartOptionWidget();
 					}
-					else {
+					if (isSetOption()) {
 						disposeShell();
 					}
 				}

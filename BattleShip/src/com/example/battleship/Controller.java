@@ -1,14 +1,9 @@
 package com.example.battleship;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Properties;
-
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
 import com.example.battleship.players.AIPlayer;
-import com.example.battleship.players.LocalConsolePlayer;
 import com.example.battleship.players.LocalGUIPlayer;
 import com.example.battleship.players.Player;
 
@@ -27,8 +22,6 @@ public class Controller implements Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int[] shipCount = {1, 2, 3, 4};
-		//int zoneSize = 10;
 		Display disp = new Display();
 		HelloWidget hello = new HelloWidget(disp);
 		hello.start();
@@ -42,7 +35,7 @@ public class Controller implements Runnable {
 		
 		Controller c = new Controller(disp, player1, player2);
 		
-		new Thread(new Runnable() {
+		Thread game = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -68,14 +61,19 @@ public class Controller implements Runnable {
 						}
 					} 
 					current = current.getEnemy();
+					if(Thread.currentThread().isInterrupted()) {
+						return;
+					}
 					player1.getDisp().asyncExec(player1);
 				}
 				
 			}
-		}).start();
+		});
+		game.start();
 		
 		player1.start();
 		disp.dispose();
+		game.interrupt();
 	}
 
 	@Override

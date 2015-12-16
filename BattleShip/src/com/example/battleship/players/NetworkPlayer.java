@@ -2,7 +2,6 @@ package com.example.battleship.players;
 
 import java.util.Properties;
 
-import com.example.battleship.Field;
 import com.example.battleship.ships.Ship;
 
 public class NetworkPlayer extends Player {

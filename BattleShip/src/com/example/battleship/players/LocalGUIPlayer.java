@@ -10,13 +10,11 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.example.battleship.Field;
@@ -34,6 +32,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	
 	private int shotX = -1;
 	private int shotY = -1;
+	private final int cellSize = 28;
 	
 	public LocalGUIPlayer(Display disp, String username, Properties property) {
 		super(username, property);
@@ -52,7 +51,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
-		shell.setText("BattleShip! " + getName() + " move...");
+		shell.setText("BattleShip! ");
 		
 		Group ourGroup = new Group(shell, SWT.NONE);
 		ourGroup.setText(getName() + " ships");
@@ -62,17 +61,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		enemyGroup.setLayout(new GridLayout());
 		
 		ourZone = new Canvas(ourGroup, SWT.BORDER);
-		ourZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
+		ourZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		enemyZone = new Canvas(enemyGroup, SWT.BORDER);
-		enemyZone.setLayoutData(new GridData(25 * getZone().getSize(), 25 * getZone().getSize()));
+		enemyZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		
 		enemyZone.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				//can.redraw();
 				if (e.button == 1) {
-					shotX = e.x / 25;
-					shotY = e.y / 25;
+					shotX = e.x / cellSize;
+					shotY = e.y / cellSize;
 				}
 			}
 		});
@@ -133,9 +132,9 @@ public class LocalGUIPlayer extends Player implements Runnable{
 
 	private void drawRectangle(GC gc, Color color, int x, int y) {
 		gc.setBackground(color);
-		gc.fillRectangle(x * 25, y * 25, 25, 25);
+		gc.fillRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
 		gc.setForeground(disp.getSystemColor(SWT.COLOR_BLACK));
-		gc.drawRectangle(x * 25, y * 25, 25, 25);
+		gc.drawRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
 	}
 	
 	private void paintFields(PaintEvent e, Field[][] fields, boolean isEnemy) {
@@ -145,7 +144,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				switch (fields[i][j].getState(isEnemy)) {
 				case HIDDEN_STATE:
 				case EMPTY_STATE:
-					e.gc.drawRectangle(i * 25, j * 25, 25, 25);
+					e.gc.drawRectangle(i * cellSize, j * cellSize, cellSize, cellSize);
 					break;
 				case CHECKED_FIELD_STATE:
 					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_BLUE), i, j);
@@ -181,6 +180,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+					return false;
 				}
 			}
 		

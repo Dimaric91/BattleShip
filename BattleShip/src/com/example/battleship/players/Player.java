@@ -35,19 +35,19 @@ public abstract class Player {
 		ships = new LinkedList<>();
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("aerocarierCount")); i++) {
-			ships.add(new Aerocarrier(4));
+			ships.add(new Aerocarrier(5));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("battleshipCount")); i++) {
-			ships.add(new Battleship(3));
+			ships.add(new Battleship(4));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("cruiserCount")); i++) {
-			ships.add(new Cruiser(2));
+			ships.add(new Cruiser(3));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("destroyerCount")); i++) {
-			ships.add(new Destroyer(1));
+			ships.add(new Destroyer(2));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("mineCount")); i++) {
