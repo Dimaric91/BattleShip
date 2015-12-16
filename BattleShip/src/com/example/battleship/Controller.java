@@ -26,8 +26,17 @@ public class Controller implements Runnable {
 		int[] shipCount = {1, 2, 3, 4};
 		int zoneSize = 10;
 		Display disp = new Display();
-		LocalGUIPlayer player1 = new LocalGUIPlayer(disp, "player1", zoneSize, 0, shipCount);
-		AIPlayer player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
+		HelloWidget hello = new HelloWidget(disp);
+		hello.start();
+		
+		if(!hello.isSetOption()) {
+			return;
+		}
+		
+		LocalGUIPlayer player1 = new LocalGUIPlayer(disp, "player1", 
+				hello.getOptFieldSize(), hello.getOptMineCount(), hello.getOptShipCount());
+		AIPlayer player2 = new AIPlayer("player2", 
+				hello.getOptFieldSize(), hello.getOptMineCount(), hello.getOptShipCount());
 		
 		Controller c = new Controller(disp, player1, player2);
 		

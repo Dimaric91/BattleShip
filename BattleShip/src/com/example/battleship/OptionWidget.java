@@ -1,6 +1,8 @@
 package com.example.battleship;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -37,6 +39,11 @@ public class OptionWidget {
 	private Button loadButton;
 	private Button applyButton;
 	
+	private int fieldSize;
+	private boolean isRandom;
+	private int[] ships;
+	private int mine;
+	
 	public OptionWidget(Display disp) {
 		this.disp = disp;
 		this.shell = createShell(disp);
@@ -69,6 +76,13 @@ public class OptionWidget {
 		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
 		gd.horizontalSpan = 2;
 		randomButton.setLayoutData(gd);
+		
+		randomButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				randomButton.setSelection(true);
+			}
+		});
 		
 		randomButton.setSelection(true);
 		
@@ -159,6 +173,41 @@ public class OptionWidget {
 		applyButton.setText("Apply");
 		applyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
+		applyButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 1) {
+					fieldSize = sizeCount.getSelection();
+					isRandom = randomButton.getSelection();
+					ships = new int[4];
+					ships[0] = aerocarierCount.getSelection();
+					ships[1] = battleshipCount.getSelection();
+					ships[2] = cruiserCount.getSelection();
+					ships[3] = destroyerCount.getSelection();
+					if (mineUseButton.getSelection()) {
+						mine = mineCount.getSelection();
+					} else {
+						mine = 0;
+					}
+					disposeShell();
+				}
+			}
+		});
+		
+		saveButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Store on properties
+			}
+		});
+		
+		loadButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO loadFromProperties
+			}
+		});
+		
 		shell.pack();
 		return shell;
 	}
@@ -170,11 +219,31 @@ public class OptionWidget {
 				disp.sleep();
 			}
 		}
-		dispose();	
+		disposeShell();	
 	}
 	
 	public void dispose() {
 		disp.dispose();
+	}
+	
+	public void disposeShell() {
+		shell.dispose();
+	}
+	
+	public int getFieldSize() {
+		return fieldSize;
+	}
+	
+	public boolean isRandom() {
+		return isRandom;
+	}
+	
+	public int[] getShips() {
+		return ships;
+	}
+	
+	public int getMine() {
+		return mine;
 	}
 	
 	public static void main(String[] args) {
