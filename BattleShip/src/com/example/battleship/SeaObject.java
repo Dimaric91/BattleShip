@@ -18,7 +18,7 @@ public abstract class SeaObject {
 		return fields;
 	}
 	
-	protected void setFields(List<Field> fields) {
+	public void setFields(List<Field> fields) {
 		this.fields = fields;
 	}
 	

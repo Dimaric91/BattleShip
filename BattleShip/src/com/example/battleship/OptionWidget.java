@@ -126,7 +126,7 @@ public class OptionWidget {
 		battleshipCount.setMinimum(0);
 		battleshipCount.setMaximum(6);
 		battleshipCount.setIncrement(1);
-		battleshipCount.setSelection(1);
+		battleshipCount.setSelection(2);
 		battleshipCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		cruiserLabel = new Label(countGroup, SWT.NONE);
@@ -137,7 +137,7 @@ public class OptionWidget {
 		cruiserCount.setMinimum(0);
 		cruiserCount.setMaximum(7);
 		cruiserCount.setIncrement(1);
-		cruiserCount.setSelection(2);
+		cruiserCount.setSelection(3);
 		cruiserCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		destroyerLabel = new Label(countGroup, SWT.NONE);
@@ -148,7 +148,7 @@ public class OptionWidget {
 		destroyerCount.setMinimum(0);
 		destroyerCount.setMaximum(8);
 		destroyerCount.setIncrement(1);
-		destroyerCount.setSelection(3);
+		destroyerCount.setSelection(4);
 		destroyerCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		mineUseButton = new Button(countGroup, SWT.CHECK);

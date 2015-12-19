@@ -22,12 +22,24 @@ public abstract class Ship extends SeaObject {
 	protected int size;
 	protected int state = ALIVE_STATE;
 	private List<Field> neighboirs;
+	private Direction direction;
 	
 	public Ship() {
 	}
 	
 	public Ship(int size) {
 		this.size = size;
+	}
+	
+	public boolean isMove(GameZone zone, List<Field> fields) {
+		LinkedList<Field> newFields = new LinkedList<>(fields);
+		LinkedList<Field> newNeighbors = new LinkedList<>(zone.getNeighbors(newFields));
+		if (this.fields != null) {
+			newFields.removeAll(this.fields);
+			newNeighbors.removeAll(this.fields);
+			newNeighbors.removeAll(zone.getNeighbors(this.fields));
+		}
+		return zone.isMove(newFields,newNeighbors);
 	}
 	
 	public void move(GameZone zone, List<Field> fields) throws MissingFieldsException, ShipIsHittedException {
@@ -37,15 +49,9 @@ public abstract class Ship extends SeaObject {
 		if (state != ALIVE_STATE) {
 			throw new ShipIsHittedException(this.toString() + " is hitted");
 		}
-		LinkedList<Field> newFields = new LinkedList<>(fields);
-		LinkedList<Field> newNeighbors = new LinkedList<>(zone.getNeighbors(newFields));
-		if (this.fields != null) {
-			newFields.removeAll(this.fields);
-			newNeighbors.removeAll(this.fields);
-			newNeighbors.removeAll(zone.getNeighbors(this.fields));
-		}
 		
-		if (!zone.isMove(newFields,newNeighbors)) {
+		
+		if (!isMove(zone, fields)) {
 			throw new MissingFieldsException("Fields is busy");
 		} 
 		
@@ -63,14 +69,16 @@ public abstract class Ship extends SeaObject {
 	}
 	
 	public void move(GameZone zone, Field head, Direction direction) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {
-		ArrayList<Field> lst = new ArrayList<>();
-		Field start = head;
-		lst.add(start);
-		for (int i = 0; i < size - 1; i++) {
-			start = zone.getField(start, direction);
-			lst.add(start);
-		}
+//		ArrayList<Field> lst = new ArrayList<>();
+//		Field start = head;
+//		lst.add(start);
+//		for (int i = 0; i < size - 1; i++) {
+//			start = zone.getField(start, direction);
+//			lst.add(start);
+//		}
+		List<Field> lst = zone.getFields(head, size, direction);
 		this.move(zone, lst);
+		this.direction = direction;
 	}
 	
 	public void destroy() {
@@ -128,6 +136,10 @@ public abstract class Ship extends SeaObject {
 
 	public int getState() {
 		return state;
+	}
+	
+	public Direction getDirection() {
+		return direction;
 	}
 	
 }

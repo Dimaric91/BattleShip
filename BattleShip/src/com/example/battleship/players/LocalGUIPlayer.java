@@ -1,11 +1,15 @@
 package com.example.battleship.players;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -15,9 +19,14 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.example.battleship.Direction;
 import com.example.battleship.Field;
+import com.example.battleship.Mine;
+import com.example.battleship.SeaObject;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
@@ -34,10 +43,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private int shotY = -1;
 	private final int cellSize = 28;
 	
+	private Ship selectedShip;
+	private Direction selectedDirection = Direction.RIGHT;
+	private List<Field> selectedFields;
+	private Color currentColor;
+	private boolean shipIsReady = false;
+	
 	public LocalGUIPlayer(Display disp, String username, Properties property) {
 		super(username, property);
-		RandomMove();
 		this.disp = disp;
+		//RandomMove();
+		firstMove();
 		//this.shell = createShell(this.disp);
 	}
 
@@ -169,9 +185,217 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				}
 			}
 		}
+		if (selectedShip != null) {
+			e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_GREEN));
+			if (selectedShip.getFields() != null) {
+				for (Field f : selectedShip.getFields()) {
+					e.gc.drawRectangle(f.getX() * cellSize, f.getY() * cellSize, cellSize, cellSize);
+				}
+			}
+		}
+		if (selectedFields != null) {
+			for (Field f : selectedFields) {
+				drawRectangle(e.gc, currentColor, f.getX(), f.getY());
+			}
+		}
 		
 	}
+	
+	public void firstMove() {
+//		Thread th = new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				for (Ship s : ships) {
+//					shipIsReady = false;
+//					selectedShip = s;
+//					selectedDirection = Direction.RIGHT;
+//					try {
+//						selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+//						//selectedShip.setFields(selectedFields);
+//						while(!shipIsReady) {
+//							Thread.sleep(10);
+//						}
+//					} catch (FieldNotFoundException | InterruptedException e) {
+//					}
+//					
+//				}
+//			}
+//		});
+//		th.start();
+		dialogMove();
+	}
+	
+	public void dialogMove() {
+		Shell shell2 = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+		GridLayout layout = new GridLayout(2, false);
+		layout.horizontalSpacing = 8;
+		shell2.setLayout(layout);
+		shell2.setText("BattlwShip -> FirstMove");
+		
+		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
+		fieldZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		Group shipGroup = new Group(shell2, SWT.NONE);
+		shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		shipGroup.setLayout(new GridLayout(2, false));
 
+		currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
+		
+		HashMap<SeaObject, Label> labels = new HashMap<>();
+		
+		for (Ship s : ships) {
+			Label shipLabel = new Label(shipGroup, SWT.NONE);
+			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_GRAY));
+			shipLabel.setLayoutData(new GridData(cellSize * s.getSize(), cellSize));
+			labels.put(s, shipLabel);
+			shipLabel.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_YELLOW));
+					selectedShip = s;
+					selectedDirection = Direction.DOWN;
+					try {
+						selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+					} catch (FieldNotFoundException ex) {
+					}
+				}
+			});
+		}
+		
+		for (Mine m : mines) {
+			Label mineLabel = new Label(shipGroup, SWT.NONE);
+			mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
+			mineLabel.setLayoutData(new GridData(cellSize, cellSize));
+			labels.put(m, mineLabel);
+			mineLabel.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+				}
+			});
+		}
+		
+		fieldZone.addPaintListener(new PaintListener() {
+			
+			@Override
+			public void paintControl(PaintEvent e) {
+				paintFields(e, getZone().getFields(), false);
+			}
+		});
+		
+		fieldZone.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 1 && e.count == 1) {
+					int x = e.x / cellSize;
+					int y = e.y / cellSize;
+					try {
+						if (selectedShip != null) {
+							try {
+								selectedShip.move(zone, zone.getField(x, y), selectedDirection);
+								Label l = labels.remove(selectedShip);
+								if (l != null) {
+									l.dispose();
+								}
+								selectedShip = null;
+								selectedFields = null;
+								fieldZone.redraw();
+								
+							} catch (MissingFieldsException | ShipIsHittedException e1) {
+							}
+						} else {
+							Field f = getZone().getField(x, y);
+							if (f.getObj() instanceof Ship) {
+								selectedShip = (Ship) f.getObj();
+								selectedDirection = selectedShip.getDirection();
+								selectedFields = selectedShip.getFields();
+								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GRAY);
+							}
+						}
+					} catch (FieldNotFoundException e1) {
+					}
+				}
+				if (e.button == 3) {
+					selectedShip = null;
+					selectedFields = null;
+				}
+				fieldZone.redraw();
+			}
+			
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if (e.button == 1) {
+					Field f;
+					try {
+						int x = e.x / cellSize;
+						int y = e.y / cellSize;
+						f = getZone().getField(x, y);
+					} catch (FieldNotFoundException ex){
+						return;
+					}
+					if (f.getObj() instanceof Ship) {
+						selectedShip = (Ship) f.getObj();
+						selectedDirection = selectedShip.getDirection();
+						try {
+							selectedShip.move(zone, f, selectedDirection.getSquare());
+						} catch (FieldNotFoundException | MissingFieldsException ex) {
+							for (Direction d : Direction.values()) {
+								try {
+									if (d.equals(selectedDirection))
+										continue;
+									selectedShip.move(zone, f, d);
+								} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+								}
+							}
+						} catch (ShipIsHittedException ex) {
+							MessageBox message = new MessageBox(shell2);
+							message.setMessage("ship is hitted");
+							message.open();
+						}
+						selectedShip = null;
+						selectedFields = null;							
+					}
+					
+					fieldZone.redraw();
+				}
+			}
+		});
+		
+		fieldZone.addMouseMoveListener(new MouseMoveListener() {
+
+			@Override
+			public void mouseMove(MouseEvent e) {
+				if (selectedShip != null) {
+					int x = e.x / cellSize;
+					int y = e.y / cellSize;
+					try {
+						Field field = getZone().getField(x, y);
+						List<Field> temp = zone.getFields(field, selectedShip.getSize(), selectedDirection);
+						if (!temp.containsAll(selectedFields)) {
+							if (selectedShip.isMove(zone, temp)) {
+								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GREEN);
+							} else {
+								currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
+							}
+							fieldZone.redraw();
+							selectedFields = temp;
+						}
+					} catch (FieldNotFoundException e1) {
+					}
+				}	
+			}
+		});
+		
+		shell2.pack();
+		shell2.open();
+		while (!shell2.isDisposed()) {
+			if (!disp.readAndDispatch()) {
+				disp.sleep();
+			}
+		}
+		shell2.dispose();	
+	}
+	
 	@Override
 	public boolean shot(Ship ship) {
 		while (true) {

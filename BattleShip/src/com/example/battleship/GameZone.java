@@ -55,6 +55,26 @@ public class GameZone {
 		return true;
 	}
 	
+	public boolean isMove(Field start, int size, Direction direction) {
+		try {
+			List<Field> lst = getFields(start, size, direction);
+			return isMove(lst, getNeighbors(lst));
+		} catch (FieldNotFoundException e) {
+			return false;
+		}
+	}
+	
+	public List<Field> getFields(Field head, int size, Direction direction) throws FieldNotFoundException {
+		ArrayList<Field> lst = new ArrayList<>();
+		Field start = head;
+		lst.add(start);
+		for (int i = 0; i < size - 1; i++) {
+			start = getField(start, direction);
+			lst.add(start);
+		}
+		return lst;
+	}
+	
 	public List<Field> getNeighbors(List<Field> shipField) {
 		HashSet<Field> ret = new HashSet<>();
 		for (Field field : shipField) {

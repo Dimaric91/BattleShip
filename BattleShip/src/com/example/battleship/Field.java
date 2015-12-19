@@ -112,4 +112,7 @@ public class Field {
     	}
     }
     
+    public SeaObject getObj() {
+		return obj;
+	}
 }
