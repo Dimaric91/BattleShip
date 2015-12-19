@@ -93,12 +93,12 @@ public class OptionWidget {
 		randomButton.setText("Случайное расположение кораблей?");
 		randomButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 ,1));
 		
-		randomButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				randomButton.setSelection(true);
-			}
-		});
+//		randomButton.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				randomButton.setSelection(true);
+//			}
+//		});
 		
 		randomButton.setSelection(true);
 		

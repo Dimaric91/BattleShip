@@ -1,6 +1,5 @@
 package com.example.battleship.players;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +15,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -47,14 +48,15 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
 	private Color currentColor;
-	private boolean shipIsReady = false;
 	
 	public LocalGUIPlayer(Display disp, String username, Properties property) {
 		super(username, property);
 		this.disp = disp;
-		//RandomMove();
-		firstMove();
-		//this.shell = createShell(this.disp);
+		if (Boolean.getBoolean(property.getProperty("isRandom"))) {
+			RandomMove();
+		} else {
+			firstMove();
+		}
 	}
 
 	public void redraw() {
@@ -202,27 +204,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	}
 	
 	public void firstMove() {
-//		Thread th = new Thread(new Runnable() {
-//			
-//			@Override
-//			public void run() {
-//				for (Ship s : ships) {
-//					shipIsReady = false;
-//					selectedShip = s;
-//					selectedDirection = Direction.RIGHT;
-//					try {
-//						selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
-//						//selectedShip.setFields(selectedFields);
-//						while(!shipIsReady) {
-//							Thread.sleep(10);
-//						}
-//					} catch (FieldNotFoundException | InterruptedException e) {
-//					}
-//					
-//				}
-//			}
-//		});
-//		th.start();
 		dialogMove();
 	}
 	
@@ -236,9 +217,21 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
 		fieldZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		Group shipGroup = new Group(shell2, SWT.NONE);
-		shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		//shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		shipGroup.setLayout(new GridLayout(2, false));
 
+		Composite bottom = new Composite(shell2, SWT.NONE);
+		bottom.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false, 2, 1));
+		bottom.setLayout(new GridLayout(2,false));
+		
+		Button bRandom = new Button(bottom, SWT.PUSH);
+		bRandom.setText("Random");
+		bRandom.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		
+		Button bOK = new Button(bottom, SWT.PUSH);
+		bOK.setText("Start");
+		bOK.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		
 		currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
 		
 		HashMap<SeaObject, Label> labels = new HashMap<>();
@@ -274,6 +267,25 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				}
 			});
 		}
+		
+		bRandom.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				RandomMove();
+				for (Label l : labels.values()) {
+					l.dispose();
+				}
+				labels.clear();
+				fieldZone.redraw();
+			}
+		});
+		
+		bOK.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				shell2.dispose();
+			}
+		});
 		
 		fieldZone.addPaintListener(new PaintListener() {
 			
