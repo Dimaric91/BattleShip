@@ -47,6 +47,12 @@ public class Controller extends Thread {
 		Player current = player1;
 		while (true) {
 			while (current.shot(current.getShip())) {
+				if (current == player2) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				}
 				player1.getDisp().asyncExec(player1);
 				if (current.getEnemy().isGameOver()) {
 					String winner = current.getName();

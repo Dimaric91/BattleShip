@@ -1,6 +1,5 @@
 package com.example.battleship.ships;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -31,6 +30,7 @@ public abstract class Ship extends SeaObject {
 		this.size = size;
 	}
 	
+	@Override
 	public boolean isMove(GameZone zone, List<Field> fields) {
 		LinkedList<Field> newFields = new LinkedList<>(fields);
 		LinkedList<Field> newNeighbors = new LinkedList<>(zone.getNeighbors(newFields));
@@ -69,13 +69,6 @@ public abstract class Ship extends SeaObject {
 	}
 	
 	public void move(GameZone zone, Field head, Direction direction) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {
-//		ArrayList<Field> lst = new ArrayList<>();
-//		Field start = head;
-//		lst.add(start);
-//		for (int i = 0; i < size - 1; i++) {
-//			start = zone.getField(start, direction);
-//			lst.add(start);
-//		}
 		List<Field> lst = zone.getFields(head, size, direction);
 		this.move(zone, lst);
 		this.direction = direction;

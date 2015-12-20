@@ -23,4 +23,6 @@ public abstract class SeaObject {
 	}
 	
 	public abstract void shotOnObject(Ship ship);
+	
+	public abstract boolean isMove(GameZone zone, List<Field> fields);
 }

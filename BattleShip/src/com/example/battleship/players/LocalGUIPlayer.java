@@ -16,6 +16,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,7 +52,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private int shotY = -1;
 	private final int cellSize = 28;
 	
-	private Ship selectedShip;
+	private SeaObject selectedObject;
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
 	private boolean isReady = false;
@@ -162,7 +163,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 					e.gc.drawRectangle(i * cellSize, j * cellSize, cellSize, cellSize);
 					break;
 				case CHECKED_FIELD_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_BLUE), i, j);
+					drawRectangle(e.gc, new Color(disp, new RGB(176, 224, 230)), i, j); //Powder Blue
 					break;
 				case MINE_STATE:
 					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_YELLOW), i, j);
@@ -184,16 +185,16 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				}
 			}
 		}
-		if (selectedShip != null) {
+		if (selectedObject != null) {
 			e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_GREEN));
-			if (selectedShip.getFields() != null) {
-				for (Field f : selectedShip.getFields()) {
+			if (selectedObject.getFields() != null) {
+				for (Field f : selectedObject.getFields()) {
 					e.gc.drawRectangle(f.getX() * cellSize, f.getY() * cellSize, cellSize, cellSize);
 				}
 			}
 		}
 		if (selectedFields != null) {
-			if (selectedShip.isMove(zone, selectedFields)) {
+			if (selectedObject.isMove(zone, selectedFields)) {
 				currentColor = disp.getSystemColor(SWT.COLOR_DARK_GREEN);
 			} else {
 				currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
@@ -221,6 +222,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		Group shipGroup = new Group(shell2, SWT.NONE);
 		//shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		shipGroup.setLayout(new GridLayout(2, false));
+		shipGroup.setText("Ships");
 
 		Composite bottom = new Composite(shell2, SWT.NONE);
 		bottom.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false, 2, 1));
@@ -263,24 +265,24 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			shipLabel.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDown(MouseEvent e) {
-					if (selectedShip == null) {
+					if (selectedObject == null) {
 						shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-						selectedShip = s;
+						selectedObject = s;
 						selectedDirection = Direction.DOWN;
 						try {
 							selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
 						} catch (FieldNotFoundException ex) {
 						}
 					} else {
-						Label l = labels.get(selectedShip);
+						Label l = labels.get(selectedObject);
 						l.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
 						if (l == shipLabel) {
-							selectedShip = null;
+							selectedObject = null;
 							selectedFields = null;
 							
 						} else {
 							shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-							selectedShip = s;
+							selectedObject = s;
 							selectedDirection = Direction.DOWN;
 							try {
 								selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
@@ -301,7 +303,30 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			mineLabel.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDown(MouseEvent e) {
-					mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+					if (selectedObject == null) {
+						mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+						selectedObject= m;
+						try {
+							selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
+						} catch (FieldNotFoundException e1) {
+						}
+					} else {
+						Label l = labels.get(selectedObject);
+						l.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
+						if (l == mineLabel) {
+							selectedObject = null;
+							selectedFields = null;
+							
+						} else {
+							mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+							selectedObject = m;
+							try {
+								selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
+							} catch (FieldNotFoundException ex) {
+							}
+						}
+					}
+					fieldZone.redraw();
 				}
 			});
 		}
@@ -323,7 +348,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				for (Label l : labels.values()) {
 					l.dispose();
 				}
-				selectedShip = null;
+				selectedObject = null;
 				selectedFields = null;
 				labels.clear();
 				fieldZone.redraw();
@@ -369,14 +394,18 @@ public class LocalGUIPlayer extends Player implements Runnable{
 					int x = e.x / cellSize;
 					int y = e.y / cellSize;
 					try {
-						if (selectedShip != null) {
+						if (selectedObject != null) {
 							try {
-								selectedShip.move(zone, zone.getField(x, y), selectedDirection);
-								Label l = labels.remove(selectedShip);
+								if (selectedObject instanceof Ship) {
+									((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
+								} else {
+									((Mine)selectedObject).move(zone.getField(x, y));
+								}
+								Label l = labels.remove(selectedObject);
 								if (l != null) {
 									l.dispose();
 								}
-								selectedShip = null;
+								selectedObject = null;
 								selectedFields = null;
 								fieldZone.redraw();
 								
@@ -385,17 +414,22 @@ public class LocalGUIPlayer extends Player implements Runnable{
 						} else {
 							Field f = getZone().getField(x, y);
 							if (f.getObj() instanceof Ship) {
-								selectedShip = (Ship) f.getObj();
-								selectedDirection = selectedShip.getDirection();
-								selectedFields = selectedShip.getFields();
+								selectedObject = f.getObj();
+								selectedDirection = ((Ship)selectedObject).getDirection();
+								selectedFields = selectedObject.getFields();
 								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GRAY);
+							}
+							if (f.getObj() instanceof Mine) {
+								selectedObject = f.getObj();
+								selectedFields = selectedObject.getFields();
+								currentColor = disp.getSystemColor(SWT.COLOR_GREEN);
 							}
 						}
 					} catch (FieldNotFoundException e1) {
 					}
 				}
 				if (e.button == 3) {
-					selectedShip = null;
+					selectedObject = null;
 					selectedFields = null;
 				}
 				fieldZone.redraw();
@@ -413,16 +447,16 @@ public class LocalGUIPlayer extends Player implements Runnable{
 						return;
 					}
 					if (f.getObj() instanceof Ship) {
-						selectedShip = (Ship) f.getObj();
-						selectedDirection = selectedShip.getDirection();
+						selectedObject = f.getObj();
+						selectedDirection = ((Ship)selectedObject).getDirection();
 						try {
-							selectedShip.move(zone, f, selectedDirection.getSquare());
+							((Ship)selectedObject).move(zone, f, selectedDirection.getSquare());
 						} catch (FieldNotFoundException | MissingFieldsException ex) {
 							for (Direction d : Direction.values()) {
 								try {
 									if (d.equals(selectedDirection))
 										continue;
-									selectedShip.move(zone, f, d);
+									((Ship)selectedObject).move(zone, f, d);
 								} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
 								}
 							}
@@ -431,7 +465,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 							message.setMessage("ship is hitted");
 							message.open();
 						}
-						selectedShip = null;
+						selectedObject = null;
 						selectedFields = null;							
 					}
 					
@@ -444,12 +478,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 
 			@Override
 			public void mouseMove(MouseEvent e) {
-				if (selectedShip != null) {
+				if (selectedObject != null) {
 					int x = e.x / cellSize;
 					int y = e.y / cellSize;
 					try {
 						Field field = getZone().getField(x, y);
-						List<Field> temp = zone.getFields(field, selectedShip.getSize(), selectedDirection);
+						List<Field> temp = null;
+						if (selectedObject instanceof Ship) {
+							temp = zone.getFields(field, ((Ship)selectedObject).getSize(), selectedDirection);
+						} else {
+							temp = zone.getFields(field, 1, null);
+						}
 						if (!temp.containsAll(selectedFields)) {
 							selectedFields = temp;
 							fieldZone.redraw();
