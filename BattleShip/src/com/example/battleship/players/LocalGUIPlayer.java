@@ -6,6 +6,8 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -13,6 +15,8 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -24,6 +28,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.Mine;
@@ -35,6 +40,8 @@ import com.example.battleship.ships.Ship;
 
 public class LocalGUIPlayer extends Player implements Runnable{
 
+	private Controller controller;
+	
 	private Display disp;
 	private Shell shell;
 	private Canvas ourZone;
@@ -47,12 +54,14 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private Ship selectedShip;
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
+	private boolean isReady = false;
 	private Color currentColor;
 	
-	public LocalGUIPlayer(Display disp, String username, Properties property) {
+	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
 		this.disp = disp;
-		if (Boolean.getBoolean(property.getProperty("isRandom"))) {
+		this.controller = c;
+		if (Boolean.valueOf(property.getProperty("isRandom"))) {
 			RandomMove();
 		} else {
 			firstMove();
@@ -86,7 +95,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		enemyZone.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				//can.redraw();
 				if (e.button == 1) {
 					shotX = e.x / cellSize;
 					shotY = e.y / cellSize;
@@ -136,17 +144,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public Display getDisp() {
 		return disp;
 	}
-	
-	/*public static void main(String[] args) throws Exception {
-		int[] shipCount = {1, 2, 3, 4};
-		int zoneSize = 10;
-		LocalGUIPlayer player1 = new LocalGUIPlayer("player1", zoneSize, 0, shipCount);
-		AIPlayer player2 = new AIPlayer("player2", zoneSize, 0, shipCount);
-		player1.setEnemy(player2);
-		player2.setEnemy(player1);
-		
-		player1.run();
-	}*/
 
 	private void drawRectangle(GC gc, Color color, int x, int y) {
 		gc.setBackground(color);
@@ -196,6 +193,11 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		}
 		if (selectedFields != null) {
+			if (selectedShip.isMove(zone, selectedFields)) {
+				currentColor = disp.getSystemColor(SWT.COLOR_DARK_GREEN);
+			} else {
+				currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
+			}
 			for (Field f : selectedFields) {
 				drawRectangle(e.gc, currentColor, f.getX(), f.getY());
 			}
@@ -238,19 +240,55 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		
 		for (Ship s : ships) {
 			Label shipLabel = new Label(shipGroup, SWT.NONE);
-			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_GRAY));
-			shipLabel.setLayoutData(new GridData(cellSize * s.getSize(), cellSize));
+			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+			switch (s.getSize()) {
+			case 1:
+				shipLabel.setImage(new Image(disp, "resources\\destroyer.png"));
+				break;
+			case 2:
+				shipLabel.setImage(new Image(disp, "resources\\cruiser.png"));
+				break;
+			case 3:
+				shipLabel.setImage(new Image(disp, "resources\\battleship.png"));
+				break;
+			case 4:
+				shipLabel.setImage(new Image(disp, "resources\\aerocarier.png"));
+				break;
+			default:
+				break;
+			}
+
+			shipLabel.setLayoutData(new GridData(cellSize * s.getSize() + 2, cellSize + 2));
 			labels.put(s, shipLabel);
 			shipLabel.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDown(MouseEvent e) {
-					shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_YELLOW));
-					selectedShip = s;
-					selectedDirection = Direction.DOWN;
-					try {
-						selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
-					} catch (FieldNotFoundException ex) {
+					if (selectedShip == null) {
+						shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+						selectedShip = s;
+						selectedDirection = Direction.DOWN;
+						try {
+							selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+						} catch (FieldNotFoundException ex) {
+						}
+					} else {
+						Label l = labels.get(selectedShip);
+						l.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+						if (l == shipLabel) {
+							selectedShip = null;
+							selectedFields = null;
+							
+						} else {
+							shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+							selectedShip = s;
+							selectedDirection = Direction.DOWN;
+							try {
+								selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+							} catch (FieldNotFoundException ex) {
+							}
+						}
 					}
+					fieldZone.redraw();
 				}
 			});
 		}
@@ -268,6 +306,16 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			});
 		}
 		
+		shell2.addDisposeListener(new DisposeListener() {
+			
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				if(!isReady) {
+					controller.exit();
+				}
+			}
+		});
+		
 		bRandom.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
@@ -275,6 +323,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				for (Label l : labels.values()) {
 					l.dispose();
 				}
+				selectedShip = null;
+				selectedFields = null;
 				labels.clear();
 				fieldZone.redraw();
 			}
@@ -283,6 +333,23 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		bOK.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
+				for (Ship s : ships) {
+					if (s.getFields() == null) {
+						MessageBox message = new MessageBox(shell2);
+						message.setMessage("Not all ships placed");
+						message.open();
+						return;
+					}
+				}
+				for (Mine m : mines) {
+					if (m.getFields() == null) {
+						MessageBox message = new MessageBox(shell2);
+						message.setMessage("Not all mines placed");
+						message.open();
+						return;
+					}
+				}
+				isReady = true;
 				shell2.dispose();
 			}
 		});
@@ -384,13 +451,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 						Field field = getZone().getField(x, y);
 						List<Field> temp = zone.getFields(field, selectedShip.getSize(), selectedDirection);
 						if (!temp.containsAll(selectedFields)) {
-							if (selectedShip.isMove(zone, temp)) {
-								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GREEN);
-							} else {
-								currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
-							}
-							fieldZone.redraw();
 							selectedFields = temp;
+							fieldZone.redraw();
 						}
 					} catch (FieldNotFoundException e1) {
 					}
@@ -406,6 +468,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		}
 		shell2.dispose();	
+	}
+	
+	public void setController(Controller controller) {
+		this.controller = controller;
 	}
 	
 	@Override
