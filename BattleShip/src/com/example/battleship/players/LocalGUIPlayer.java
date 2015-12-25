@@ -57,6 +57,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private List<Field> selectedFields;
 	private boolean isReady = false;
 	private Color currentColor;
+
+	private boolean isMove = false;
 	
 	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
@@ -118,6 +120,127 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				paintFields(e, getZone().getFields(), false);
 			}
 		});
+		
+		ourZone.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(MouseEvent e) {
+				if (e.button == 1 && e.count == 1) {
+					int x = e.x / cellSize;
+					int y = e.y / cellSize;
+					try {
+						if (selectedObject != null) {
+							try {
+								if (!selectedFields.containsAll(selectedObject.getFields())) {
+									
+									if (selectedObject instanceof Ship) {
+										((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
+									} else {
+										((Mine)selectedObject).move(zone.getField(x, y));
+									}
+									isMove = true;
+								}
+							} catch (MissingFieldsException | ShipIsHittedException e1) {
+							} finally {
+								selectedObject = null;
+								selectedFields = null;
+								ourZone.redraw();
+							}
+						} else {
+							Field f = getZone().getField(x, y);
+							if (f.getObj() instanceof Ship) {
+								selectedObject = f.getObj();
+								if (((Ship)selectedObject).getState() != Ship.ALIVE_STATE) {
+									MessageBox message = new MessageBox(shell);
+									message.setMessage("ship is hitted");
+									message.open();
+									selectedObject = null;
+									return;
+								}
+								selectedDirection = ((Ship)selectedObject).getDirection();
+								selectedFields = selectedObject.getFields();
+								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GRAY);
+							}
+							if (f.getObj() instanceof Mine) {
+								MessageBox message = new MessageBox(shell);
+								message.setMessage("In this phase mine doen't move");
+								message.open();
+								return;
+							}
+						}
+					} catch (FieldNotFoundException e1) {
+					}
+				}
+				if (e.button == 3) {
+					selectedObject = null;
+					selectedFields = null;
+				}
+				ourZone.redraw();
+			}
+			
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				if (e.button == 1) {
+					Field f;
+					try {
+						int x = e.x / cellSize;
+						int y = e.y / cellSize;
+						f = getZone().getField(x, y);
+					} catch (FieldNotFoundException ex){
+						return;
+					}
+					if (f.getObj() instanceof Ship) {
+						selectedObject = f.getObj();
+						selectedDirection = ((Ship)selectedObject).getDirection();
+						try {
+							((Ship)selectedObject).move(zone, f, selectedDirection.getSquare());
+						} catch (FieldNotFoundException | MissingFieldsException ex) {
+							for (Direction d : Direction.values()) {
+								try {
+									if (d.equals(selectedDirection))
+										continue;
+									((Ship)selectedObject).move(zone, f, d);
+								} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+								}
+							}
+						} catch (ShipIsHittedException ex) {
+							MessageBox message = new MessageBox(shell);
+							message.setMessage("ship is hitted");
+							message.open();
+						}
+						selectedObject = null;
+						selectedFields = null;							
+					}
+					
+					ourZone.redraw();
+				}
+			}
+		});
+		
+		ourZone.addMouseMoveListener(new MouseMoveListener() {
+
+			@Override
+			public void mouseMove(MouseEvent e) {
+				if (selectedObject != null) {
+					int x = e.x / cellSize;
+					int y = e.y / cellSize;
+					try {
+						Field field = getZone().getField(x, y);
+						List<Field> temp = null;
+						if (selectedObject instanceof Ship) {
+							temp = zone.getFields(field, ((Ship)selectedObject).getSize(), selectedDirection);
+						} else {
+							temp = zone.getFields(field, 1, null);
+						}
+						if (!temp.containsAll(selectedFields)) {
+							selectedFields = temp;
+							ourZone.redraw();
+						}
+					} catch (FieldNotFoundException e1) {
+					}
+				}	
+			}
+		});
+		
 		shell.pack();
 		return shell;
 	}
@@ -210,6 +333,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		dialogMove();
 	}
 	
+//	private Label InitLabel(Group shipGroup, int size) {
+//		
+//	}
+	
 	public void dialogMove() {
 		Shell shell2 = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
 		GridLayout layout = new GridLayout(2, false);
@@ -219,11 +346,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		
 		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
 		fieldZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
-		Group shipGroup = new Group(shell2, SWT.NONE);
+		Composite shipGroup = new Composite(shell2, SWT.NONE);
 		//shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
-		shipGroup.setLayout(new GridLayout(2, false));
-		shipGroup.setText("Ships");
+		shipGroup.setLayout(new GridLayout(1, false));
+		//shipGroup.setText("Ships");
 
+		Group ship4 = null;
+		Group ship3 = null;
+		Group ship2 = null;
+		Group ship1 = null;
+		Group mine = null;
+		
 		Composite bottom = new Composite(shell2, SWT.NONE);
 		bottom.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false, 2, 1));
 		bottom.setLayout(new GridLayout(2,false));
@@ -241,32 +374,58 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		HashMap<SeaObject, Label> labels = new HashMap<>();
 		
 		for (Ship s : ships) {
-			Label shipLabel = new Label(shipGroup, SWT.NONE);
-			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+			Label shipLabel = null;
+			
 			switch (s.getSize()) {
 			case 1:
+				if (ship1 == null) {
+					ship1 = new Group(shipGroup, SWT.NONE);
+					ship1.setText("Destroyers");
+					ship1.setLayout(new GridLayout(2, false));
+				}
+				shipLabel = new Label(ship1, SWT.NONE);
 				shipLabel.setImage(new Image(disp, "resources\\destroyer.png"));
 				break;
 			case 2:
+				if (ship2 == null) {
+					ship2 = new Group(shipGroup, SWT.NONE);
+					ship2.setText("Cruisers");
+					ship2.setLayout(new GridLayout(2, false));
+				}
+				shipLabel = new Label(ship2, SWT.NONE);
 				shipLabel.setImage(new Image(disp, "resources\\cruiser.png"));
 				break;
 			case 3:
+				if (ship3 == null) {
+					ship3 = new Group(shipGroup, SWT.NONE);
+					ship3.setText("Battleships");
+					ship3.setLayout(new GridLayout(2, false));
+				}
+				shipLabel = new Label(ship3, SWT.NONE);
 				shipLabel.setImage(new Image(disp, "resources\\battleship.png"));
 				break;
 			case 4:
+				if (ship4 == null) {
+					ship4 = new Group(shipGroup, SWT.NONE);
+					ship4.setText("Aerocariers");
+					ship4.setLayout(new GridLayout(2, false));
+				}
+				shipLabel = new Label(ship4, SWT.NONE);
 				shipLabel.setImage(new Image(disp, "resources\\aerocarier.png"));
 				break;
 			default:
 				break;
 			}
-
+			
+			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
 			shipLabel.setLayoutData(new GridData(cellSize * s.getSize() + 2, cellSize + 2));
 			labels.put(s, shipLabel);
 			shipLabel.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseDown(MouseEvent e) {
 					if (selectedObject == null) {
-						shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+						//shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+						((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
 						selectedObject = s;
 						selectedDirection = Direction.DOWN;
 						try {
@@ -276,12 +435,12 @@ public class LocalGUIPlayer extends Player implements Runnable{
 					} else {
 						Label l = labels.get(selectedObject);
 						l.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
-						if (l == shipLabel) {
+						if (l == ((Label)e.getSource())) {
 							selectedObject = null;
 							selectedFields = null;
 							
 						} else {
-							shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+							((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
 							selectedObject = s;
 							selectedDirection = Direction.DOWN;
 							try {
@@ -296,7 +455,12 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		}
 		
 		for (Mine m : mines) {
-			Label mineLabel = new Label(shipGroup, SWT.NONE);
+			if (mine == null) {
+				mine = new Group(shipGroup, SWT.NONE);
+				mine.setText("Mines");
+				mine.setLayout(new GridLayout(2, false));
+			}
+			Label mineLabel = new Label(mine, SWT.NONE);
 			mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
 			mineLabel.setLayoutData(new GridData(cellSize, cellSize));
 			labels.put(m, mineLabel);
@@ -517,9 +681,13 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public boolean shot(Ship ship) {
 		while (true) {
 			boolean ret;
+			isMove = false;
 			while(shotX == -1 && shotY == -1) {
 				try {
 					Thread.sleep(1000);
+					if (isMove) {
+						return false;
+					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					return false;
