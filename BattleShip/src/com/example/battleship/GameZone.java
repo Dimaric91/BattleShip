@@ -1,5 +1,6 @@
 package com.example.battleship;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -7,7 +8,11 @@ import java.util.List;
 import com.example.battleship.Field;
 import com.example.battleship.exception.FieldNotFoundException;
 
-public class GameZone {
+public class GameZone implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Field[][] fields;
 	
 	public GameZone() {

@@ -7,6 +7,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -46,6 +47,14 @@ public class OptionWidget {
 	private Group userGroup;
 	private Label userLabel;
 	private Text userText;
+	private Group gameGroup;
+	private Button localGameButton;
+	private Button bindNetworkButton;
+	private Button connectNetworkButton;
+	private Spinner portNum;
+	private Label portLabel;
+	private Label hostLabel;
+	private Text hostText;
 	
 	public OptionWidget(Display disp) {
 		this.disp = disp;
@@ -60,6 +69,86 @@ public class OptionWidget {
 		shell.setLayout(layout);
 		layout.horizontalSpacing = 8;
 		
+		gameGroup = new Group(shell, SWT.NONE);
+		gameGroup.setText("Тип игры");
+		gameGroup.setLayout(new GridLayout(2, false));
+		gameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		localGameButton = new Button(gameGroup, SWT.RADIO);
+		localGameButton.setText("Игра с AI");
+		localGameButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
+		bindNetworkButton = new Button(gameGroup, SWT.RADIO);
+		bindNetworkButton.setText("Создать сетевую игру");
+		bindNetworkButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
+		connectNetworkButton = new Button(gameGroup, SWT.RADIO);
+		connectNetworkButton.setText("Присоединиться к игре");
+		connectNetworkButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		
+		localGameButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				portLabel.setEnabled(false);
+				portNum.setEnabled(false);
+				hostLabel.setEnabled(false);
+				hostText.setEnabled(false);
+				options.setProperty("playerType", "local");
+				sizeFieldGroup.setVisible(true);
+				countGroup.setVisible(true);
+			}
+		});
+		
+		bindNetworkButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				portLabel.setEnabled(true);
+				portNum.setEnabled(true);
+				hostLabel.setEnabled(false);
+				hostText.setEnabled(false);
+				options.setProperty("playerType", "bind");
+				sizeFieldGroup.setVisible(true);
+				countGroup.setVisible(true);
+			}
+		});
+		
+		connectNetworkButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				portLabel.setEnabled(true);
+				portNum.setEnabled(true);
+				hostLabel.setEnabled(true);
+				hostText.setEnabled(true);
+				options.setProperty("playerType", "connect");
+				sizeFieldGroup.setVisible(false);
+				countGroup.setVisible(false);
+			}
+			
+			
+		});
+		
+		portLabel = new Label(gameGroup, SWT.NONE);
+		portLabel.setText("Порт:");
+		portLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		portLabel.setEnabled(false);
+		
+		portNum = new Spinner(gameGroup, SWT.NONE);
+		portNum.setMaximum(20000);
+		portNum.setMinimum(10001);
+		portNum.setSelection(10001);
+		portNum.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		portNum.setEnabled(false);
+		
+		hostLabel = new Label(gameGroup, SWT.NONE);
+		hostLabel.setText("Адрес:");
+		hostLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		hostLabel.setEnabled(false);
+		
+		hostText = new Text(gameGroup, SWT.BORDER);
+		hostText.setText("localhost");
+		hostText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		hostText.setEnabled(false);
+		
 		userGroup = new Group(shell, SWT.NONE);
 		userGroup.setText("Имя пользователя");
 		userGroup.setLayout(new GridLayout(2, false));
@@ -72,6 +161,12 @@ public class OptionWidget {
 		userText = new Text(userGroup, SWT.BORDER);
 		userText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		userText.setText(System.getProperty("user.name"));
+		
+		randomButton = new Button(userGroup, SWT.CHECK);
+		randomButton.setText("Случайное расположение кораблей?");
+		randomButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 ,1));
+		
+		randomButton.setSelection(true);
 		
 		sizeFieldGroup = new Group(shell, SWT.NONE);
 		sizeFieldGroup.setLayout(new GridLayout(2, false));
@@ -88,19 +183,6 @@ public class OptionWidget {
 		sizeCount.setSelection(10);
 		sizeCount.setIncrement(1);
 		sizeCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
-	
-		randomButton = new Button(sizeFieldGroup, SWT.CHECK);
-		randomButton.setText("Случайное расположение кораблей?");
-		randomButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 ,1));
-		
-//		randomButton.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				randomButton.setSelection(true);
-//			}
-//		});
-		
-		randomButton.setSelection(true);
 		
 		countGroup = new Group(shell, SWT.NONE);
 		countGroup.setLayout(new GridLayout(2, false));
@@ -163,17 +245,19 @@ public class OptionWidget {
 			}
 		});
 		
-		mineUseButton.setSelection(true);
+		mineUseButton.setSelection(false);
 		
 		mineLabel = new Label(countGroup, SWT.NONE);
 		mineLabel.setText("Количество мин = ");
 		mineLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		mineLabel.setEnabled(false);
 		
 		mineCount = new Spinner(countGroup, SWT.READ_ONLY);
 		mineCount.setMinimum(0);
 		mineCount.setMaximum(5);
 		mineCount.setIncrement(1);
 		mineCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		mineCount.setEnabled(false);
 		
 		buttonGroup = new Composite(shell,  SWT.NONE);
 		buttonGroup.setLayout(new GridLayout(3, false));
@@ -243,6 +327,13 @@ public class OptionWidget {
 	}
 	
 	private void readOptions() {
+		if (portLabel.getEnabled()) {
+			options.setProperty("port", portNum.getText());
+		}
+		if (hostLabel.getEnabled()) {
+			options.setProperty("host", hostText.getText());
+		}
+		
 		options.setProperty("username", userText.getText());
 		options.setProperty("fieldSize", Integer.toString(sizeCount.getSelection()));
 		options.setProperty("isRandom", Boolean.toString(randomButton.getSelection()));
@@ -263,8 +354,6 @@ public class OptionWidget {
 		if (options.isEmpty()) {
 			return;
 		}
-		
-		
 	}
 	
 	public Properties getOptions() {

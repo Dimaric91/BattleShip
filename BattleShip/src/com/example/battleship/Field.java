@@ -1,9 +1,15 @@
 package com.example.battleship;
 
+import java.io.Serializable;
+
 import com.example.battleship.ships.Ship;
 
-public class Field {
+public class Field implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int x;
     private int y;
     private FieldState state = FieldState.EMPTY_STATE;

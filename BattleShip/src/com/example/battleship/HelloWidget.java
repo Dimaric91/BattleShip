@@ -20,7 +20,7 @@ public class HelloWidget {
 	private Shell shell;
 	
 	private Button localButton;
-	private Button networkButton;
+	//private Button networkButton;
 	private Button optionsButton;
 	
 	private Properties optProperty;
@@ -41,13 +41,13 @@ public class HelloWidget {
 		FormToolkit tool = new FormToolkit(disp);
 		Form form = tool.createForm(shell);
 		form.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
-		localButton = tool.createButton(form.getBody(), "Local Game", SWT.PUSH);
-		networkButton = tool.createButton(form.getBody(), "Network Game", SWT.PUSH);
+		localButton = tool.createButton(form.getBody(), "New Game", SWT.PUSH);
+		//networkButton = tool.createButton(form.getBody(), "Network Game", SWT.PUSH);
 		optionsButton = tool.createButton(form.getBody(), "Options", SWT.PUSH);
 		
 		form.getBody().setLayout(layout);
 		localButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		networkButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		//networkButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		optionsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		
@@ -56,7 +56,7 @@ public class HelloWidget {
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
 					if (!isSetOption()) {
-						StartOptionWidget();
+						startOptionWidget();
 					}
 					if (isSetOption()) {
 						disposeShell();
@@ -65,24 +65,17 @@ public class HelloWidget {
 			}
 		});
 		
-		networkButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				if (e.button == 1) {
-					if (e.button == 1) {
-						MessageBox message = new MessageBox(shell);
-						message.setText("Mode not support");
-						message.setMessage("Network mode not supported");
-						message.open();
-					}
-				}
-			}
-		});
+//		networkButton.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseDown(MouseEvent e) {
+//				
+//			}
+//		});
 		
 		optionsButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				StartOptionWidget();
+				startOptionWidget();
 			}
 		});
 		
@@ -91,7 +84,7 @@ public class HelloWidget {
 		return shell;
 	}
 	
-	private void StartOptionWidget() {
+	private void startOptionWidget() {
 		OptionWidget option = new OptionWidget(disp);
 		option.start();
 		optProperty = option.getOptions();

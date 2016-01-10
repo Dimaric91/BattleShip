@@ -37,6 +37,7 @@ import com.example.battleship.SeaObject;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
+import com.example.battleship.network.ReadyMessage;
 import com.example.battleship.ships.Ship;
 
 public class LocalGUIPlayer extends Player implements Runnable{
@@ -55,7 +56,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private SeaObject selectedObject;
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
-	private boolean isReady = false;
+	//private boolean isReady = false;
 	private Color currentColor;
 
 	private boolean isMove = false;
@@ -74,6 +75,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public void redraw() {
 		ourZone.redraw();
 		enemyZone.redraw();
+	}
+	
+	public ReadyMessage getReady() {
+		return new ReadyMessage(zone, ships, mines);
 	}
 	
 	private Shell createShell(Display disp) {

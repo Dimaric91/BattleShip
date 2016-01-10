@@ -24,7 +24,10 @@ public abstract class Player {
 	protected List<Ship> ships;
 	protected Player enemy;
 	
+	protected boolean isReady;
+	
 	public Player(String username, Properties property) {
+		this.isReady = false;
 		this.name = username;
 		initialize(property);
 	}
@@ -109,6 +112,7 @@ public abstract class Player {
 				}
 			}
 		}
+		isReady = true;
 	}
 	
 	
@@ -117,4 +121,8 @@ public abstract class Player {
 	public abstract void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException;
 	
 	public abstract Ship getShip();
+	
+	public boolean isReady() {
+		return isReady;
+	}
 }
