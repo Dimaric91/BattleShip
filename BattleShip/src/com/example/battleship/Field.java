@@ -1,20 +1,27 @@
 package com.example.battleship;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.OutputStream;
 import java.io.Serializable;
 
 import com.example.battleship.ships.Ship;
 
-public class Field implements Serializable{
+public class Field implements Externalizable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private int x;
     private int y;
     private FieldState state = FieldState.EMPTY_STATE;
     private SeaObject obj = null;
 
+    public Field() {
+	}
+    
     public Field(int x, int y) {
         this.x = x;
         this.y = y;
@@ -121,4 +128,19 @@ public class Field implements Serializable{
     public SeaObject getObj() {
 		return obj;
 	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(x);
+		out.writeInt(y);
+		out.writeObject(state);
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		x = in.readInt();
+		y = in.readInt();
+		state = (FieldState) in.readObject();
+	}
+
 }

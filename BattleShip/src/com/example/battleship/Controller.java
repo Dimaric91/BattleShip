@@ -52,7 +52,6 @@ public class Controller extends Thread {
 							MessageFactory.writeMessage(socket.getOutputStream(), new OptionMessage(property));
 							this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), property);
 							this.player2 = new NetworkPlayer(remoteName, socket, property);
-							System.out.println("ok");
 						}
 					} else {
 						MessageFactory.writeMessage(socket.getOutputStream(), new FailMessage("Wrong Message"));
@@ -141,16 +140,18 @@ public class Controller extends Thread {
 		}
 		
 		if (player2 instanceof NetworkPlayer) {
-			((NetworkPlayer)player2).sendReady(player1.getReady());
+			((NetworkPlayer) player2).sendReady(player1.getReady());
 			while (!player2.isReady()) {
 				try {
 					Thread.sleep(1000);
+					System.out.println(player1.getName());
 				} catch (InterruptedException e) {
 					return;
 				}
 			}
 		}
-				
+			
+		player1.getDisp().asyncExec(player1);
 		while (true) {
 			while (current.shot(current.getShip())) {
 				if (current instanceof AIPlayer) {

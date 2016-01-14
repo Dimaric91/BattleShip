@@ -114,7 +114,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			
 			@Override
 			public void paintControl(PaintEvent e) {
-				paintFields(e, getEnemy().getZone().getFields(), true);
+				paintFields(e, getEnemy().getZone().getFields(), false);
+				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			}
 		});
 		
@@ -685,7 +686,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	@Override
 	public boolean shot(Ship ship) {
 		while (true) {
-			boolean ret;
 			isMove = false;
 			while(shotX == -1 && shotY == -1) {
 				try {
@@ -700,8 +700,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		
 			try {
-				ret = enemy.getZone().getField(shotX, shotY).shotOnField(ship);
-				return ret;
+				return enemy.shotOnField(shotX, shotY, ship);
 			} catch (FieldNotFoundException e) {
 			} finally {
 				shotX = -1;

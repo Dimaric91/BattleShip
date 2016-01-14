@@ -1,23 +1,34 @@
 package com.example.battleship.players;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Random;
 
+import com.example.battleship.Field;
+import com.example.battleship.FieldState;
 import com.example.battleship.exception.CannotCreateMessage;
+import com.example.battleship.exception.FieldNotFoundException;
+import com.example.battleship.exception.MissingFieldsException;
+import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.BattleShipMessage;
 import com.example.battleship.network.MessageFactory;
 import com.example.battleship.network.ReadyMessage;
+import com.example.battleship.network.ShotMessage;
 import com.example.battleship.ships.Ship;
+import com.example.battleship.Mine;
 
 public class NetworkPlayer extends Player {
 
 	private Socket socket;
+	private Thread readThread;
 	
 	public NetworkPlayer(String username, Socket socket, Properties property) {
 		super(username, property);
 		this.socket = socket;
-		new Thread(new Runnable() {
+		readThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -26,37 +37,96 @@ public class NetworkPlayer extends Player {
 					if (message instanceof ReadyMessage) {
 						zone = ((ReadyMessage)message).getZone();
 						ships = ((ReadyMessage)message).getShips();
+						for (Ship s : ships) {
+							try {
+							ArrayList<Field> fields = new ArrayList<>();
+							for (Field f : s.getFields()) {
+								fields.add(zone.getField(f.getX(), f.getY()));
+							}
+							s.move(zone, fields);
+							} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
+								e.printStackTrace();
+							}
+						}
 						mines = ((ReadyMessage)message).getMines();
+						for (Mine m : mines) {
+							try {
+								Field f = zone.getField(m.getFields().get(0).getX(), m.getFields().get(0).getY());
+								m.move(f);
+							} catch (FieldNotFoundException | MissingFieldsException e) {
+								e.printStackTrace();
+							}
+						}
 						isReady = true;
 					}
 				} catch (CannotCreateMessage | IOException e) {
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		});
+		start();
+	}
+	
+	public void start() {
+		readThread.start();
 	}
 	
 	@Override
 	public boolean shot(Ship ship) {
-		return false;
-		
+		boolean ret = false;
+		try {
+			ShotMessage message = (ShotMessage) MessageFactory.readMessage(socket.getInputStream());
+			if (message.getPaddedField() != null) {
+				Field padded = message.getPaddedField();
+				zone.getField(padded.getX(), padded.getY()).shotOnField(null);
+			}
+			Field target = message.getTargetField();
+			ret = enemy.shotOnField(target.getX(), target.getY(), null);
+		} catch (CannotCreateMessage | IOException | FieldNotFoundException e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 	@Override
 	public void move(Ship ship) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public Ship getShip() {
-		// TODO Auto-generated method stub
-		return null;
+		//TODO!!!!
+		return ships.get(new Random().nextInt(ships.size()));
 	}
 	
 	public void sendReady(ReadyMessage message) {
 		try {
 			MessageFactory.writeMessage(socket.getOutputStream(), message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public boolean shotOnField(int x, int y, Ship ship) throws FieldNotFoundException {
+		Field field = zone.getField(x, y);
+		boolean ret =  super.shotOnField(x, y, ship);
+		try {
+			ShotMessage message = new ShotMessage(field);
+			if (field.getState(false) == FieldState.KILLED_MINE_STATE) {
+				message.setPaddedField(((Mine)field.getObj()).getPaddedField());
+			}
+			MessageFactory.writeMessage(socket.getOutputStream(), message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public void close() {
+		try {
+			readThread.interrupt();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

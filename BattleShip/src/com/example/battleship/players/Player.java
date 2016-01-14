@@ -6,6 +6,7 @@ import java.util.Properties;
 import java.util.Random;
 
 import com.example.battleship.Direction;
+import com.example.battleship.Field;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.exception.FieldNotFoundException;
@@ -124,5 +125,9 @@ public abstract class Player {
 	
 	public boolean isReady() {
 		return isReady;
+	}
+	
+	public boolean shotOnField(int x, int y, Ship ship) throws FieldNotFoundException {
+		return zone.getField(x, y).shotOnField(ship);
 	}
 }

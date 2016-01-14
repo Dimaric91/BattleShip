@@ -1,15 +1,12 @@
 package com.example.battleship;
 
+import java.io.Externalizable;
 import java.io.Serializable;
 import java.util.List;
 import com.example.battleship.Field;
 import com.example.battleship.ships.Ship;
 
-public abstract class SeaObject implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public abstract class SeaObject implements Externalizable {
 	
 	protected List<Field> fields;
 	

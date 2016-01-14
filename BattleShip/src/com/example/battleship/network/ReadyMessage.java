@@ -79,14 +79,18 @@ public class ReadyMessage extends BattleShipMessage {
 		for (Ship s : ships) {
 			oos.writeObject(s);
 		}
-		if (mines != null) { 
-			oos.writeInt(mines.size());
-			for (Mine m : mines) {
-				oos.writeObject(m);
-			}
-		} else {
-			oos.writeInt(0);
+		oos.writeInt(mines.size());
+		for (Mine m : mines) {
+			oos.writeObject(m);
 		}
+//		if (mines != null) { 
+//			oos.writeInt(mines.size());
+//			for (Mine m : mines) {
+//				oos.writeObject(m);
+//			}
+//		} else {
+//			oos.writeInt(0);
+//		}
 	}
 
 }

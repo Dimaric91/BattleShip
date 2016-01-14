@@ -16,10 +16,11 @@ public class MessageFactory {
 	
 	static {
 		supportedMessages = new ArrayList<>();
-		supportedMessages.add(ConnectMessage.class);  	//0
-		supportedMessages.add(FailMessage.class);		//1
-		supportedMessages.add(OptionMessage.class);		//2
-		supportedMessages.add(ReadyMessage.class);		//3
+		supportedMessages.add(ConnectMessage.class);  	//code = 0
+		supportedMessages.add(FailMessage.class);		//code = 1
+		supportedMessages.add(OptionMessage.class);		//code = 2
+		supportedMessages.add(ReadyMessage.class);		//code = 3
+		supportedMessages.add(ShotMessage.class);		//code = 4
 	}
 	
 	private static BattleShipMessage createMessageInstance(int messageCode) throws CannotCreateMessage {
@@ -38,6 +39,7 @@ public class MessageFactory {
 		int messageCode = dis.readInt();
 		BattleShipMessage message = createMessageInstance(messageCode);
 		message.read(in);
+		System.out.println(message.getClass().getName());
 		return message;
 	}
 	

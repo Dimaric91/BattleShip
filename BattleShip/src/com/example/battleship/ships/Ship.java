@@ -1,5 +1,8 @@
 package com.example.battleship.ships;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -133,6 +136,27 @@ public abstract class Ship extends SeaObject {
 	
 	public Direction getDirection() {
 		return direction;
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		size = in.readInt();
+		state = in.readInt();
+		fields = new LinkedList<>();
+		for (int i = 0 ; i < size; i++) {
+			fields.add((Field) in.readObject());
+		}
+		direction = (Direction) in.readObject();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(size);
+		out.writeInt(state);
+		for (Field f : fields) {
+			out.writeObject(f);
+		}
+		out.writeObject(direction);
 	}
 	
 }

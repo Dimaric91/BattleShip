@@ -1,6 +1,11 @@
 package com.example.battleship;
 
-public enum Direction {
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+public enum Direction implements Externalizable {
 	UP 		(-2) {
 		@Override
 		public Direction getOpposite() {
@@ -57,5 +62,15 @@ public enum Direction {
 	
 	public int getValue() {
 		return value;
+	}
+	
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		value = in.readInt();
+	}
+	
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(value);
 	}
 }

@@ -1,5 +1,8 @@
 package com.example.battleship;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,21 +13,30 @@ import com.example.battleship.ships.Ship;
 
 public class Mine extends SeaObject {
 
-	private boolean isDead = false;
+	private boolean isDead;
+	private Field paddedField;
 	
 	public Mine() {
 	}
 	
 	public Mine(List<Field> fields) {
 		super(fields);
+		isDead = false;
 	}
 	
 	@Override
 	public void shotOnObject(Ship ship) {
 		if (!isDead) {
 			isDead = true;
-			ship.getAliveField().shotOnField(null);
+			if (ship != null) {
+				paddedField = ship.getAliveField();
+				paddedField.shotOnField(null);
+			}
 		}
+	}
+	
+	public Field getPaddedField() {
+		return paddedField;
 	}
 	
 	public void move(Field field) throws MissingFieldsException {
@@ -44,4 +56,19 @@ public class Mine extends SeaObject {
 	public boolean isMove(GameZone zon, List<Field> fields) {
 		return fields.get(0).getState(false) == FieldState.EMPTY_STATE || this.fields != null && this.fields.get(0) == fields.get(0);
 	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(fields.get(0));
+		out.writeBoolean(isDead);
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		fields = new ArrayList<>();
+		fields.add((Field) in.readObject());
+		isDead = in.readBoolean();
+	}
+	
 }
