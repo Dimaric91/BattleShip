@@ -114,8 +114,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			
 			@Override
 			public void paintControl(PaintEvent e) {
-				paintFields(e, getEnemy().getZone().getFields(), false);
-				//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				paintFields(e, getEnemy().getZone().getFields(), true);
 			}
 		});
 		

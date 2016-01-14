@@ -20,17 +20,17 @@ public class ConnectMessage extends BattleShipMessage {
 		this.username = username;
 	}
 
-	@Override
-	public void read(InputStream in) throws IOException {
-		DataInputStream dis = new DataInputStream(in);
-		username = dis.readUTF();
-	}
+//	@Override
+//	public void read(InputStream in) throws IOException {
+//		DataInputStream dis = new DataInputStream(in);
+//		username = dis.readUTF();
+//	}
 
-	@Override
-	public void write(OutputStream out) throws IOException {
-		DataOutputStream dos = new DataOutputStream(out);
-		dos.writeUTF(username);
-	}
+//	@Override
+//	public void write(OutputStream out) throws IOException {
+//		DataOutputStream dos = new DataOutputStream(out);
+//		dos.writeUTF(username);
+//	}
 	
 	public String getUsername() {
 		return username;
@@ -38,5 +38,16 @@ public class ConnectMessage extends BattleShipMessage {
 	
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeUTF(username);
+		
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		username = in.readUTF();
 	}
 }

@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -35,19 +37,23 @@ public class MessageFactory {
 	}
 	
 	public static BattleShipMessage readMessage(InputStream in) throws IOException, CannotCreateMessage {
-		DataInputStream dis = new DataInputStream(in);
-		int messageCode = dis.readInt();
+		ObjectInputStream ois = new ObjectInputStream(in);
+		int messageCode = ois.readInt();
 		BattleShipMessage message = createMessageInstance(messageCode);
-		message.read(in);
-		System.out.println(message.getClass().getName());
+		try {
+			message.readExternal(ois);
+			System.out.println(message.getClass().getName());
+		} catch (ClassNotFoundException e) {
+			throw new CannotCreateMessage("Class not found");
+		}
 		return message;
 	}
 	
 	public static void writeMessage(OutputStream out, BattleShipMessage message) throws IOException {
-		DataOutputStream dos = new DataOutputStream(out);
+		ObjectOutputStream oos = new ObjectOutputStream(out);
 		int messageCode = supportedMessages.indexOf(message.getClass());
-		dos.writeInt(messageCode);
-		message.write(out);
-		dos.flush();
+		oos.writeInt(messageCode);
+		message.writeExternal(oos);
+		oos.flush();
 	}
 }

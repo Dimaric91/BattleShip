@@ -2,7 +2,9 @@ package com.example.battleship.network;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -51,38 +53,34 @@ public class ReadyMessage extends BattleShipMessage {
 		setShips(ships);
 	}
 	
-	@Override
-	public void read(InputStream in) throws IOException {
-		ObjectInputStream ois = new ObjectInputStream(in);
-		try {
-			zone = (GameZone) ois.readObject();
-			int shipCount = ois.readInt();
-			ships = new ArrayList<>();
-			for (int i = 0; i < shipCount; i++) {
-				ships.add((Ship) ois.readObject());
-			}
-			int mineCount = ois.readInt();
-			mines = new ArrayList<>();
-			for (int i = 0; i < mineCount; i++) {
-				mines.add((Mine) ois.readObject());			
-			}
-		} catch (ClassNotFoundException e) {
-			throw new IOException("Class not found", e);
-		}
-	}
-
-	@Override
-	public void write(OutputStream out) throws IOException {
-		ObjectOutputStream oos = new ObjectOutputStream(out);
-		oos.writeObject(zone);
-		oos.writeInt(ships.size());
-		for (Ship s : ships) {
-			oos.writeObject(s);
-		}
-		oos.writeInt(mines.size());
-		for (Mine m : mines) {
-			oos.writeObject(m);
-		}
+//	@Override
+//	public void read(InputStream in) throws IOException {
+//		ObjectInputStream ois = new ObjectInputStream(in);
+//		try {
+//			zone = (GameZone) ois.readObject();
+//			int shipCount = ois.readInt();
+//			ships = new ArrayList<>();
+//			for (int i = 0; i < shipCount; i++) {
+//				ships.add((Ship) ois.readObject());
+//			}
+//			int mineCount = ois.readInt();
+//			mines = new ArrayList<>();
+//			for (int i = 0; i < mineCount; i++) {
+//				mines.add((Mine) ois.readObject());			
+//			}
+//		} catch (ClassNotFoundException e) {
+//			throw new IOException("Class not found", e);
+//		}
+//	}
+//
+//	@Override
+//	public void write(OutputStream out) throws IOException {
+//		ObjectOutputStream oos = new ObjectOutputStream(out);
+//		oos.writeObject(zone);
+//		oos.writeInt(ships.size());
+//		for (Ship s : ships) {
+//			oos.writeObject(s);
+//		}
 //		if (mines != null) { 
 //			oos.writeInt(mines.size());
 //			for (Mine m : mines) {
@@ -91,6 +89,38 @@ public class ReadyMessage extends BattleShipMessage {
 //		} else {
 //			oos.writeInt(0);
 //		}
+//	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(zone);
+		out.writeInt(ships.size());
+		for (Ship s : ships) {
+			out.writeObject(s);
+		}
+		if (mines != null) { 
+			out.writeInt(mines.size());
+			for (Mine m : mines) {
+				out.writeObject(m);
+			}
+		} else {
+			out.writeInt(0);
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		zone = (GameZone) in.readObject();
+		int shipCount = in.readInt();
+		ships = new ArrayList<>();
+		for (int i = 0; i < shipCount; i++) {
+			ships.add((Ship) in.readObject());
+		}
+		int mineCount = in.readInt();
+		mines = new ArrayList<>();
+		for (int i = 0; i < mineCount; i++) {
+			mines.add((Mine) in.readObject());			
+		}
 	}
 
 }
