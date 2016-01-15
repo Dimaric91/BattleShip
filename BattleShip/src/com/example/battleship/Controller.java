@@ -151,6 +151,7 @@ public class Controller extends Thread {
 			}
 		}
 			
+		player1.setTitle(current.getName());
 		player1.getDisp().asyncExec(player1);
 		while (true) {
 			while (current.shot(current.getShip())) {
@@ -168,6 +169,9 @@ public class Controller extends Thread {
 						@Override
 						public void run() {
 							player1.run();
+							System.out.println(player1);
+							System.out.println(player1.getDisp());
+							System.out.println(player1.getDisp().getActiveShell());
 							MessageBox message = new MessageBox(player1.getDisp().getActiveShell());
 							message.setMessage("Player " + winner + " win!");
 							message.setText(winner + " win");
@@ -179,6 +183,7 @@ public class Controller extends Thread {
 				}
 			}
 			current = current.getEnemy();
+			player1.setTitle(current.getName());
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}

@@ -56,11 +56,12 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private SeaObject selectedObject;
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
-	//private boolean isReady = false;
 	private Color currentColor;
 
 	private boolean isMove = false;
 	private Ship movedShip;
+
+	private String currentTitle;
 	
 	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
@@ -76,10 +77,15 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public void redraw() {
 		ourZone.redraw();
 		enemyZone.redraw();
+		shell.setText("BattleShip! Now move " + currentTitle);
 	}
 	
 	public ReadyMessage getReady() {
 		return new ReadyMessage(zone, ships, mines);
+	}
+	
+	public void setTitle(String username) {
+		currentTitle = username;
 	}
 	
 	private Shell createShell(Display disp) {
@@ -87,7 +93,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
-		shell.setText("BattleShip! ");
+		shell.setText("BattleShip!");
 		
 		Group ourGroup = new Group(shell, SWT.NONE);
 		ourGroup.setText(getName() + " ships");
@@ -115,7 +121,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			
 			@Override
 			public void paintControl(PaintEvent e) {
-				paintFields(e, getEnemy().getZone().getFields(), false); //!!!
+				paintFields(e, getEnemy().getZone().getFields(), true);
 			}
 		});
 		
