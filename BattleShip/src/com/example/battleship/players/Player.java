@@ -128,6 +128,9 @@ public abstract class Player {
 	}
 	
 	public boolean shotOnField(int x, int y, Ship ship) throws FieldNotFoundException {
-		return zone.getField(x, y).shotOnField(ship);
+		if (x != -1 && y != -1)
+			return zone.getField(x, y).shotOnField(ship);
+		else
+			return false;
 	}
 }

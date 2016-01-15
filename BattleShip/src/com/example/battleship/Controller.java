@@ -177,7 +177,7 @@ public class Controller extends Thread {
 					});
 					return;
 				}
-			} 
+			}
 			current = current.getEnemy();
 			if(Thread.currentThread().isInterrupted()) {
 				return;

@@ -17,19 +17,23 @@ import com.example.battleship.Direction;
 import com.example.battleship.Field;
 
 public abstract class Ship extends SeaObject {
+	private static int nextId = 1;
 	public final static int ALIVE_STATE = 0;
 	public final static int HIT_STATE = 1;
 	public final static int DEAD_STATE = 2;
 	
+	protected int id;
 	protected int size;
 	protected int state = ALIVE_STATE;
 	private List<Field> neighboirs;
 	private Direction direction;
 	
 	public Ship() {
+		id = nextId++;
 	}
 	
 	public Ship(int size) {
+		this();
 		this.size = size;
 	}
 	
@@ -47,7 +51,7 @@ public abstract class Ship extends SeaObject {
 	
 	public void move(GameZone zone, List<Field> fields) throws MissingFieldsException, ShipIsHittedException {
 		if (fields.size() != size){
-			throw new MissingFieldsException();
+			throw new MissingFieldsException(fields.size() + " != " + size);
 		}
 		if (state != ALIVE_STATE) {
 			throw new ShipIsHittedException(this.toString() + " is hitted");
@@ -140,6 +144,7 @@ public abstract class Ship extends SeaObject {
 	
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		id = in.readInt();
 		size = in.readInt();
 		state = in.readInt();
 		fields = new LinkedList<>();
@@ -151,6 +156,7 @@ public abstract class Ship extends SeaObject {
 	
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeInt(id);
 		out.writeInt(size);
 		out.writeInt(state);
 		for (Field f : fields) {
@@ -159,4 +165,17 @@ public abstract class Ship extends SeaObject {
 		out.writeObject(direction);
 	}
 	
+	public int getId() {
+		return id;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return id == ((Ship)obj).getId();
+	}
+	
+	@Override
+	public int hashCode() {
+		return id;
+	}
 }

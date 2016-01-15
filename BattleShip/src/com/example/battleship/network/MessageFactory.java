@@ -23,6 +23,7 @@ public class MessageFactory {
 		supportedMessages.add(OptionMessage.class);		//code = 2
 		supportedMessages.add(ReadyMessage.class);		//code = 3
 		supportedMessages.add(ShotMessage.class);		//code = 4
+		supportedMessages.add(MoveMessage.class);		//code = 5
 	}
 	
 	private static BattleShipMessage createMessageInstance(int messageCode) throws CannotCreateMessage {

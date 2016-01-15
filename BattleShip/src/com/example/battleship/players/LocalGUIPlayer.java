@@ -60,6 +60,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private Color currentColor;
 
 	private boolean isMove = false;
+	private Ship movedShip;
 	
 	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
@@ -114,7 +115,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			
 			@Override
 			public void paintControl(PaintEvent e) {
-				paintFields(e, getEnemy().getZone().getFields(), true);
+				paintFields(e, getEnemy().getZone().getFields(), false); //!!!
 			}
 		});
 		
@@ -127,8 +128,11 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		});
 		
 		ourZone.addMouseListener(new MouseAdapter() {
+
 			@Override
 			public void mouseDown(MouseEvent e) {
+				if (isMove)
+					return;
 				if (e.button == 1 && e.count == 1) {
 					int x = e.x / cellSize;
 					int y = e.y / cellSize;
@@ -139,10 +143,12 @@ public class LocalGUIPlayer extends Player implements Runnable{
 									
 									if (selectedObject instanceof Ship) {
 										((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
-									} else {
-										((Mine)selectedObject).move(zone.getField(x, y));
-									}
+									} 
+//									else {
+//										((Mine)selectedObject).move(zone.getField(x, y));
+//									}
 									isMove = true;
+									movedShip = (Ship) selectedObject;
 								}
 							} catch (MissingFieldsException | ShipIsHittedException e1) {
 							} finally {
@@ -185,6 +191,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				if (e.button == 1) {
+					if (isMove)
+						return;
 					Field f;
 					try {
 						int x = e.x / cellSize;
@@ -213,7 +221,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 							message.open();
 						}
 						selectedObject = null;
-						selectedFields = null;							
+						selectedFields = null;	
+						isMove = true;
 					}
 					
 					ourZone.redraw();
@@ -273,7 +282,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public Display getDisp() {
 		return disp;
 	}
-
+	
 	private void drawRectangle(GC gc, Color color, int x, int y) {
 		gc.setBackground(color);
 		gc.fillRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -690,11 +699,15 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				try {
 					Thread.sleep(1000);
 					if (isMove) {
+						enemy.shotOnField(shotX, shotY, movedShip);
+						movedShip = null;
 						return false;
 					}
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 					return false;
+				} catch (FieldNotFoundException e) {
+					e.printStackTrace();
 				}
 			}
 		
