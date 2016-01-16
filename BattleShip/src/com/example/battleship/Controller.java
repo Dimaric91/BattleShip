@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.logging.MemoryHandler;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
@@ -42,7 +43,10 @@ public class Controller extends Thread {
 				Socket socket = null;
 				try {
 					serv = new ServerSocket(Integer.parseInt(property.getProperty("port")));
-					socket = serv.accept();
+					WaitWidget wait = new WaitWidget(this, disp, serv);
+					wait.start();			
+					
+					socket = wait.getSocket();
 					
 					BattleShipMessage message = MessageFactory.readMessage(socket.getInputStream());
 					if (message instanceof ConnectMessage) {
@@ -115,6 +119,7 @@ public class Controller extends Thread {
 	
 	public static void main(String[] args) throws Exception {
 		Display disp = new Display();
+		
 		HelloWidget hello = new HelloWidget(disp);
 		hello.start();
 		
@@ -155,7 +160,7 @@ public class Controller extends Thread {
 		
 		if (player2 instanceof NetworkPlayer) {
 			((NetworkPlayer) player2).sendReady(player1.getReady());
-			System.out.println("Player " + player1.getName() + "placed ship");
+			System.out.println("Player " + player1.getName() + " placed ship");
 			while (!player2.isReady()) {
 				try {
 					Thread.sleep(1000);
@@ -163,7 +168,7 @@ public class Controller extends Thread {
 					return;
 				}
 			}
-			System.out.println("Player " + player2.getName() + "placed ship");
+			System.out.println("Player " + player2.getName() + " placed ship");
 		}
 			
 		player1.getDisp().asyncExec(player1);
