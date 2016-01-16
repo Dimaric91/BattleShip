@@ -63,8 +63,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private boolean isMove;
 	private Ship movedShip;
 
-	private String currentTitle;
-
 	private Text textLog;
 	
 	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
@@ -83,15 +81,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public void redraw() {
 		ourZone.redraw();
 		enemyZone.redraw();
-		shell.setText("BattleShip! Now move " + currentTitle);
 	}
 	
 	public ReadyMessage getReady() {
 		return new ReadyMessage(zone, ships, mines);
-	}
-	
-	public void setTitle(String username) {
-		currentTitle = username;
 	}
 	
 	public Text getLogArea() {
@@ -284,7 +277,9 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public void start() {
 		shell = createShell(disp);
 		textLog.setText("");
-		controller.createLogger();
+		synchronized (this) {
+			notifyAll();
+		}
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!disp.readAndDispatch()) {

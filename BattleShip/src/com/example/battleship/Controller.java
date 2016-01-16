@@ -144,9 +144,18 @@ public class Controller extends Thread {
 		} else {
 			current = player1;
 		}
+		try {
+			synchronized (player1) {
+				player1.wait();
+			}
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+		createLogger();
 		
 		if (player2 instanceof NetworkPlayer) {
 			((NetworkPlayer) player2).sendReady(player1.getReady());
+			System.out.println("Player " + player1.getName() + "placed ship");
 			while (!player2.isReady()) {
 				try {
 					Thread.sleep(1000);
@@ -154,12 +163,12 @@ public class Controller extends Thread {
 					return;
 				}
 			}
+			System.out.println("Player " + player2.getName() + "placed ship");
 		}
 			
-		player1.setTitle(current.getName());
 		player1.getDisp().asyncExec(player1);
 		while (true) {
-			System.out.println("Palyer " + current.getName() + ":");
+			System.out.println("Now turn " + current.getName() + ":");
 			while (current.shot(current.getShip())) {
 				if (current instanceof AIPlayer) {
 					try {
@@ -186,7 +195,6 @@ public class Controller extends Thread {
 				}
 			}
 			current = current.getEnemy();
-			player1.setTitle(current.getName());
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
