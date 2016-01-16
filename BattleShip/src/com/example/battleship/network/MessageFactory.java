@@ -43,7 +43,6 @@ public class MessageFactory {
 		BattleShipMessage message = createMessageInstance(messageCode);
 		try {
 			message.readExternal(ois);
-			System.out.println(message.getClass().getName());
 		} catch (ClassNotFoundException e) {
 			throw new CannotCreateMessage("Class not found");
 		}

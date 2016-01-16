@@ -78,11 +78,15 @@ public class NetworkPlayer extends Player {
 		try {
 			BattleShipMessage message = MessageFactory.readMessage(socket.getInputStream());
 			if (message instanceof ShotMessage) {
+				Field target = ((ShotMessage)message).getTargetField();
 				if (((ShotMessage)message).getPaddedField() != null) {
 					Field padded = ((ShotMessage)message).getPaddedField();
 					zone.getField(padded.getX(), padded.getY()).shotOnField(null);
+					System.out.println(" padded on mine at x = " + target.getX() + ", y = " + target.getY() +  
+							"and loss his ship field at x =" + padded.getX() + ", y = " + padded.getY());
+				} else {
+					System.out.println("shot on x = " + target.getX() + ", y = " + target.getY());
 				}
-				Field target = ((ShotMessage)message).getTargetField();
 				ret = enemy.shotOnField(target.getX(), target.getY(), null);
 			}
 			if (message instanceof MoveMessage) {
@@ -91,6 +95,7 @@ public class NetworkPlayer extends Player {
 				for (Field f : movedShip.getFields()) {
 					fields.add(zone.getField(f.getX(), f.getY()));
 				}
+				System.out.println(" move ship");
 				ships.get(ships.indexOf(movedShip)).move(zone, fields);
 			}
 		} catch (CannotCreateMessage | IOException | FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {

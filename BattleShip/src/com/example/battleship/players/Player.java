@@ -76,6 +76,8 @@ public abstract class Player {
 		for (Ship ship : lst) {
 			if (ship.getState() == Ship.DEAD_STATE) {
 				ships.remove(ship);
+				System.out.println("Player " + getName() + " loss ship at x = " + ship.getFields().get(0).getX() + 
+						", y = " + ship.getFields().get(0).getY());
 			}
 		}
 		return ships.isEmpty();

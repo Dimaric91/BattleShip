@@ -1,5 +1,6 @@
 package com.example.battleship.players;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.example.battleship.Controller;
 import com.example.battleship.Direction;
@@ -58,13 +60,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	private List<Field> selectedFields;
 	private Color currentColor;
 
-	private boolean isMove = false;
+	private boolean isMove;
 	private Ship movedShip;
 
 	private String currentTitle;
+
+	private Text textLog;
 	
 	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
+		this.isMove = true;
+		this.selectedDirection = Direction.RIGHT;
 		this.disp = disp;
 		this.controller = c;
 		if (Boolean.valueOf(property.getProperty("isRandom"))) {
@@ -88,6 +94,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		currentTitle = username;
 	}
 	
+	public Text getLogArea() {
+		return textLog;
+	}
+	
 	private Shell createShell(Display disp) {
 		Shell shell = new Shell(disp, SWT.DIALOG_TRIM);
 		GridLayout layout = new GridLayout(2, false);
@@ -106,13 +116,19 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		ourZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		enemyZone = new Canvas(enemyGroup, SWT.BORDER);
 		enemyZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		textLog = new Text(shell, SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER);
+		textLog.setBackground(disp.getSystemColor(SWT.COLOR_WHITE));
+		textLog.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		textLog.setText("\n\n\n");
 		
 		enemyZone.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
-					shotX = e.x / cellSize;
-					shotY = e.y / cellSize;
+					if (shotX == -1 && shotY == -1) {
+						shotX = e.x / cellSize;
+						shotY = e.y / cellSize;
+					}
 				}
 			}
 		});
@@ -267,6 +283,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	
 	public void start() {
 		shell = createShell(disp);
+		textLog.setText("");
+		controller.createLogger();
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!disp.readAndDispatch()) {
@@ -287,6 +305,10 @@ public class LocalGUIPlayer extends Player implements Runnable{
 
 	public Display getDisp() {
 		return disp;
+	}
+	
+	public Shell getShell() {
+		return shell;
 	}
 	
 	private void drawRectangle(GC gc, Color color, int x, int y) {
@@ -701,11 +723,15 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	public boolean shot(Ship ship) {
 		while (true) {
 			isMove = false;
+			shotX = -1;
+			shotY = -1;
 			while(shotX == -1 && shotY == -1) {
 				try {
 					Thread.sleep(1000);
 					if (isMove) {
 						enemy.shotOnField(shotX, shotY, movedShip);
+						System.out.println(" move ship to x = " + movedShip.getFields().get(0).getX() + 
+								", y = " + movedShip.getFields().get(0).getY());
 						movedShip = null;
 						return false;
 					}
@@ -718,11 +744,11 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		
 			try {
+				System.out.println(" shot on x = " + shotX + ", y = " + shotY);
 				return enemy.shotOnField(shotX, shotY, ship);
 			} catch (FieldNotFoundException e) {
 			} finally {
-				shotX = -1;
-				shotY = -1;
+				isMove = true;
 			}
 		}
 	}

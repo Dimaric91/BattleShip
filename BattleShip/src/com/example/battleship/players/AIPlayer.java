@@ -81,7 +81,7 @@ public class AIPlayer extends Player {
 		}
 		if (firstShotField == null || currentShot == null)
 			currentShot = poolOfNext.remove(rnd.nextInt(poolOfNext.size()));
-		System.out.println("AI shot on x = " + currentShot.getX() + ", y = " + currentShot.getY());
+		System.out.println("Palyer " + getName() + " shot on x = " + currentShot.getX() + ", y = " + currentShot.getY());
 		if (currentShot.shotOnField(ship)) {
 			if (firstShotField == null) {
 				firstShotField = currentShot;

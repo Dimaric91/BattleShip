@@ -1,9 +1,12 @@
 package com.example.battleship;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.logging.MemoryHandler;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -27,7 +30,6 @@ public class Controller extends Thread {
 	private Properties properties;
 	
 	private ServerSocket serv = null;
-		
 	public Controller(Display disp, Properties property) {
 		this.properties = property;
 		this.disp = disp;
@@ -106,6 +108,7 @@ public class Controller extends Thread {
 				}
 				break;
 		}
+		
 		this.player1.setEnemy(player2);
 		this.player2.setEnemy(player1);
 	}
@@ -127,7 +130,10 @@ public class Controller extends Thread {
 		c.exit();
 	}
 
-	
+	public void createLogger() {
+		PrintStream pintStream = new PrintStream(new BattleShipLogger(player1.getDisp(), player1.getLogArea()));
+		System.setOut(pintStream);
+	}
 	
 	@Override
 	public void run() {
@@ -144,7 +150,6 @@ public class Controller extends Thread {
 			while (!player2.isReady()) {
 				try {
 					Thread.sleep(1000);
-					System.out.println(player1.getName());
 				} catch (InterruptedException e) {
 					return;
 				}
@@ -154,6 +159,7 @@ public class Controller extends Thread {
 		player1.setTitle(current.getName());
 		player1.getDisp().asyncExec(player1);
 		while (true) {
+			System.out.println("Palyer " + current.getName() + ":");
 			while (current.shot(current.getShip())) {
 				if (current instanceof AIPlayer) {
 					try {
@@ -169,10 +175,7 @@ public class Controller extends Thread {
 						@Override
 						public void run() {
 							player1.run();
-							System.out.println(player1);
-							System.out.println(player1.getDisp());
-							System.out.println(player1.getDisp().getActiveShell());
-							MessageBox message = new MessageBox(player1.getDisp().getActiveShell());
+							MessageBox message = new MessageBox(player1.getShell());
 							message.setMessage("Player " + winner + " win!");
 							message.setText(winner + " win");
 							message.open();
