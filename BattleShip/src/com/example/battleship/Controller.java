@@ -2,8 +2,11 @@ package com.example.battleship;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.logging.MemoryHandler;
@@ -11,6 +14,7 @@ import java.util.logging.MemoryHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
 import com.example.battleship.exception.CannotCreateMessage;
 import com.example.battleship.network.BattleShipMessage;
@@ -29,6 +33,7 @@ public class Controller extends Thread {
 	private LocalGUIPlayer player1;
 	private Player player2;
 	private Properties properties;
+	private String winner;
 	
 	private ServerSocket serv = null;
 	public Controller(Display disp, Properties property) {
@@ -80,8 +85,12 @@ public class Controller extends Thread {
 				break;
 			case "connect":
 				socket = null;
+				String host = property.getProperty("host");
+				int port = Integer.parseInt(property.getProperty("port"));
 				try {
-					socket = new Socket(property.getProperty("host"), Integer.parseInt(property.getProperty("port")));
+					socket = new Socket();
+					socket.connect(new InetSocketAddress(host, port), 10000);
+					
 					MessageFactory.writeMessage(socket.getOutputStream(), new ConnectMessage(property.getProperty("username")));
 					BattleShipMessage msg = MessageFactory.readMessage(socket.getInputStream());
 					
@@ -96,7 +105,21 @@ public class Controller extends Thread {
 						System.out.println("wrong message");
 					}
 					
-				} catch (NumberFormatException | IOException | CannotCreateMessage e) {
+				} catch (SocketTimeoutException e) {
+					Shell shell = new Shell(disp);
+					MessageBox msg = new MessageBox(shell, SWT.OK);
+					msg.setText("Timeout");
+					msg.setMessage(host + ":" + String.valueOf(port) + " not response");
+					msg.open();
+					shell.dispose();
+				} catch (ConnectException e) {
+					Shell shell = new Shell(disp);
+					MessageBox msg = new MessageBox(shell, SWT.OK);
+					msg.setText("Connect error");
+					msg.setMessage(host + ":" + String.valueOf(port) + " response:\n" + e.getMessage());
+					msg.open();
+					shell.dispose();
+				}catch (NumberFormatException | IOException | CannotCreateMessage e) {
 					e.printStackTrace();
 				} finally {
 					if (this.player1 == null || this.player2 == null) {
@@ -183,21 +206,27 @@ public class Controller extends Thread {
 				}
 				player1.getDisp().asyncExec(player1);
 				if (current.getEnemy().isGameOver()) {
-					String winner = current.getName();
-					player1.getDisp().syncExec(new Runnable() {
-						
-						@Override
-						public void run() {
-							player1.run();
-							MessageBox message = new MessageBox(player1.getShell());
-							message.setMessage("Player " + winner + " win!");
-							message.setText(winner + " win");
-							message.open();
-							player1.dispose();
-						}
-					});
-					return;
+					winner = current.getName();
+					break;
 				}
+			}
+			if (current.isGameOver()) {
+				winner = current.getEnemy().getName();
+			}
+			if (winner != null) {
+				player1.getDisp().syncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						player1.run();
+						MessageBox message = new MessageBox(player1.getShell());
+						message.setMessage("Player " + winner + " win!");
+						message.setText(winner + " win");
+						message.open();
+						player1.dispose();
+					}
+				});
+				return;
 			}
 			current = current.getEnemy();
 			if(Thread.currentThread().isInterrupted()) {

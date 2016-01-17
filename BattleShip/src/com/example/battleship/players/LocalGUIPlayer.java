@@ -15,6 +15,8 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
@@ -106,21 +108,21 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		enemyGroup.setLayout(new GridLayout());
 		
 		ourZone = new Canvas(ourGroup, SWT.BORDER);
-		ourZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		ourZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
 		enemyZone = new Canvas(enemyGroup, SWT.BORDER);
-		enemyZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		enemyZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1, cellSize * (getZone().getSize() + 1) + 1));
 		textLog = new Text(shell, SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER);
 		textLog.setBackground(disp.getSystemColor(SWT.COLOR_WHITE));
 		textLog.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		textLog.setText("\n\n\n");
+		textLog.setText("\n\n\n\n\n");
 		
 		enemyZone.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
 					if (shotX == -1 && shotY == -1) {
-						shotX = e.x / cellSize;
-						shotY = e.y / cellSize;
+						shotX = e.x / cellSize - 1;
+						shotY = e.y / cellSize - 1;
 					}
 				}
 			}
@@ -149,8 +151,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				if (isMove)
 					return;
 				if (e.button == 1 && e.count == 1) {
-					int x = e.x / cellSize;
-					int y = e.y / cellSize;
+					int x = e.x / cellSize - 1;
+					int y = e.y / cellSize - 1;
 					try {
 						if (selectedObject != null) {
 							try {
@@ -210,8 +212,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 						return;
 					Field f;
 					try {
-						int x = e.x / cellSize;
-						int y = e.y / cellSize;
+						int x = e.x / cellSize - 1;
+						int y = e.y / cellSize - 1;
 						f = getZone().getField(x, y);
 					} catch (FieldNotFoundException ex){
 						return;
@@ -250,8 +252,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			@Override
 			public void mouseMove(MouseEvent e) {
 				if (selectedObject != null) {
-					int x = e.x / cellSize;
-					int y = e.y / cellSize;
+					int x = e.x / cellSize - 1;
+					int y = e.y / cellSize - 1;
 					try {
 						Field field = getZone().getField(x, y);
 						List<Field> temp = null;
@@ -311,34 +313,46 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		gc.fillRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
 		gc.setForeground(disp.getSystemColor(SWT.COLOR_BLACK));
 		gc.drawRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
+		//gc.setBackground(disp.getSystemColor(SWT.COLOR_WHITE));
 	}
 	
 	private void paintFields(PaintEvent e, Field[][] fields, boolean isEnemy) {
+		Font font = new Font(disp, new FontData("TimesNewRoman", cellSize/2 - 3, SWT.NORMAL));
+		e.gc.setFont(font);
+		e.gc.drawText("Y\\X", font.getFontData()[0].getHeight()/2, font.getFontData()[0].getHeight()/2, true);
+		font.dispose();
+		font = new Font(disp, new FontData("TimesNewRoman", cellSize/2, SWT.NORMAL));
+		e.gc.setFont(font);
+		int shiftText = font.getFontData()[0].getHeight()/2 - 2;
+		for (int i = 0; i < fields.length; i++) {
+			e.gc.drawText(String.valueOf(i), shiftText, (i + 1) * cellSize + shiftText, true);
+		}
 		e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_BLACK));
 		for (int i = 0; i < fields.length; i++) {
+			e.gc.drawText(String.valueOf(i), (i + 1) * cellSize + shiftText , shiftText, true);
 			for (int j = 0; j < fields.length; j++) {
 				switch (fields[i][j].getState(isEnemy)) {
 				case HIDDEN_STATE:
 				case EMPTY_STATE:
-					e.gc.drawRectangle(i * cellSize, j * cellSize, cellSize, cellSize);
+					e.gc.drawRectangle((i + 1) * cellSize, (j + 1) * cellSize, cellSize, cellSize);
 					break;
 				case CHECKED_FIELD_STATE:
-					drawRectangle(e.gc, new Color(disp, new RGB(176, 224, 230)), i, j); //Powder Blue
+					drawRectangle(e.gc, new Color(disp, new RGB(176, 224, 230)), i + 1, j + 1); //Powder Blue
 					break;
 				case MINE_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_YELLOW), i, j);
+					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_YELLOW), i + 1, j + 1);
 					break;
 				case KILLED_MINE_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_YELLOW), i, j);
+					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_YELLOW), i + 1, j + 1);
 					break;
 				case SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_GRAY), i, j);
+					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_GRAY), i + 1, j + 1);
 					break;
 				case PADDED_SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_RED), i, j);
+					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_RED), i + 1, j + 1);
 					break;
 				case KILLED_SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_RED), i, j);
+					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_RED), i + 1, j + 1);
 					break;
 				default:
 					break;
@@ -349,7 +363,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_GREEN));
 			if (selectedObject.getFields() != null) {
 				for (Field f : selectedObject.getFields()) {
-					e.gc.drawRectangle(f.getX() * cellSize, f.getY() * cellSize, cellSize, cellSize);
+					e.gc.drawRectangle((f.getX() + 1) * cellSize, (f.getY() + 1) * cellSize, cellSize, cellSize);
 				}
 			}
 		}
@@ -360,7 +374,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
 			}
 			for (Field f : selectedFields) {
-				drawRectangle(e.gc, currentColor, f.getX(), f.getY());
+				drawRectangle(e.gc, currentColor, (f.getX() + 1), (f.getY() + 1));
 			}
 		}
 		
@@ -382,7 +396,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		shell2.setText("BattlwShip -> FirstMove");
 		
 		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
-		fieldZone.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
+		fieldZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
 		Composite shipGroup = new Composite(shell2, SWT.NONE);
 		//shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		shipGroup.setLayout(new GridLayout(1, false));
@@ -592,8 +606,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1 && e.count == 1) {
-					int x = e.x / cellSize;
-					int y = e.y / cellSize;
+					int x = e.x / cellSize - 1;
+					int y = e.y / cellSize - 1;
 					try {
 						if (selectedObject != null) {
 							try {
@@ -641,8 +655,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				if (e.button == 1) {
 					Field f;
 					try {
-						int x = e.x / cellSize;
-						int y = e.y / cellSize;
+						int x = e.x / cellSize - 1;
+						int y = e.y / cellSize - 1;
 						f = getZone().getField(x, y);
 					} catch (FieldNotFoundException ex){
 						return;
@@ -680,8 +694,8 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			@Override
 			public void mouseMove(MouseEvent e) {
 				if (selectedObject != null) {
-					int x = e.x / cellSize;
-					int y = e.y / cellSize;
+					int x = e.x / cellSize - 1;
+					int y = e.y / cellSize - 1;
 					try {
 						Field field = getZone().getField(x, y);
 						List<Field> temp = null;

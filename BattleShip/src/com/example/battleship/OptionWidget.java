@@ -15,9 +15,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+
+import com.example.battleship.exception.BattleShipException;
+import com.example.battleship.exception.InvalidFieldSizeException;
 
 public class OptionWidget {
 	private Display disp;
@@ -280,6 +284,16 @@ public class OptionWidget {
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
 					readOptions();
+					try {
+						checkOption();
+					} catch (InvalidFieldSizeException e1) {
+						MessageBox msg = new MessageBox(shell, SWT.OK);
+						msg.setText("Incalid field size");
+						msg.setMessage("Field size to small. Set recomended field size");	
+						msg.open();
+						sizeCount.setSelection((int)Math.sqrt(e1.getShipArea()) + 1);
+						return;
+					}
 					disposeShell();
 				}
 			}
@@ -321,11 +335,6 @@ public class OptionWidget {
 		shell.dispose();
 	}
 	
-	public static void main(String[] args) {
-		OptionWidget opt = new OptionWidget(new Display());
-		opt.start();
-	}
-	
 	private void readOptions() {
 		if (portLabel.getEnabled()) {
 			options.setProperty("port", portNum.getText());
@@ -350,9 +359,14 @@ public class OptionWidget {
 		}
 	}
 	
-	public void validateOptions() {
-		if (options.isEmpty()) {
-			return;
+	public void checkOption() throws InvalidFieldSizeException {
+		int shipArea = 0;
+		shipArea += 10 * aerocarierCount.getSelection();
+		shipArea += 8 * battleshipCount.getSelection();
+		shipArea += 6 * cruiserCount.getSelection();
+		shipArea += 2 * destroyerCount.getSelection();
+		if (shipArea > sizeCount.getSelection() * sizeCount.getSelection()) {
+			throw new InvalidFieldSizeException(shipArea);
 		}
 	}
 	
