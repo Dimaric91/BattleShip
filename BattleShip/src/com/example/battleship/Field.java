@@ -1,15 +1,9 @@
 package com.example.battleship;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.Externalizable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.OutputStream;
-import java.io.Serializable;
-
 import com.example.battleship.ships.Ship;
 
 public class Field implements Externalizable {

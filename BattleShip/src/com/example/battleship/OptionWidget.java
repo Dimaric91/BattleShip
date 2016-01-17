@@ -7,7 +7,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -20,7 +19,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-import com.example.battleship.exception.BattleShipException;
 import com.example.battleship.exception.InvalidFieldSizeException;
 
 public class OptionWidget {
@@ -46,8 +44,6 @@ public class OptionWidget {
 	private Button saveButton;
 	private Button loadButton;
 	private Button applyButton;
-	
-	private Properties options;
 	private Group userGroup;
 	private Label userLabel;
 	private Text userText;
@@ -59,6 +55,8 @@ public class OptionWidget {
 	private Label portLabel;
 	private Label hostLabel;
 	private Text hostText;
+	
+	private Properties options;
 	
 	public OptionWidget(Display disp) {
 		this.disp = disp;

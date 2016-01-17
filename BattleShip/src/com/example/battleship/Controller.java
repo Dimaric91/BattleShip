@@ -8,9 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Properties;
-import java.util.logging.Logger;
-import java.util.logging.MemoryHandler;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -29,7 +26,6 @@ import com.example.battleship.players.Player;
 
 public class Controller extends Thread {
 
-	private Display disp;
 	private LocalGUIPlayer player1;
 	private Player player2;
 	private Properties properties;
@@ -38,7 +34,6 @@ public class Controller extends Thread {
 	private ServerSocket serv = null;
 	public Controller(Display disp, Properties property) {
 		this.properties = property;
-		this.disp = disp;
 		switch(property.getProperty("playerType")) {
 			case "local":
 				this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), property);
