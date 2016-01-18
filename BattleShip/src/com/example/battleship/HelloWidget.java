@@ -2,8 +2,6 @@ package com.example.battleship;
 
 
 import java.util.Properties;
-import java.util.ResourceBundle;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -20,7 +18,6 @@ public class HelloWidget {
 	private Shell shell;
 	
 	private Button localButton;
-	//private Button networkButton;
 	private Button optionsButton;
 	
 	private Properties optProperty;
