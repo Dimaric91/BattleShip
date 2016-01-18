@@ -31,7 +31,6 @@ public class HelloWidget {
 		GridLayout layout = new GridLayout(1, false);
 		layout.verticalSpacing = 13;
 		shell.setLayout(new GridLayout(1, false));
-		//shell.setLayout(layout);
 		shell.setText(Controller.rb.getString("gameName"));
 		
 		
@@ -39,12 +38,10 @@ public class HelloWidget {
 		Form form = tool.createForm(shell);
 		form.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		localButton = tool.createButton(form.getBody(), Controller.rb.getString("newGame"), SWT.PUSH);
-		//networkButton = tool.createButton(form.getBody(), "Network Game", SWT.PUSH);
 		optionsButton = tool.createButton(form.getBody(), Controller.rb.getString("options"), SWT.PUSH);
 		
 		form.getBody().setLayout(layout);
 		localButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		//networkButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		optionsButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		
@@ -61,13 +58,6 @@ public class HelloWidget {
 				}
 			}
 		});
-		
-//		networkButton.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseDown(MouseEvent e) {
-//				
-//			}
-//		});
 		
 		optionsButton.addMouseListener(new MouseAdapter() {
 			@Override
