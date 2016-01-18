@@ -33,7 +33,6 @@ public class OptionWidget {
 	private Label battleshipLabel;
 	private Label cruiserLabel;
 	private Label destroyerLabel;
-	private Group sizeFieldGroup;
 	private Label sizeLabel;
 	private Spinner sizeCount;
 	private Button randomButton;
@@ -66,26 +65,26 @@ public class OptionWidget {
 
 	private Shell createShell(Display disp) {
 		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
-		shell.setText("BattleShip -> Option");
+		shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("options"));
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
 		layout.horizontalSpacing = 8;
 		
 		gameGroup = new Group(shell, SWT.NONE);
-		gameGroup.setText("Тип игры");
-		gameGroup.setLayout(new GridLayout(2, false));
+		gameGroup.setText(Controller.rb.getString("gameType"));
+		gameGroup.setLayout(new GridLayout(2, true));
 		gameGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		localGameButton = new Button(gameGroup, SWT.RADIO);
-		localGameButton.setText("Игра с AI");
+		localGameButton.setText(Controller.rb.getString("gameWithComputer"));
 		localGameButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 		
 		bindNetworkButton = new Button(gameGroup, SWT.RADIO);
-		bindNetworkButton.setText("Создать сетевую игру");
+		bindNetworkButton.setText(Controller.rb.getString("gameNetworkBind"));
 		bindNetworkButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 		
 		connectNetworkButton = new Button(gameGroup, SWT.RADIO);
-		connectNetworkButton.setText("Присоединиться к игре");
+		connectNetworkButton.setText(Controller.rb.getString("gameNetworkConnect"));
 		connectNetworkButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
 		
 		localGameButton.addSelectionListener(new SelectionAdapter() {
@@ -96,7 +95,6 @@ public class OptionWidget {
 				hostLabel.setEnabled(false);
 				hostText.setEnabled(false);
 				options.setProperty("playerType", "local");
-				sizeFieldGroup.setVisible(true);
 				countGroup.setVisible(true);
 			}
 		});
@@ -109,7 +107,6 @@ public class OptionWidget {
 				hostLabel.setEnabled(false);
 				hostText.setEnabled(false);
 				options.setProperty("playerType", "bind");
-				sizeFieldGroup.setVisible(true);
 				countGroup.setVisible(true);
 			}
 		});
@@ -122,7 +119,6 @@ public class OptionWidget {
 				hostLabel.setEnabled(true);
 				hostText.setEnabled(true);
 				options.setProperty("playerType", "connect");
-				sizeFieldGroup.setVisible(false);
 				countGroup.setVisible(false);
 			}
 			
@@ -130,7 +126,7 @@ public class OptionWidget {
 		});
 		
 		portLabel = new Label(gameGroup, SWT.NONE);
-		portLabel.setText("Порт:");
+		portLabel.setText(Controller.rb.getString("port") + ":");
 		portLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		portLabel.setEnabled(false);
 		
@@ -138,11 +134,11 @@ public class OptionWidget {
 		portNum.setMaximum(20000);
 		portNum.setMinimum(10001);
 		portNum.setSelection(10001);
-		portNum.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		portNum.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		portNum.setEnabled(false);
 		
 		hostLabel = new Label(gameGroup, SWT.NONE);
-		hostLabel.setText("Адрес:");
+		hostLabel.setText(Controller.rb.getString("host") + ":");
 		hostLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		hostLabel.setEnabled(false);
 		
@@ -152,47 +148,42 @@ public class OptionWidget {
 		hostText.setEnabled(false);
 		
 		userGroup = new Group(shell, SWT.NONE);
-		userGroup.setText("Имя пользователя");
-		userGroup.setLayout(new GridLayout(2, false));
+		userGroup.setText(Controller.rb.getString("userOptions"));
+		userGroup.setLayout(new GridLayout(2, true));
 		userGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		userLabel = new Label(userGroup, SWT.NONE);
-		userLabel.setText("Имя пользователя = ");
-		userLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+		userLabel.setText(Controller.rb.getString("username") + ":");
+		userLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
 		
 		userText = new Text(userGroup, SWT.BORDER);
 		userText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		userText.setText(System.getProperty("user.name"));
 		
 		randomButton = new Button(userGroup, SWT.CHECK);
-		randomButton.setText("Случайное расположение кораблей?");
+		randomButton.setText(Controller.rb.getString("isRandom"));
 		randomButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 ,1));
 		
 		randomButton.setSelection(true);
 		
-		sizeFieldGroup = new Group(shell, SWT.NONE);
-		sizeFieldGroup.setLayout(new GridLayout(2, false));
-		sizeFieldGroup.setText("Размер поля");
-		sizeFieldGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		countGroup = new Group(shell, SWT.NONE);
+		countGroup.setLayout(new GridLayout(2, false));
+		countGroup.setText(Controller.rb.getString("gameOptions"));
+		countGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
-		sizeLabel = new Label(sizeFieldGroup, SWT.NONE);
-		sizeLabel.setText("Размер поля = ");
+		sizeLabel = new Label(countGroup, SWT.NONE);
+		sizeLabel.setText(Controller.rb.getString("fieldSize") + " = ");
 		sizeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
-		sizeCount = new Spinner(sizeFieldGroup, SWT.NONE);
+		sizeCount = new Spinner(countGroup, SWT.NONE);
 		sizeCount.setMinimum(0);
 		sizeCount.setMaximum(40);
 		sizeCount.setSelection(10);
 		sizeCount.setIncrement(1);
-		sizeCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
-		
-		countGroup = new Group(shell, SWT.NONE);
-		countGroup.setLayout(new GridLayout(2, false));
-		countGroup.setText("Объекты");
-		countGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sizeCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		aerocarierLabel = new Label(countGroup, SWT.NONE);
-		aerocarierLabel.setText("Количество авианосцев = ");
+		aerocarierLabel.setText(Controller.rb.getString("aerocarierCount") + " = ");
 		aerocarierLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		aerocarierCount = new Spinner(countGroup, SWT.READ_ONLY);
@@ -200,10 +191,10 @@ public class OptionWidget {
 		aerocarierCount.setMaximum(5);
 		aerocarierCount.setIncrement(1);
 		aerocarierCount.setSelection(1);
-		aerocarierCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		aerocarierCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		battleshipLabel = new Label(countGroup, SWT.NONE);
-		battleshipLabel.setText("Количество линейных кораблей = ");
+		battleshipLabel.setText(Controller.rb.getString("battleshipCount") + " = ");
 		battleshipLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		battleshipCount = new Spinner(countGroup, SWT.READ_ONLY);
@@ -211,10 +202,10 @@ public class OptionWidget {
 		battleshipCount.setMaximum(6);
 		battleshipCount.setIncrement(1);
 		battleshipCount.setSelection(2);
-		battleshipCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		battleshipCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		cruiserLabel = new Label(countGroup, SWT.NONE);
-		cruiserLabel.setText("Количество крейсеров = ");
+		cruiserLabel.setText(Controller.rb.getString("cruiserCount") + " = ");
 		cruiserLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		cruiserCount = new Spinner(countGroup, SWT.READ_ONLY);
@@ -222,10 +213,10 @@ public class OptionWidget {
 		cruiserCount.setMaximum(7);
 		cruiserCount.setIncrement(1);
 		cruiserCount.setSelection(3);
-		cruiserCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		cruiserCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		destroyerLabel = new Label(countGroup, SWT.NONE);
-		destroyerLabel.setText("Количество эсминцев = ");
+		destroyerLabel.setText(Controller.rb.getString("destroyerCount") + " = ");
 		destroyerLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		destroyerCount = new Spinner(countGroup, SWT.READ_ONLY);
@@ -233,10 +224,10 @@ public class OptionWidget {
 		destroyerCount.setMaximum(8);
 		destroyerCount.setIncrement(1);
 		destroyerCount.setSelection(4);
-		destroyerCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		destroyerCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		mineUseButton = new Button(countGroup, SWT.CHECK);
-		mineUseButton.setText("Использовать мины?");
+		mineUseButton.setText(Controller.rb.getString("isMine"));
 		mineUseButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false, 2 , 1));
 		
 		mineUseButton.addSelectionListener(new SelectionAdapter() {
@@ -250,7 +241,7 @@ public class OptionWidget {
 		mineUseButton.setSelection(false);
 		
 		mineLabel = new Label(countGroup, SWT.NONE);
-		mineLabel.setText("Количество мин = ");
+		mineLabel.setText(Controller.rb.getString("mineCount") + " = ");
 		mineLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		mineLabel.setEnabled(false);
 		
@@ -258,7 +249,7 @@ public class OptionWidget {
 		mineCount.setMinimum(0);
 		mineCount.setMaximum(5);
 		mineCount.setIncrement(1);
-		mineCount.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		mineCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		mineCount.setEnabled(false);
 		
 		buttonGroup = new Composite(shell,  SWT.NONE);
@@ -266,15 +257,15 @@ public class OptionWidget {
 		buttonGroup.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false));
 		
 		saveButton = new Button(buttonGroup, SWT.PUSH);
-		saveButton.setText("Save Settings");
+		saveButton.setText(Controller.rb.getString("saveSettings"));
 		saveButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		loadButton = new Button(buttonGroup, SWT.PUSH);
-		loadButton.setText("Load Settings");
+		loadButton.setText(Controller.rb.getString("loadSettings"));
 		loadButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		applyButton = new Button(buttonGroup, SWT.PUSH);
-		applyButton.setText("Apply");
+		applyButton.setText(Controller.rb.getString("applySettings"));
 		applyButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		applyButton.addMouseListener(new MouseAdapter() {
@@ -286,8 +277,8 @@ public class OptionWidget {
 						checkOption();
 					} catch (InvalidFieldSizeException e1) {
 						MessageBox msg = new MessageBox(shell, SWT.OK);
-						msg.setText("Incalid field size");
-						msg.setMessage("Field size to small. Set recomended field size");	
+						msg.setText(Controller.rb.getString("invalidFieldSize"));
+						msg.setMessage(Controller.rb.getString("invalidFieldSizeMessage"));	
 						msg.open();
 						sizeCount.setSelection((int)Math.sqrt(e1.getShipArea()) + 1);
 						return;

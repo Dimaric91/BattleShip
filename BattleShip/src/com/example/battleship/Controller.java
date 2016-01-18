@@ -8,6 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Properties;
+import java.util.ResourceBundle;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -26,6 +28,8 @@ import com.example.battleship.players.Player;
 
 public class Controller extends Thread {
 
+	public final static ResourceBundle rb = ResourceBundle.getBundle("battleShip");
+	
 	private LocalGUIPlayer player1;
 	private Player player2;
 	private Properties properties;

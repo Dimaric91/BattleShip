@@ -2,6 +2,7 @@ package com.example.battleship;
 
 
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -34,15 +35,15 @@ public class HelloWidget {
 		layout.verticalSpacing = 13;
 		shell.setLayout(new GridLayout(1, false));
 		//shell.setLayout(layout);
-		shell.setText("BattleShip!");
+		shell.setText(Controller.rb.getString("gameName"));
 		
 		
 		FormToolkit tool = new FormToolkit(disp);
 		Form form = tool.createForm(shell);
 		form.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
-		localButton = tool.createButton(form.getBody(), "New Game", SWT.PUSH);
+		localButton = tool.createButton(form.getBody(), Controller.rb.getString("newGame"), SWT.PUSH);
 		//networkButton = tool.createButton(form.getBody(), "Network Game", SWT.PUSH);
-		optionsButton = tool.createButton(form.getBody(), "Options", SWT.PUSH);
+		optionsButton = tool.createButton(form.getBody(), Controller.rb.getString("options"), SWT.PUSH);
 		
 		form.getBody().setLayout(layout);
 		localButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -108,7 +109,7 @@ public class HelloWidget {
 	}
 	
 	public boolean isSetOption() {
-		return (optProperty != null) && !optProperty.isEmpty();
+		return (optProperty != null) && optProperty.size() > 1;
 	}
 	
 	public Properties getOptions() {
