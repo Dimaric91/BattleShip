@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
+import com.example.battleship.Controller;
 import com.example.battleship.Direction;
-import com.example.battleship.Field;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.exception.FieldNotFoundException;
@@ -76,8 +76,8 @@ public abstract class Player {
 		for (Ship ship : lst) {
 			if (ship.getState() == Ship.DEAD_STATE) {
 				ships.remove(ship);
-				System.out.println("Player " + getName() + " loss ship at x = " + ship.getFields().get(0).getX() + 
-						", y = " + ship.getFields().get(0).getY());
+				System.out.println(Controller.rb.getString("player") + " " + getName() + " " + Controller.rb.getString("lossShip")+ 
+						" x = " + ship.getFields().get(0).getX() + ", y = " + ship.getFields().get(0).getY());
 			}
 		}
 		return ships.isEmpty();
@@ -98,8 +98,6 @@ public abstract class Player {
 					ship.move(zone, zone.getField(x, y), Direction.values()[d]);
 					break;
 				} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
-					//System.err.println(e.getMessage());
-					//System.err.println("Try again");
 				}
 			}
 		}

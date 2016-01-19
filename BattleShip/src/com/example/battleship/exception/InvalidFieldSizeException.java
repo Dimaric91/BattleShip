@@ -1,5 +1,6 @@
 package com.example.battleship.exception;
 
+@SuppressWarnings("serial")
 public class InvalidFieldSizeException extends BattleShipException{
 	
 	private int shipArea;

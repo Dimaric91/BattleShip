@@ -1,12 +1,12 @@
 package com.example.battleship.players;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Random;
 
+import com.example.battleship.Controller;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
 import com.example.battleship.exception.CannotCreateMessage;
@@ -82,10 +82,10 @@ public class NetworkPlayer extends Player {
 				if (((ShotMessage)message).getPaddedField() != null) {
 					Field padded = ((ShotMessage)message).getPaddedField();
 					zone.getField(padded.getX(), padded.getY()).shotOnField(null);
-					System.out.println(" padded on mine at x = " + target.getX() + ", y = " + target.getY() +  
-							"and loss his ship field at x =" + padded.getX() + ", y = " + padded.getY());
+					System.out.println(" " + Controller.rb.getString("paddedOnMine") + " x = " + target.getX() + ", y = " + target.getY() +  
+							", " + Controller.rb.getString("lossShip") + " x =" + padded.getX() + ", y = " + padded.getY());
 				} else {
-					System.out.println("shot on x = " + target.getX() + ", y = " + target.getY());
+					System.out.println(" " + Controller.rb.getString("shotOn") + " x = " + target.getX() + ", y = " + target.getY());
 				}
 				ret = enemy.shotOnField(target.getX(), target.getY(), null);
 			}
@@ -95,7 +95,7 @@ public class NetworkPlayer extends Player {
 				for (Field f : movedShip.getFields()) {
 					fields.add(zone.getField(f.getX(), f.getY()));
 				}
-				System.out.println(" move ship");
+				System.out.println(" " + Controller.rb.getString("movedShip"));
 				ships.get(ships.indexOf(movedShip)).move(zone, fields);
 			}
 		} catch (CannotCreateMessage | IOException | FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {

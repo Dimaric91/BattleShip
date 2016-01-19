@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.widgets;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+
+import com.example.battleship.Controller;
 
 public class WaitWidget extends Thread {
 	private Controller controller;
@@ -31,21 +33,20 @@ public class WaitWidget extends Thread {
 	}
 
 	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.RESIZE | SWT.APPLICATION_MODAL);
-		shell.setText("BattleShip -> Wait Remote Player");
+		Shell shell = new Shell(disp, SWT.TITLE | SWT.RESIZE | SWT.APPLICATION_MODAL);
+		shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("wait"));
 		
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
-		//layout.horizontalSpacing = 8;
 		
 		Label info = new Label(shell, SWT.NONE);
 		info.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-		info.setText("Waiting remote player");
+		info.setText(Controller.rb.getString("waitingPlayer"));
 		
 		
 		Button bCancel = new Button(shell, SWT.PUSH);
 		bCancel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
-		bCancel.setText("Cancel");
+		bCancel.setText(Controller.rb.getString("cancel"));
 		
 		bCancel.addMouseListener(new MouseAdapter() {
 			@Override

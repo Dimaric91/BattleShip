@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.widgets;
 
 import java.util.Properties;
 
@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.example.battleship.Controller;
 import com.example.battleship.exception.InvalidFieldSizeException;
 
 public class OptionWidget {

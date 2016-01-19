@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.widgets;
 
 
 import java.util.Properties;
@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
+
+import com.example.battleship.Controller;
 
 public class HelloWidget {
 	private Display disp;

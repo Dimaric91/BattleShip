@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
+import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
@@ -16,8 +16,6 @@ import com.example.battleship.ships.Ship;
 
 public class AIPlayer extends Player {
 
-	private Map<Field, Direction> poolOfTargets;
-	
 	private List<Field> poolOfNext;	
 	private Field firstShotField = null;
 	private Direction currentDirection;
@@ -81,7 +79,7 @@ public class AIPlayer extends Player {
 		}
 		if (firstShotField == null || currentShot == null)
 			currentShot = poolOfNext.remove(rnd.nextInt(poolOfNext.size()));
-		System.out.println(" shot on x = " + currentShot.getX() + ", y = " + currentShot.getY());
+		System.out.println(" " + Controller.rb.getString("shotOn") + " x = " + currentShot.getX() + ", y = " + currentShot.getY());
 		if (currentShot.shotOnField(ship)) {
 			if (firstShotField == null) {
 				firstShotField = currentShot;

@@ -1,6 +1,5 @@
 package com.example.battleship.players;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -20,7 +19,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -98,13 +96,13 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
-		shell.setText("BattleShip!");
+		shell.setText(Controller.rb.getString("gameName"));
 		
 		Group ourGroup = new Group(shell, SWT.NONE);
-		ourGroup.setText(getName() + " ships");
+		ourGroup.setText(getName() + " " + Controller.rb.getString("ships"));
 		ourGroup.setLayout(new GridLayout());
 		Group enemyGroup = new Group(shell, SWT.NONE);
-		enemyGroup.setText(getEnemy().getName() + " ships");
+		enemyGroup.setText(getEnemy().getName() + " " + Controller.rb.getString("ships"));
 		enemyGroup.setLayout(new GridLayout());
 		
 		ourZone = new Canvas(ourGroup, SWT.BORDER);
@@ -161,9 +159,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 									if (selectedObject instanceof Ship) {
 										((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
 									} 
-//									else {
-//										((Mine)selectedObject).move(zone.getField(x, y));
-//									}
 									isMove = true;
 									movedShip = (Ship) selectedObject;
 								}
@@ -179,7 +174,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 								selectedObject = f.getObj();
 								if (((Ship)selectedObject).getState() != Ship.ALIVE_STATE) {
 									MessageBox message = new MessageBox(shell);
-									message.setMessage("ship is hitted");
+									message.setMessage(Controller.rb.getString("shipIsHitted"));
 									message.open();
 									selectedObject = null;
 									return;
@@ -190,7 +185,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 							}
 							if (f.getObj() instanceof Mine) {
 								MessageBox message = new MessageBox(shell);
-								message.setMessage("In this phase mine doen't move");
+								message.setMessage(Controller.rb.getString("errorMoveMine"));
 								message.open();
 								return;
 							}
@@ -234,7 +229,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 							}
 						} catch (ShipIsHittedException ex) {
 							MessageBox message = new MessageBox(shell);
-							message.setMessage("ship is hitted");
+							message.setMessage(Controller.rb.getString("shipIsHitted"));
 							message.open();
 						}
 						selectedObject = null;
@@ -384,23 +379,17 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		dialogMove();
 	}
 	
-//	private Label InitLabel(Group shipGroup, int size) {
-//		
-//	}
-	
 	public void dialogMove() {
 		Shell shell2 = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell2.setLayout(layout);
-		shell2.setText("BattlwShip -> FirstMove");
+		shell2.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove"));
 		
 		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
 		fieldZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
 		Composite shipGroup = new Composite(shell2, SWT.NONE);
-		//shipGroup.setLayoutData(new GridData(cellSize * getZone().getSize(), cellSize * getZone().getSize()));
 		shipGroup.setLayout(new GridLayout(1, false));
-		//shipGroup.setText("Ships");
 
 		Group ship4 = null;
 		Group ship3 = null;
@@ -413,11 +402,11 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		bottom.setLayout(new GridLayout(2,false));
 		
 		Button bRandom = new Button(bottom, SWT.PUSH);
-		bRandom.setText("Random");
+		bRandom.setText(Controller.rb.getString("randomButton"));
 		bRandom.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		Button bOK = new Button(bottom, SWT.PUSH);
-		bOK.setText("Start");
+		bOK.setText(Controller.rb.getString("startButton"));
 		bOK.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
 		currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
@@ -431,7 +420,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			case 1:
 				if (ship1 == null) {
 					ship1 = new Group(shipGroup, SWT.NONE);
-					ship1.setText("Destroyers");
+					ship1.setText(Controller.rb.getString("destroyers"));
 					ship1.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship1, SWT.NONE);
@@ -440,7 +429,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			case 2:
 				if (ship2 == null) {
 					ship2 = new Group(shipGroup, SWT.NONE);
-					ship2.setText("Cruisers");
+					ship2.setText(Controller.rb.getString("cruisers"));
 					ship2.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship2, SWT.NONE);
@@ -449,7 +438,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			case 3:
 				if (ship3 == null) {
 					ship3 = new Group(shipGroup, SWT.NONE);
-					ship3.setText("Battleships");
+					ship3.setText(Controller.rb.getString("battleships"));
 					ship3.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship3, SWT.NONE);
@@ -458,7 +447,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			case 4:
 				if (ship4 == null) {
 					ship4 = new Group(shipGroup, SWT.NONE);
-					ship4.setText("Aerocariers");
+					ship4.setText(Controller.rb.getString("aerocariers"));
 					ship4.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship4, SWT.NONE);
@@ -475,7 +464,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				@Override
 				public void mouseDown(MouseEvent e) {
 					if (selectedObject == null) {
-						//shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
 						((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
 						selectedObject = s;
 						selectedDirection = Direction.DOWN;
@@ -508,7 +496,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 		for (Mine m : mines) {
 			if (mine == null) {
 				mine = new Group(shipGroup, SWT.NONE);
-				mine.setText("Mines");
+				mine.setText(Controller.rb.getString("mines"));
 				mine.setLayout(new GridLayout(2, false));
 			}
 			Label mineLabel = new Label(mine, SWT.NONE);
@@ -576,7 +564,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				for (Ship s : ships) {
 					if (s.getFields() == null) {
 						MessageBox message = new MessageBox(shell2);
-						message.setMessage("Not all ships placed");
+						message.setMessage(Controller.rb.getString("notAllShips"));
 						message.open();
 						return;
 					}
@@ -584,7 +572,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 				for (Mine m : mines) {
 					if (m.getFields() == null) {
 						MessageBox message = new MessageBox(shell2);
-						message.setMessage("Not all mines placed");
+						message.setMessage(Controller.rb.getString("notAllMines"));
 						message.open();
 						return;
 					}
@@ -677,7 +665,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 							}
 						} catch (ShipIsHittedException ex) {
 							MessageBox message = new MessageBox(shell2);
-							message.setMessage("ship is hitted");
+							message.setMessage(Controller.rb.getString("shipIsHitted"));
 							message.open();
 						}
 						selectedObject = null;
@@ -739,7 +727,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 					Thread.sleep(1000);
 					if (isMove) {
 						enemy.shotOnField(shotX, shotY, movedShip);
-						System.out.println(" move ship to x = " + movedShip.getFields().get(0).getX() + 
+						System.out.println(" " + Controller.rb.getString("movedShip") + " to x = " + movedShip.getFields().get(0).getX() + 
 								", y = " + movedShip.getFields().get(0).getY());
 						movedShip = null;
 						return false;
@@ -753,7 +741,7 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		
 			try {
-				System.out.println(" shot on x = " + shotX + ", y = " + shotY);
+				System.out.println(" " + Controller.rb.getString("shotOn") + " x = " + shotX + ", y = " + shotY);
 				return enemy.shotOnField(shotX, shotY, ship);
 			} catch (FieldNotFoundException e) {
 			} finally {
