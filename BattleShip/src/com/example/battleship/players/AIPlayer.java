@@ -80,19 +80,22 @@ public class AIPlayer extends Player {
 		if (firstShotField == null || currentShot == null)
 			currentShot = poolOfNext.remove(rnd.nextInt(poolOfNext.size()));
 		System.out.println(" " + Controller.rb.getString("shotOn") + " x = " + currentShot.getX() + ", y = " + currentShot.getY());
-		if (currentShot.shotOnField(ship)) {
+		boolean ret;
+		if (ret = currentShot.shotOnField(ship)) {
 			if (firstShotField == null) {
 				firstShotField = currentShot;
 				currentDirection = Direction.values()[rnd.nextInt(Direction.values().length)];
 			}
-			return true;
 		} else {
 			if (firstShotField != null) {
 				currentDirection = currentDirection.getOpposite();
 			}
-			return false;
 		}
-		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		return ret;
 	}
 
 	@Override

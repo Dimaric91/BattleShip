@@ -205,17 +205,11 @@ public class Controller extends Thread {
 			System.out.println(Controller.rb.getString("player") + " " + player2.getName() + " " + Controller.rb.getString("ready"));
 		}
 			
-		player1.getDisp().asyncExec(player1);
+		player1.redraw();
 		while (true) {
 			System.out.println(Controller.rb.getString("nowTurn") + " " + current.getName() + ":");
 			while (current.shot(current.getShip())) {
-				if (current instanceof AIPlayer) {
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-					}
-				}
-				player1.getDisp().asyncExec(player1);
+				player1.redraw();
 				if (current.getEnemy().isGameOver()) {
 					winner = current.getName();
 					break;
@@ -229,7 +223,6 @@ public class Controller extends Thread {
 					
 					@Override
 					public void run() {
-						player1.run();
 						MessageBox message = new MessageBox(player1.getShell());
 						message.setMessage(Controller.rb.getString("player") + " " + winner + " " + Controller.rb.getString("win") + "!");
 						message.setText(winner + " " + Controller.rb.getString("win"));
@@ -243,7 +236,7 @@ public class Controller extends Thread {
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
-			player1.getDisp().asyncExec(player1);
+			player1.redraw();
 		}
 	}
 

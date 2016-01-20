@@ -1,5 +1,12 @@
 package com.example.battleship.widgets;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
@@ -12,6 +19,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -35,7 +43,7 @@ public class OptionWidget {
 	private Label cruiserLabel;
 	private Label destroyerLabel;
 	private Label sizeLabel;
-	private Spinner sizeCount;
+	private Spinner sizeField;
 	private Button randomButton;
 	private Button mineUseButton;
 	private Label mineLabel;
@@ -176,12 +184,12 @@ public class OptionWidget {
 		sizeLabel.setText(Controller.rb.getString("fieldSize") + " = ");
 		sizeLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
 		
-		sizeCount = new Spinner(countGroup, SWT.NONE);
-		sizeCount.setMinimum(0);
-		sizeCount.setMaximum(40);
-		sizeCount.setSelection(10);
-		sizeCount.setIncrement(1);
-		sizeCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		sizeField = new Spinner(countGroup, SWT.NONE);
+		sizeField.setMinimum(0);
+		sizeField.setMaximum(40);
+		sizeField.setSelection(10);
+		sizeField.setIncrement(1);
+		sizeField.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
 		aerocarierLabel = new Label(countGroup, SWT.NONE);
 		aerocarierLabel.setText(Controller.rb.getString("aerocarierCount") + " = ");
@@ -239,19 +247,18 @@ public class OptionWidget {
 			}
 		});
 		
-		mineUseButton.setSelection(false);
+		mineUseButton.setSelection(true);
 		
 		mineLabel = new Label(countGroup, SWT.NONE);
 		mineLabel.setText(Controller.rb.getString("mineCount") + " = ");
 		mineLabel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
-		mineLabel.setEnabled(false);
 		
 		mineCount = new Spinner(countGroup, SWT.READ_ONLY);
 		mineCount.setMinimum(0);
 		mineCount.setMaximum(5);
 		mineCount.setIncrement(1);
+		mineCount.setSelection(2);
 		mineCount.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-		mineCount.setEnabled(false);
 		
 		buttonGroup = new Composite(shell,  SWT.NONE);
 		buttonGroup.setLayout(new GridLayout(3, false));
@@ -273,7 +280,7 @@ public class OptionWidget {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if (e.button == 1) {
-					readOptions();
+					options = readOptions();
 					try {
 						checkOption();
 					} catch (InvalidFieldSizeException e1) {
@@ -281,7 +288,7 @@ public class OptionWidget {
 						msg.setText(Controller.rb.getString("invalidFieldSize"));
 						msg.setMessage(Controller.rb.getString("invalidFieldSizeMessage"));	
 						msg.open();
-						sizeCount.setSelection((int)Math.sqrt(e1.getShipArea()) + 1);
+						sizeField.setSelection((int)Math.sqrt(e1.getShipArea()) + 1);
 						return;
 					}
 					disposeShell();
@@ -292,14 +299,53 @@ public class OptionWidget {
 		saveButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				// TODO Store on properties
+				Properties property = readOptions();
+				FileDialog fd = new FileDialog(shell, SWT.SAVE);
+				fd.setFilterNames(new String[] {"XML files"});
+				fd.setFilterExtensions(new String[] {"*.xml"});
+				fd.open();
+				if (fd.getFileName().equals(""))
+					return;
+				try {
+					File file = FileSystems.getDefault().getPath(fd.getFilterPath(), fd.getFileName()).toFile();
+					FileOutputStream fos = new FileOutputStream(file);
+					property.storeToXML(fos, null);
+					fos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		
 		loadButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				// TODO loadFromProperties
+				Properties property = new Properties();
+				FileDialog fd = new FileDialog(shell, SWT.OPEN);
+				fd.setFilterNames(new String[] {"XML files"});
+				fd.setFilterExtensions(new String[] {"*.xml"});
+				fd.open();
+				if (fd.getFileName().equals(""))
+					return;
+				try {
+					File file = FileSystems.getDefault().getPath(fd.getFilterPath(), fd.getFileName()).toFile();
+					FileInputStream fis = new FileInputStream(file);
+					property.loadFromXML(fis);
+					fis.close();
+					redraw(property);
+				} catch (InvalidPropertiesFormatException e1) {
+					MessageBox msg = new MessageBox(shell, SWT.OK);
+					msg.setText(Controller.rb.getString("invalidOptionFile"));
+					msg.setMessage(Controller.rb.getString("invalidOptionFileMessage"));	
+					msg.open();
+				} catch (FileNotFoundException e1) {
+					MessageBox msg = new MessageBox(shell, SWT.OK);
+					msg.setText(Controller.rb.getString("fileNotFound"));
+					msg.setMessage(Controller.rb.getString("fileNotFoundMessage"));	
+					msg.open();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		
@@ -325,28 +371,31 @@ public class OptionWidget {
 		shell.dispose();
 	}
 	
-	private void readOptions() {
+	private Properties readOptions() {
+		Properties property = new Properties();
+		property.setProperty("playerType", options.getProperty("playerType"));
 		if (portLabel.getEnabled()) {
-			options.setProperty("port", portNum.getText());
+			property.setProperty("port", portNum.getText());
 		}
 		if (hostLabel.getEnabled()) {
-			options.setProperty("host", hostText.getText());
+			property.setProperty("host", hostText.getText());
 		}
 		
-		options.setProperty("username", userText.getText());
-		options.setProperty("fieldSize", Integer.toString(sizeCount.getSelection()));
-		options.setProperty("isRandom", Boolean.toString(randomButton.getSelection()));
+		property.setProperty("username", userText.getText());
+		property.setProperty("fieldSize", Integer.toString(sizeField.getSelection()));
+		property.setProperty("isRandom", Boolean.toString(randomButton.getSelection()));
 		
-		options.setProperty("aerocarierCount", Integer.toString(aerocarierCount.getSelection()));
-		options.setProperty("battleshipCount", Integer.toString(battleshipCount.getSelection()));
-		options.setProperty("cruiserCount", Integer.toString(cruiserCount.getSelection()));
-		options.setProperty("destroyerCount", Integer.toString(destroyerCount.getSelection()));
+		property.setProperty("aerocarierCount", Integer.toString(aerocarierCount.getSelection()));
+		property.setProperty("battleshipCount", Integer.toString(battleshipCount.getSelection()));
+		property.setProperty("cruiserCount", Integer.toString(cruiserCount.getSelection()));
+		property.setProperty("destroyerCount", Integer.toString(destroyerCount.getSelection()));
 		
 		if (mineUseButton.getSelection()) {
-			options.setProperty("mineCount", Integer.toString(mineCount.getSelection()));
+			property.setProperty("mineCount", Integer.toString(mineCount.getSelection()));
 		} else {
-			options.setProperty("mineCount", "0");
+			property.setProperty("mineCount", "0");
 		}
+		return property;
 	}
 	
 	public void checkOption() throws InvalidFieldSizeException {
@@ -355,8 +404,40 @@ public class OptionWidget {
 		shipArea += 8 * battleshipCount.getSelection();
 		shipArea += 6 * cruiserCount.getSelection();
 		shipArea += 2 * destroyerCount.getSelection();
-		if (shipArea > sizeCount.getSelection() * sizeCount.getSelection()) {
+		if (shipArea > sizeField.getSelection() * sizeField.getSelection()) {
 			throw new InvalidFieldSizeException(shipArea);
+		}
+	}
+	
+	public void redraw(Properties property) {
+		if (property.containsKey("port")) {
+			portLabel.setEnabled(true);
+			portNum.setEnabled(true);
+			portNum.setSelection(Integer.parseInt(property.getProperty("port")));
+		}
+		if (property.containsKey("host")) {
+			hostLabel.setEnabled(true);
+			hostText.setEnabled(true);
+			hostText.setText(property.getProperty("host"));
+		}
+		userText.setText(property.getProperty("username"));
+		sizeField.setSelection(Integer.parseInt(property.getProperty("fieldSize")));
+		randomButton.setSelection(Boolean.parseBoolean(property.getProperty("isRandom")));
+		
+		aerocarierCount.setSelection(Integer.parseInt(property.getProperty("aerocarierCount")));
+		battleshipCount.setSelection(Integer.parseInt(property.getProperty("battleshipCount")));
+		cruiserCount.setSelection(Integer.parseInt(property.getProperty("cruiserCount")));
+		destroyerCount.setSelection(Integer.parseInt(property.getProperty("destroyerCount")));
+		
+		mineCount.setSelection(Integer.parseInt(property.getProperty("mineCount")));
+		if (mineCount.getSelection() > 0) {
+			mineUseButton.setSelection(true);
+			mineLabel.setEnabled(true);
+			mineCount.setEnabled(true);
+		} else {
+			mineUseButton.setSelection(false);
+			mineLabel.setEnabled(false);
+			mineCount.setEnabled(false);
 		}
 	}
 	

@@ -42,7 +42,7 @@ import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.ReadyMessage;
 import com.example.battleship.ships.Ship;
 
-public class LocalGUIPlayer extends Player implements Runnable{
+public class LocalGUIPlayer extends Player {
 
 	private Controller controller;
 	
@@ -79,8 +79,15 @@ public class LocalGUIPlayer extends Player implements Runnable{
 	}
 
 	public void redraw() {
-		ourZone.redraw();
-		enemyZone.redraw();
+		disp.syncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				ourZone.redraw();
+				enemyZone.redraw();
+			}
+		});
+		
 	}
 	
 	public ReadyMessage getReady() {
@@ -284,11 +291,6 @@ public class LocalGUIPlayer extends Player implements Runnable{
 			}
 		}
 		dispose();	
-	}
-	
-	@Override
-	public void run() {
-		redraw();
 	}
 	
 	public void dispose() {
