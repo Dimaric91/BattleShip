@@ -71,6 +71,7 @@ public class LocalGUIPlayer extends Player {
 		this.selectedDirection = Direction.RIGHT;
 		this.disp = disp;
 		this.controller = c;
+		
 		if (Boolean.valueOf(property.getProperty("isRandom"))) {
 			RandomMove();
 		} else {
@@ -414,7 +415,6 @@ public class LocalGUIPlayer extends Player {
 		currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
 		
 		HashMap<SeaObject, Label> labels = new HashMap<>();
-		
 		for (Ship s : ships) {
 			Label shipLabel = null;
 			
@@ -426,7 +426,7 @@ public class LocalGUIPlayer extends Player {
 					ship1.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship1, SWT.NONE);
-				shipLabel.setImage(new Image(disp, "resources\\destroyer.png"));
+				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("destroyer.png")));
 				break;
 			case 2:
 				if (ship2 == null) {
@@ -435,7 +435,8 @@ public class LocalGUIPlayer extends Player {
 					ship2.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship2, SWT.NONE);
-				shipLabel.setImage(new Image(disp, "resources\\cruiser.png"));
+				;
+				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("cruiser.png")));
 				break;
 			case 3:
 				if (ship3 == null) {
@@ -444,7 +445,7 @@ public class LocalGUIPlayer extends Player {
 					ship3.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship3, SWT.NONE);
-				shipLabel.setImage(new Image(disp, "resources\\battleship.png"));
+				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("battleship.png")));
 				break;
 			case 4:
 				if (ship4 == null) {
@@ -453,7 +454,7 @@ public class LocalGUIPlayer extends Player {
 					ship4.setLayout(new GridLayout(2, false));
 				}
 				shipLabel = new Label(ship4, SWT.NONE);
-				shipLabel.setImage(new Image(disp, "resources\\aerocarier.png"));
+				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("aerocarier.png")));
 				break;
 			default:
 				break;
