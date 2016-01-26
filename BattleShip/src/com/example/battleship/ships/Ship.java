@@ -53,26 +53,31 @@ public abstract class Ship extends SeaObject {
 		if (fields.size() != size){
 			throw new MissingFieldsException(fields.size() + " != " + size);
 		}
-		if (state != ALIVE_STATE) {
-			throw new ShipIsHittedException(this.toString() + " is hitted");
-		}
-		
 		
 		if (!isMove(zone, fields)) {
 			throw new MissingFieldsException("Fields is busy");
 		} 
 		
-		if (this.fields != null) {
-			for (Field field : this.fields) {
-				field.removeObj();
-			}
-		}
+		freeFields();
 		for (Field field : fields) {
 			field.setObj(this);
 		}
 		
 		this.setFields(fields);
 		this.neighboirs = zone.getNeighbors(fields);
+	}
+	
+	public void freeFields() throws ShipIsHittedException {
+		if (state != ALIVE_STATE) {
+			throw new ShipIsHittedException();
+		}
+		if (this.fields != null) {
+			for (Field field : this.fields) {
+				field.removeObj();
+			}
+		}
+		fields = null;
+		neighboirs = null;
 	}
 	
 	public void move(GameZone zone, Field head, Direction direction) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {

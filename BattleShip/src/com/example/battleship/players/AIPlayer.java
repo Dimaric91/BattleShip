@@ -12,6 +12,7 @@ import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
 import com.example.battleship.exception.FieldNotFoundException;
+import com.example.battleship.exception.RandomException;
 import com.example.battleship.ships.Ship;
 
 public class AIPlayer extends Player {
@@ -21,7 +22,7 @@ public class AIPlayer extends Player {
 	private Direction currentDirection;
 	private Field currentShot;
 	
-	public AIPlayer(String name, Properties property) {
+	public AIPlayer(String name, Properties property) throws RandomException {
 		super(name, property);
 		RandomMove();
 	}
@@ -96,17 +97,6 @@ public class AIPlayer extends Player {
 		} catch (InterruptedException e) {
 		}
 		return ret;
-	}
-
-	@Override
-	public void move(Ship ship) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Ship getShip() {
-		return ships.get(new Random().nextInt(ships.size()));
 	}
 
 }

@@ -103,17 +103,6 @@ public class NetworkPlayer extends Player {
 		}
 		return ret;
 	}
-
-	@Override
-	public void move(Ship ship) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public Ship getShip() {
-		//TODO!!!!
-		return ships.get(new Random().nextInt(ships.size()));
-	}
 	
 	public void sendReady(ReadyMessage message) {
 		try {

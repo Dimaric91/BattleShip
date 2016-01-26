@@ -1,5 +1,8 @@
 package com.example.battleship.players;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -7,10 +10,12 @@ import java.util.Random;
 
 import com.example.battleship.Controller;
 import com.example.battleship.Direction;
+import com.example.battleship.Field;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
+import com.example.battleship.exception.RandomException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.ships.Aerocarrier;
 import com.example.battleship.ships.Battleship;
@@ -87,17 +92,48 @@ public abstract class Player {
 		return name;
 	}
 	
-	protected void RandomMove() {
+	protected void RandomMove() throws RandomException {
 		Random rnd = new Random();
+		
+		List<Field> fieldsPool = new ArrayList<>();
+		for (Field[] f : Arrays.asList(zone.getFields())) {
+			fieldsPool.addAll(Arrays.asList(f));
+		}
+		
 		for (Ship ship : ships) {
+			List<Field> poolForCurrentShip = new ArrayList<>(fieldsPool);
 			while (true) {
+				Field f = null;
+				Direction selectedDir = Direction.UP;
 				try {
-					int x = rnd.nextInt(zone.getSize());
-					int y = rnd.nextInt(zone.getSize());
+					f = poolForCurrentShip.get(rnd.nextInt(poolForCurrentShip.size()));
 					int d = rnd.nextInt(Direction.values().length);
-					ship.move(zone, zone.getField(x, y), Direction.values()[d]);
+					selectedDir = Direction.values()[d];
+					ship.move(zone, f, selectedDir);
+					fieldsPool.removeAll(ship.getFields());
 					break;
 				} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
+					for (Direction d : Direction.values()) {
+						try {
+							if (d.equals(selectedDir))
+								continue;
+							ship.move(zone, f, d);
+							fieldsPool.removeAll(ship.getFields());
+						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+						}
+					}
+					if (ship.getFields() == null) {
+						poolForCurrentShip.remove(f);
+						if (poolForCurrentShip.isEmpty()) {
+							for (Ship s : ships) {
+								try {
+									s.freeFields();
+								} catch (ShipIsHittedException e1) {
+								}
+							}
+							throw new RandomException();
+						}
+					}
 				}
 			}
 		}
@@ -105,11 +141,12 @@ public abstract class Player {
 		for (Mine mine : mines) {
 			while (true) {
 				try {
-					int x = rnd.nextInt(zone.getSize());
-					int y = rnd.nextInt(zone.getSize());
-					mine.move(zone.getField(x, y));
+					//int x = rnd.nextInt(zone.getSize());
+					//int y = rnd.nextInt(zone.getSize());
+					Field f = fieldsPool.get(rnd.nextInt(fieldsPool.size()));
+					mine.move(f);
 					break;
-				} catch (MissingFieldsException | FieldNotFoundException e) {
+				} catch (MissingFieldsException e) {
 				}
 			}
 		}
@@ -119,9 +156,9 @@ public abstract class Player {
 	
 	public abstract boolean shot(Ship ship);
 	
-	public abstract void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException;
-	
-	public abstract Ship getShip();
+	public Ship getShip() {
+		return ships.get(new Random().nextInt(ships.size()));
+	}
 	
 	public boolean isReady() {
 		return isReady;

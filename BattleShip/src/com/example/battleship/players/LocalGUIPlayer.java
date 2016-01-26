@@ -40,6 +40,7 @@ import com.example.battleship.Mine;
 import com.example.battleship.SeaObject;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
+import com.example.battleship.exception.RandomException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.ReadyMessage;
 import com.example.battleship.ships.Ship;
@@ -76,7 +77,16 @@ public class LocalGUIPlayer extends Player {
 		this.controller = c;
 		
 		if (Boolean.valueOf(property.getProperty("isRandom"))) {
-			RandomMove();
+			try {
+				RandomMove();
+			} catch (RandomException e) {
+				Shell tempShell = new Shell(disp);
+				MessageBox message = new MessageBox(tempShell);
+				message.setMessage(username + ":" + Controller.rb.getString("randomException"));
+				message.open();
+				tempShell.dispose();
+				firstMove();
+			}
 		} else {
 			firstMove();
 		}
@@ -143,11 +153,6 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getEnemy().getZone().getFields(), true);
-//				if (isLocal) {
-//					ourGroup.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
-//				} else {
-//					ourGroup.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-//				}
 			}
 		});
 		
@@ -156,11 +161,6 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getZone().getFields(), false);
-//				if (isLocal) {
-//					enemyGroup.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-//				} else {
-//					enemyGroup.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
-//				}
 			}
 		});
 		
@@ -238,6 +238,7 @@ public class LocalGUIPlayer extends Player {
 					if (f.getObj() instanceof Ship) {
 						selectedObject = f.getObj();
 						selectedDirection = ((Ship)selectedObject).getDirection();
+						selectedFields = ((Ship)selectedObject).getFields();
 						try {
 							((Ship)selectedObject).move(zone, f, selectedDirection.getSquare());
 						} catch (FieldNotFoundException | MissingFieldsException ex) {
@@ -254,9 +255,12 @@ public class LocalGUIPlayer extends Player {
 							message.setMessage(Controller.rb.getString("shipIsHitted"));
 							message.open();
 						}
+						if (!selectedFields.containsAll(selectedObject.getFields())) {
+							isMove = true;
+							movedShip = (Ship) selectedObject;
+						}
 						selectedObject = null;
 						selectedFields = null;	
-						isMove = true;
 					}
 					
 					ourZone.redraw();
@@ -401,7 +405,8 @@ public class LocalGUIPlayer extends Player {
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell2.setLayout(layout);
-		shell2.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove"));
+		shell2.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove") + "(" 
+				+ getName()+  ")");
 		
 		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
 		fieldZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
@@ -564,7 +569,17 @@ public class LocalGUIPlayer extends Player {
 		bRandom.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDown(MouseEvent e) {
-				RandomMove();
+				try {
+					RandomMove();
+				} catch (RandomException e1) {
+					MessageBox message = new MessageBox(shell2);
+					message.setMessage(Controller.rb.getString("randomException"));
+					message.open();
+					for (Label l : labels.values()) {
+						l.setVisible(true);
+					}
+					return;
+				}
 				for (Label l : labels.values()) {
 					l.dispose();
 				}
@@ -621,9 +636,10 @@ public class LocalGUIPlayer extends Player {
 								} else {
 									((Mine)selectedObject).move(zone.getField(x, y));
 								}
-								Label l = labels.remove(selectedObject);
+								//Label l = labels.remove(selectedObject);
+								Label l = labels.get(selectedObject);
 								if (l != null) {
-									l.dispose();
+									l.setVisible(false);
 								}
 								selectedObject = null;
 								selectedFields = null;
@@ -720,6 +736,7 @@ public class LocalGUIPlayer extends Player {
 		});
 		
 		shell2.pack();
+		shell2.setFocus();
 		shell2.open();
 		while (!shell2.isDisposed()) {
 			if (!disp.readAndDispatch()) {
@@ -765,16 +782,5 @@ public class LocalGUIPlayer extends Player {
 				isMove = true;
 			}
 		}
-	}
-
-	@Override
-	public void move(Ship ship) throws FieldNotFoundException, MissingFieldsException, ShipIsHittedException {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public Ship getShip() {
-		return ships.get(new Random().nextInt(ships.size()));
 	}
 }

@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.example.battleship.exception.CannotCreateMessage;
+import com.example.battleship.exception.RandomException;
 import com.example.battleship.network.BattleShipMessage;
 import com.example.battleship.network.ConnectMessage;
 import com.example.battleship.network.FailMessage;
@@ -43,7 +44,15 @@ public class Controller extends Thread {
 		switch(property.getProperty("playerType")) {
 			case "local":
 				this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), property);
+			try {
 				this.player2 = new AIPlayer("AI player", property);
+			} catch (RandomException e1) {
+				Shell tempShell = new Shell(disp);
+				MessageBox message = new MessageBox(tempShell);
+				message.setMessage("AI player:" + Controller.rb.getString("randomException"));
+				message.open();
+				tempShell.dispose();
+			}
 				break;
 			case "bind":
 				Socket socket = null;
@@ -141,12 +150,13 @@ public class Controller extends Thread {
 								e.printStackTrace();
 							}
 						}
-						System.exit(0);
 					}
 				}
 				break;
 		}
-		
+		if (this.player1 == null || this.player2 == null) {
+			System.exit(0);
+		}
 		this.player1.setEnemy(player2);
 		this.player2.setEnemy(player1);
 	}
