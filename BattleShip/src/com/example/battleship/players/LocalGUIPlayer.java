@@ -153,6 +153,10 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getEnemy().getZone().getFields(), true);
+				if (isLocal) {
+					e.gc.setForeground(disp.getSystemColor(SWT.COLOR_RED));
+					e.gc.drawRectangle(cellSize, cellSize, getZone().getSize() * cellSize, getZone().getSize() * cellSize);
+				} 
 			}
 		});
 		
@@ -161,6 +165,10 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getZone().getFields(), false);
+				if (!isLocal) {
+					e.gc.setForeground(disp.getSystemColor(SWT.COLOR_RED));
+					e.gc.drawRectangle(cellSize, cellSize, getZone().getSize() * cellSize, getZone().getSize() * cellSize);
+				} 
 			}
 		});
 		
@@ -329,7 +337,6 @@ public class LocalGUIPlayer extends Player {
 		gc.fillRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
 		gc.setForeground(disp.getSystemColor(SWT.COLOR_BLACK));
 		gc.drawRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
-		//gc.setBackground(disp.getSystemColor(SWT.COLOR_WHITE));
 	}
 	
 	private void paintFields(PaintEvent e, Field[][] fields, boolean isEnemy) {
