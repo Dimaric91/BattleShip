@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.example.battleship.Controller;
 
-public class WaitWidget extends Thread {
+public class WaitWidget {
 	private Controller controller;
 	private Display disp;
 	private Shell shell;

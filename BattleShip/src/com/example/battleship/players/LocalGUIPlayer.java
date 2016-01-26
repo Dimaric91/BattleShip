@@ -14,11 +14,13 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,6 +47,7 @@ import com.example.battleship.ships.Ship;
 public class LocalGUIPlayer extends Player {
 
 	private Controller controller;
+	private boolean isLocal;
 	
 	private Display disp;
 	private Shell shell;
@@ -79,7 +82,8 @@ public class LocalGUIPlayer extends Player {
 		}
 	}
 
-	public void redraw() {
+	public void redraw(boolean isLocalMove) {
+		this.isLocal = isLocalMove;
 		disp.syncExec(new Runnable() {
 			
 			@Override
@@ -139,6 +143,11 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getEnemy().getZone().getFields(), true);
+//				if (isLocal) {
+//					ourGroup.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+//				} else {
+//					ourGroup.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+//				}
 			}
 		});
 		
@@ -147,6 +156,11 @@ public class LocalGUIPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getZone().getFields(), false);
+//				if (isLocal) {
+//					enemyGroup.setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+//				} else {
+//					enemyGroup.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+//				}
 			}
 		});
 		

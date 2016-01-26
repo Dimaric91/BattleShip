@@ -205,11 +205,11 @@ public class Controller extends Thread {
 			System.out.println(Controller.rb.getString("player") + " " + player2.getName() + " " + Controller.rb.getString("ready"));
 		}
 			
-		player1.redraw();
+		player1.redraw(current == player1);
 		while (true) {
 			System.out.println(Controller.rb.getString("nowTurn") + " " + current.getName() + ":");
 			while (current.shot(current.getShip())) {
-				player1.redraw();
+				player1.redraw(current == player1);
 				if (current.getEnemy().isGameOver()) {
 					winner = current.getName();
 					break;
@@ -236,7 +236,7 @@ public class Controller extends Thread {
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
-			player1.redraw();
+			player1.redraw(current == player1);
 		}
 	}
 
