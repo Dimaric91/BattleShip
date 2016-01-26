@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Random;
-
 import com.example.battleship.Controller;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;

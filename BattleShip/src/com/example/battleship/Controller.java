@@ -23,7 +23,7 @@ import com.example.battleship.network.FailMessage;
 import com.example.battleship.network.MessageFactory;
 import com.example.battleship.network.OptionMessage;
 import com.example.battleship.players.AIPlayer;
-import com.example.battleship.players.LocalGUIPlayer;
+import com.example.battleship.players.LocalPlayer;
 import com.example.battleship.players.NetworkPlayer;
 import com.example.battleship.players.Player;
 import com.example.battleship.widgets.HelloWidget;
@@ -33,7 +33,7 @@ public class Controller extends Thread {
 
 	public final static ResourceBundle rb = ResourceBundle.getBundle("battleShip");
 	
-	private LocalGUIPlayer player1;
+	private LocalPlayer player1;
 	private Player player2;
 	private Properties properties;
 	private String winner;
@@ -43,7 +43,7 @@ public class Controller extends Thread {
 		this.properties = property;
 		switch(property.getProperty("playerType")) {
 			case "local":
-				this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), property);
+				this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), property);
 			try {
 				this.player2 = new AIPlayer("AI player", property);
 			} catch (RandomException e1) {
@@ -70,7 +70,7 @@ public class Controller extends Thread {
 							MessageFactory.writeMessage(socket.getOutputStream(), new FailMessage(Controller.rb.getString("userUsed")));
 						} else {
 							MessageFactory.writeMessage(socket.getOutputStream(), new OptionMessage(property));
-							this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), property);
+							this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), property);
 							this.player2 = new NetworkPlayer(remoteName, socket, property);
 						}
 					} else {
@@ -113,7 +113,7 @@ public class Controller extends Thread {
 					} else if (msg instanceof OptionMessage) {
 						Properties prop = ((OptionMessage)msg).getProperty();
 						prop.put("isRandom", property.getProperty("isRandom"));
-						this.player1 = new LocalGUIPlayer(this, disp, property.getProperty("username"), prop);
+						this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), prop);
 						this.player2 = new NetworkPlayer(prop.getProperty("username"), socket, prop);
 					} else {
 						Shell shell = new Shell(disp);
@@ -250,7 +250,7 @@ public class Controller extends Thread {
 		}
 	}
 
-	public LocalGUIPlayer getPlayer1() {
+	public LocalPlayer getPlayer1() {
 		return this.player1;
 	}
 	

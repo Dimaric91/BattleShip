@@ -3,8 +3,6 @@ package com.example.battleship.players;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.Random;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -14,13 +12,11 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -45,7 +41,7 @@ import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.ReadyMessage;
 import com.example.battleship.ships.Ship;
 
-public class LocalGUIPlayer extends Player {
+public class LocalPlayer extends Player {
 
 	private Controller controller;
 	private boolean isLocal;
@@ -69,7 +65,7 @@ public class LocalGUIPlayer extends Player {
 
 	private Text textLog;
 	
-	public LocalGUIPlayer(Controller c, Display disp, String username, Properties property) {
+	public LocalPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
 		this.isMove = true;
 		this.selectedDirection = Direction.RIGHT;
