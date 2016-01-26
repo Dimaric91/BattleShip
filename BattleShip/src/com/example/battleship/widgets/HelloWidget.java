@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -16,6 +17,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import com.example.battleship.Controller;
 
 public class HelloWidget {
+	
 	private Display disp;
 	private Shell shell;
 	
@@ -29,12 +31,15 @@ public class HelloWidget {
 	}
 
 	private Shell createShell(Display disp) {
+		if (Controller.icon == null) {
+			Controller.icon = new Image(disp, getClass().getResourceAsStream("icon.png"));
+		}
 		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
 		GridLayout layout = new GridLayout(1, false);
 		layout.verticalSpacing = 13;
 		shell.setLayout(new GridLayout(1, false));
 		shell.setText(Controller.rb.getString("gameName"));
-		
+		shell.setImage(Controller.icon);
 		
 		FormToolkit tool = new FormToolkit(disp);
 		Form form = tool.createForm(shell);

@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -32,6 +33,8 @@ import com.example.battleship.widgets.WaitWidget;
 public class Controller extends Thread {
 
 	public final static ResourceBundle rb = ResourceBundle.getBundle("battleShip");
+
+	public static Image icon;
 	
 	private LocalPlayer player1;
 	private Player player2;

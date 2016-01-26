@@ -77,6 +77,7 @@ public class OptionWidget {
 		shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("options"));
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
+		shell.setImage(Controller.icon);
 		layout.horizontalSpacing = 8;
 		
 		gameGroup = new Group(shell, SWT.NONE);

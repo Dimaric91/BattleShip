@@ -115,6 +115,7 @@ public class LocalPlayer extends Player {
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
 		shell.setText(Controller.rb.getString("gameName"));
+		shell.setImage(Controller.icon);
 		
 		Group ourGroup = new Group(shell, SWT.NONE);
 		ourGroup.setText(getName() + " " + Controller.rb.getString("ships"));
@@ -408,6 +409,7 @@ public class LocalPlayer extends Player {
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell2.setLayout(layout);
+		shell2.setImage(Controller.icon);
 		shell2.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove") + "(" 
 				+ getName()+  ")");
 		

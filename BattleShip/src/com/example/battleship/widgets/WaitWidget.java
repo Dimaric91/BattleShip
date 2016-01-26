@@ -38,6 +38,7 @@ public class WaitWidget {
 		
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
+		shell.setImage(Controller.icon);
 		
 		Label info = new Label(shell, SWT.NONE);
 		info.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
