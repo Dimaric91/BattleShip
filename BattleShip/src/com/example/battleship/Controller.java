@@ -210,7 +210,7 @@ public class Controller extends Thread {
 					public void run() {
 						printMessage(winner + " " + Controller.rb.getString("win"), Controller.rb.getString("player") 
 								+ " " + winner + " " + Controller.rb.getString("win") + "!");
-						player1.dispose();
+						player1.gameOver();
 					}
 				});
 				return;

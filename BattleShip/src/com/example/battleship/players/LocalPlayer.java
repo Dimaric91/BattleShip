@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
+import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.SeaObject;
 import com.example.battleship.Ship;
@@ -399,6 +400,27 @@ public class LocalPlayer extends Player {
 		
 	}
 	
+	private class ZonePaintListener implements PaintListener {
+
+		private boolean isEnemy;
+		private GameZone zone;
+		
+		public ZonePaintListener(GameZone zone, boolean isEnemy) {
+			this.zone = zone;
+			this.isEnemy = isEnemy;
+		}
+		
+		@Override
+		public void paintControl(PaintEvent e) {
+			paintFields(e, zone.getFields(), isEnemy);
+			if (isEnemy && isLocal || !isEnemy && !isLocal) {
+				e.gc.setForeground(disp.getSystemColor(SWT.COLOR_RED));
+				e.gc.drawRectangle(cellSize, cellSize, zone.getSize() * cellSize, zone.getSize() * cellSize);
+			} 
+		}
+		
+	}
+	
 	private Controller controller;
 	private boolean isLocal;
 	
@@ -417,6 +439,7 @@ public class LocalPlayer extends Player {
 	private List<Field> selectedFields;
 	private Color currentColor;
 	private Ship movedShip;
+	private ZonePaintListener enemyListener;
 	
 	public LocalPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
@@ -497,29 +520,11 @@ public class LocalPlayer extends Player {
 			}
 		});
 		
-		enemyZone.addPaintListener(new PaintListener() {
-			
-			@Override
-			public void paintControl(PaintEvent e) {
-				paintFields(e, getEnemy().getZone().getFields(), true);
-				if (isLocal) {
-					e.gc.setForeground(disp.getSystemColor(SWT.COLOR_RED));
-					e.gc.drawRectangle(cellSize, cellSize, getZone().getSize() * cellSize, getZone().getSize() * cellSize);
-				} 
-			}
-		});
+		enemyListener = new ZonePaintListener(enemy.getZone(), true);
 		
-		ourZone.addPaintListener(new PaintListener() {
-			
-			@Override
-			public void paintControl(PaintEvent e) {
-				paintFields(e, getZone().getFields(), false);
-				if (!isLocal) {
-					e.gc.setForeground(disp.getSystemColor(SWT.COLOR_RED));
-					e.gc.drawRectangle(cellSize, cellSize, getZone().getSize() * cellSize, getZone().getSize() * cellSize);
-				} 
-			}
-		});
+		enemyZone.addPaintListener(enemyListener);
+		
+		ourZone.addPaintListener(new ZonePaintListener(zone, false));
 		
 		ourZone.addMouseListener(new MouseAdapter() {
 
@@ -801,5 +806,12 @@ public class LocalPlayer extends Player {
 
 	public void setCurrent(Player current) {
 		isLocal = current == this;
+	}
+	
+	public void gameOver() {
+		enemyZone.removePaintListener(enemyListener);
+		enemyZone.addPaintListener(new ZonePaintListener(enemy.getZone(), false));
+		redraw();
+		isMove = true;
 	}
 }
