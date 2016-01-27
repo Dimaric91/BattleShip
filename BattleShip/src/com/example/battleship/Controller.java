@@ -224,10 +224,8 @@ public class Controller extends Thread {
 					
 					@Override
 					public void run() {
-						MessageBox message = new MessageBox(player1.getShell());
-						message.setMessage(Controller.rb.getString("player") + " " + winner + " " + Controller.rb.getString("win") + "!");
-						message.setText(winner + " " + Controller.rb.getString("win"));
-						message.open();
+						printMessage(winner + " " + Controller.rb.getString("win"), Controller.rb.getString("player") 
+								+ " " + winner + " " + Controller.rb.getString("win") + "!");
 						player1.dispose();
 					}
 				});
