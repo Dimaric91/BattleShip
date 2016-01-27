@@ -12,7 +12,9 @@ import com.example.battleship.Field;
 import com.example.battleship.FieldState;
 import com.example.battleship.Ship;
 import com.example.battleship.exception.FieldNotFoundException;
+import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.RandomException;
+import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.widgets.Controller;
 
 public class AIPlayer extends Player {
@@ -99,4 +101,48 @@ public class AIPlayer extends Player {
 		return ret;
 	}
 
+	@Override
+	protected void RandomMove() throws RandomException {
+		int shipArea = 0;
+		for (Ship s : ships) {
+			shipArea += (s.getSize() + 1) * 2;
+		}
+		if (shipArea < 0.75 * zone.getFields().length) {
+			super.RandomMove();
+		} else {
+			List<Field> fieldsPool = new ArrayList<>();
+			for (Field[] f : Arrays.asList(zone.getFields())) {
+				fieldsPool.addAll(Arrays.asList(f));
+			}
+			for (Ship ship : ships) {
+				List<Field> poolForCurrentShip = new ArrayList<>(fieldsPool);
+				while (true) {
+					Field f = null;
+					Direction selectedDir = Direction.DOWN;
+					try {
+						f = poolForCurrentShip.get(0);
+						ship.move(zone, f, selectedDir);
+						fieldsPool.removeAll(ship.getFields());
+						break;
+					} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
+						for (Direction d : Direction.values()) {
+							try {
+								if (d.equals(selectedDir))
+									continue;
+								ship.move(zone, f, d);
+								fieldsPool.removeAll(ship.getFields());
+							} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+							}
+						}
+						if (ship.getFields() == null) {
+							poolForCurrentShip.remove(f);
+						}
+					}
+				}
+			}
+			super.RandomMove();
+		}
+		
+	}
+	
 }

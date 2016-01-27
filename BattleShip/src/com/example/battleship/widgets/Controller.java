@@ -40,17 +40,18 @@ public class Controller extends Thread {
 	private String winner;
 	
 	private ServerSocket serv = null;
+	private Shell shell;
+	
 	public Controller(Shell shell, Properties property) {
 		this.properties = property;
+		this.shell = shell;
 		switch(property.getProperty("playerType")) {
 			case "local":
 				this.player1 = new LocalPlayer(this, shell.getDisplay(), property.getProperty("username"), property);
 			try {
 				this.player2 = new AIPlayer("AI player", property);
 			} catch (RandomException e1) {
-				MessageBox message = new MessageBox(shell);
-				message.setMessage("AI player:" + Controller.rb.getString("randomException"));
-				message.open();
+				printMessage(null, "AI player:" + Controller.rb.getString("randomException"));
 			}
 				break;
 			case "bind":
@@ -104,34 +105,23 @@ public class Controller extends Thread {
 					BattleShipMessage msg = MessageFactory.readMessage(socket.getInputStream());
 					
 					if (msg instanceof FailMessage) {
-						MessageBox fail = new MessageBox(shell, SWT.OK);
-						fail.setText(Controller.rb.getString("fail"));
-						fail.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("response") + 
-								":\n" + ((FailMessage)msg).getReason());
-						fail.open();
+						printMessage(Controller.rb.getString("fail"), host + ":" + String.valueOf(port) + " " + 
+								Controller.rb.getString("response") +":\n" + ((FailMessage)msg).getReason());
 					} else if (msg instanceof OptionMessage) {
 						Properties prop = ((OptionMessage)msg).getProperty();
 						prop.put("isRandom", property.getProperty("isRandom"));
 						this.player1 = new LocalPlayer(this, shell.getDisplay(), property.getProperty("username"), prop);
 						this.player2 = new NetworkPlayer(prop.getProperty("username"), socket, prop);
 					} else {
-						MessageBox fail = new MessageBox(shell, SWT.OK);
-						fail.setText(Controller.rb.getString("fail"));
-						fail.setMessage(Controller.rb.getString("unknownMessage"));
-						fail.open();
+						printMessage(Controller.rb.getString("fail"), Controller.rb.getString("unknownMessage"));
 					}
 					
 				} catch (SocketTimeoutException e) {
-					MessageBox msg = new MessageBox(shell, SWT.OK);
-					msg.setText(Controller.rb.getString("timeout"));
-					msg.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("noResponse"));
-					msg.open();
+					printMessage(Controller.rb.getString("timeout"), host + ":" + String.valueOf(port) + " " + 
+							Controller.rb.getString("noResponse"));
 				} catch (ConnectException e) {
-					MessageBox msg = new MessageBox(shell, SWT.OK);
-					msg.setText(Controller.rb.getString("errorConnect"));
-					msg.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("response") + 
-							":\n" + e.getMessage());
-					msg.open();
+					printMessage(Controller.rb.getString("errorConnect"), host + ":" + String.valueOf(port) + " " + 
+							Controller.rb.getString("response") + ":\n" + e.getMessage());
 				}catch (NumberFormatException | IOException | CannotCreateMessage e) {
 					e.printStackTrace();
 				} finally {
@@ -175,6 +165,13 @@ public class Controller extends Thread {
 	public void createLogger() {
 		PrintStream pintStream = new PrintStream(new BattleShipLogger(player1.getDisp(), player1.getLogArea(), 512), true);
 		System.setOut(pintStream);
+	}
+	
+	public void printMessage(String title, String message) {
+		MessageBox msg = new MessageBox(shell, SWT.OK);
+		msg.setText(title);
+		msg.setMessage(message);
+		msg.open();
 	}
 	
 	@Override

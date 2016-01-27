@@ -99,7 +99,7 @@ public abstract class Player {
 			List<Field> poolForCurrentShip = new ArrayList<>(fieldsPool);
 			while (true) {
 				Field f = null;
-				Direction selectedDir = Direction.UP;
+				Direction selectedDir = Direction.DOWN;
 				try {
 					f = poolForCurrentShip.get(rnd.nextInt(poolForCurrentShip.size()));
 					int d = rnd.nextInt(Direction.values().length);
