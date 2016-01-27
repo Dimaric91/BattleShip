@@ -30,7 +30,7 @@ public class AIPlayer extends Player {
 	}
 
 	@Override
-	public boolean shot(Ship ship) {
+	public boolean action(Ship ship) {
 		//TODO Add mine logic
 		Random rnd = new Random();
 		if (poolOfNext == null) {

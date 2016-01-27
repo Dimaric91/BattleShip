@@ -144,24 +144,6 @@ public class Controller extends Thread {
 		this.player1.setEnemy(player2);
 		this.player2.setEnemy(player1);
 	}
-	
-	public static void main(String[] args) throws Exception {
-		Display disp = new Display();
-		Shell shell = new Shell(disp);
-		
-		HelloWidget hello = new HelloWidget(shell);
-		
-		if(!hello.open()) {
-			return;
-		}
-
-		Controller c = new Controller(shell, hello.getOptions());
-		c.start();
-		
-		c.getPlayer1().start();
-		c.exit();
-		disp.dispose();
-	}
 
 	public void createLogger() {
 		PrintStream pintStream = new PrintStream(new BattleShipLogger(player1.getDisp(), player1.getLogArea(), 512), true);
@@ -178,12 +160,13 @@ public class Controller extends Thread {
 	@Override
 	public void run() {
 		Player current = null;
-		//TODO Fucking shit
+
 		if (properties.getProperty("playerType").equals("connect")) {
 			current = player2;
 		} else {
 			current = player1;
 		}
+		
 		try {
 			synchronized (player1) {
 				player1.wait();
@@ -205,12 +188,13 @@ public class Controller extends Thread {
 			}
 			System.out.println(Controller.rb.getString("player") + " " + player2.getName() + " " + Controller.rb.getString("ready"));
 		}
-			
-		player1.redraw(current == player1);
+		
 		while (true) {
+			player1.setCurrent(current);
+			player1.redraw();
 			System.out.println(Controller.rb.getString("nowTurn") + " " + current.getName() + ":");
-			while (current.shot(current.getShip())) {
-				player1.redraw(current == player1);
+			while (current.action(current.getShip())) {
+				player1.redraw();
 				if (current.getEnemy().isGameOver()) {
 					winner = current.getName();
 					break;
@@ -235,7 +219,6 @@ public class Controller extends Thread {
 			if(Thread.currentThread().isInterrupted()) {
 				return;
 			}
-			player1.redraw(current == player1);
 		}
 	}
 
@@ -256,6 +239,24 @@ public class Controller extends Thread {
 		} else {
 			System.exit(1);
 		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Display disp = new Display();
+		Shell shell = new Shell(disp);
+		
+		HelloWidget hello = new HelloWidget(shell);
+		
+		if(!hello.open()) {
+			return;
+		}
+
+		Controller c = new Controller(shell, hello.getOptions());
+		c.start();
+		
+		c.getPlayer1().start();
+		c.exit();
+		disp.dispose();
 	}
 
 }

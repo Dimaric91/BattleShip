@@ -136,8 +136,6 @@ public abstract class Player {
 		for (Mine mine : mines) {
 			while (true) {
 				try {
-					//int x = rnd.nextInt(zone.getSize());
-					//int y = rnd.nextInt(zone.getSize());
 					Field f = fieldsPool.get(rnd.nextInt(fieldsPool.size()));
 					mine.move(f);
 					break;
@@ -149,7 +147,7 @@ public abstract class Player {
 	}
 	
 	
-	public abstract boolean shot(Ship ship);
+	public abstract boolean action(Ship ship);
 	
 	public Ship getShip() {
 		return ships.get(new Random().nextInt(ships.size()));

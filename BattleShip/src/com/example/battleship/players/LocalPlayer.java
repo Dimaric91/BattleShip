@@ -22,6 +22,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -42,7 +43,364 @@ import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.ReadyMessage;
 
 public class LocalPlayer extends Player {
+	public static final int cellSize = 28;
+	
+	private class ShipPlaceWidget extends Dialog {
 
+		private Shell shell;
+		private HashMap<SeaObject, Label> labels;
+		private Canvas fieldZone;
+		
+		public ShipPlaceWidget(Shell parent) {
+			super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+			this.shell = new Shell(parent, getStyle());
+			createContent(this.shell);
+		}
+
+		private void createContent(final Shell shell) {
+			GridLayout layout = new GridLayout(2, false);
+			layout.horizontalSpacing = 8;
+			shell.setLayout(layout);
+			shell.setImage(Controller.icon);
+			shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove") + "(" 
+					+ getName()+  ")");
+			
+			fieldZone = new Canvas(shell, SWT.BORDER);
+			fieldZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
+			Composite shipGroup = new Composite(shell, SWT.NONE);
+			shipGroup.setLayout(new GridLayout(1, false));
+			
+			Composite bottom = new Composite(shell, SWT.NONE);
+			bottom.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false, 2, 1));
+			bottom.setLayout(new GridLayout(2,false));
+			
+			Button bRandom = new Button(bottom, SWT.PUSH);
+			bRandom.setText(Controller.rb.getString("randomButton"));
+			bRandom.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+			
+			Button bOK = new Button(bottom, SWT.PUSH);
+			bOK.setText(Controller.rb.getString("startButton"));
+			bOK.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
+			
+			currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
+
+			fillShipGroup(shipGroup);
+			
+			bRandom.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					try {
+						RandomMove();
+					} catch (RandomException e1) {
+						MessageBox message = new MessageBox(shell);
+						message.setMessage(Controller.rb.getString("randomException"));
+						message.open();
+						for (Label l : labels.values()) {
+							l.setVisible(true);
+						}
+						return;
+					}
+					for (Label l : labels.values()) {
+						l.setVisible(false);
+					}
+					selectedObject = null;
+					selectedFields = null;
+					fieldZone.redraw();
+				}
+			});
+			
+			bOK.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					for (Ship s : ships) {
+						if (s.getFields() == null) {
+							MessageBox message = new MessageBox(shell);
+							message.setMessage(Controller.rb.getString("notAllShips"));
+							message.open();
+							return;
+						}
+					}
+					for (Mine m : mines) {
+						if (m.getFields() == null) {
+							MessageBox message = new MessageBox(shell);
+							message.setMessage(Controller.rb.getString("notAllMines"));
+							message.open();
+							return;
+						}
+					}
+					isReady = true;
+					shell.dispose();
+				}
+			});
+			
+			fieldZone.addPaintListener(new PaintListener() {
+				
+				@Override
+				public void paintControl(PaintEvent e) {
+					paintFields(e, getZone().getFields(), false);
+				}
+			});
+			
+			fieldZone.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					if (e.button == 1 && e.count == 1) {
+						int x = e.x / cellSize - 1;
+						int y = e.y / cellSize - 1;
+						try {
+							if (selectedObject != null) {
+								try {
+									if (selectedObject instanceof Ship) {
+										((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
+									} else {
+										((Mine)selectedObject).move(zone.getField(x, y));
+									}
+									Label l = labels.get(selectedObject);
+									if (l != null) {
+										l.setVisible(false);
+									}
+									selectedObject = null;
+									selectedFields = null;
+									fieldZone.redraw();
+									
+								} catch (MissingFieldsException | ShipIsHittedException e1) {
+								}
+							} else {
+								Field f = getZone().getField(x, y);
+								if (f.getObj() instanceof Ship) {
+									selectedObject = f.getObj();
+									selectedDirection = ((Ship)selectedObject).getDirection();
+									selectedFields = selectedObject.getFields();
+									currentColor = disp.getSystemColor(SWT.COLOR_DARK_GRAY);
+								}
+								if (f.getObj() instanceof Mine) {
+									selectedObject = f.getObj();
+									selectedFields = selectedObject.getFields();
+									currentColor = disp.getSystemColor(SWT.COLOR_GREEN);
+								}
+							}
+						} catch (FieldNotFoundException e1) {
+						}
+					}
+					if (e.button == 3) {
+						selectedObject = null;
+						selectedFields = null;
+					}
+					fieldZone.redraw();
+				}
+				
+				@Override
+				public void mouseDoubleClick(MouseEvent e) {
+					if (e.button == 1) {
+						Field f;
+						try {
+							int x = e.x / cellSize - 1;
+							int y = e.y / cellSize - 1;
+							f = getZone().getField(x, y);
+						} catch (FieldNotFoundException ex){
+							return;
+						}
+						if (f.getObj() instanceof Ship) {
+							selectedObject = f.getObj();
+							selectedDirection = ((Ship)selectedObject).getDirection();
+							try {
+								((Ship)selectedObject).move(zone, f, selectedDirection.getSquare());
+							} catch (FieldNotFoundException | MissingFieldsException ex) {
+								for (Direction d : Direction.values()) {
+									try {
+										if (d.equals(selectedDirection))
+											continue;
+										((Ship)selectedObject).move(zone, f, d);
+									} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+									}
+								}
+							} catch (ShipIsHittedException ex) {
+								MessageBox message = new MessageBox(shell);
+								message.setMessage(Controller.rb.getString("shipIsHitted"));
+								message.open();
+							}
+							selectedObject = null;
+							selectedFields = null;							
+						}
+						
+						fieldZone.redraw();
+					}
+				}
+			});
+			
+			fieldZone.addMouseMoveListener(new MouseMoveListener() {
+
+				@Override
+				public void mouseMove(MouseEvent e) {
+					if (selectedObject != null) {
+						int x = e.x / cellSize - 1;
+						int y = e.y / cellSize - 1;
+						try {
+							Field field = getZone().getField(x, y);
+							List<Field> temp = null;
+							if (selectedObject instanceof Ship) {
+								temp = zone.getFields(field, ((Ship)selectedObject).getSize(), selectedDirection);
+							} else {
+								temp = zone.getFields(field, 1, null);
+							}
+							if (!temp.containsAll(selectedFields)) {
+								selectedFields = temp;
+								fieldZone.redraw();
+							}
+						} catch (FieldNotFoundException e1) {
+						}
+					}	
+				}
+			});
+			
+			shell.setFocus();
+			shell.pack();
+		}
+		
+		private void fillShipGroup(Composite shipGroup) {
+			Group ship4 = null;
+			Group ship3 = null;
+			Group ship2 = null;
+			Group ship1 = null;
+			Group mine = null;
+			
+			labels = new HashMap<>();
+			for (Ship s : ships) {
+				Label shipLabel = null;
+				
+				switch (s.getSize()) {
+				case 1:
+					if (ship1 == null) {
+						ship1 = new Group(shipGroup, SWT.NONE);
+						ship1.setText(Controller.rb.getString("destroyers"));
+						ship1.setLayout(new GridLayout(2, false));
+					}
+					shipLabel = new Label(ship1, SWT.NONE);
+					shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("destroyer.png")));
+					break;
+				case 2:
+					if (ship2 == null) {
+						ship2 = new Group(shipGroup, SWT.NONE);
+						ship2.setText(Controller.rb.getString("cruisers"));
+						ship2.setLayout(new GridLayout(2, false));
+					}
+					shipLabel = new Label(ship2, SWT.NONE);
+					;
+					shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("cruiser.png")));
+					break;
+				case 3:
+					if (ship3 == null) {
+						ship3 = new Group(shipGroup, SWT.NONE);
+						ship3.setText(Controller.rb.getString("battleships"));
+						ship3.setLayout(new GridLayout(2, false));
+					}
+					shipLabel = new Label(ship3, SWT.NONE);
+					shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("battleship.png")));
+					break;
+				case 4:
+					if (ship4 == null) {
+						ship4 = new Group(shipGroup, SWT.NONE);
+						ship4.setText(Controller.rb.getString("aerocariers"));
+						ship4.setLayout(new GridLayout(2, false));
+					}
+					shipLabel = new Label(ship4, SWT.NONE);
+					shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("aerocarier.png")));
+					break;
+				default:
+					break;
+				}
+				
+				shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+				shipLabel.setLayoutData(new GridData(cellSize * s.getSize() + 2, cellSize + 2));
+				labels.put(s, shipLabel);
+				shipLabel.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDown(MouseEvent e) {
+						if (selectedObject == null) {
+							((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+							selectedObject = s;
+							selectedDirection = Direction.DOWN;
+							try {
+								selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+							} catch (FieldNotFoundException ex) {
+							}
+						} else {
+							Label l = labels.get(selectedObject);
+							l.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
+							if (l == ((Label)e.getSource())) {
+								selectedObject = null;
+								selectedFields = null;
+								
+							} else {
+								((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
+								selectedObject = s;
+								selectedDirection = Direction.DOWN;
+								try {
+									selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
+								} catch (FieldNotFoundException ex) {
+								}
+							}
+						}
+						fieldZone.redraw();
+					}
+				});
+			}
+			
+			for (Mine m : mines) {
+				if (mine == null) {
+					mine = new Group(shipGroup, SWT.NONE);
+					mine.setText(Controller.rb.getString("mines"));
+					mine.setLayout(new GridLayout(2, false));
+				}
+				Label mineLabel = new Label(mine, SWT.NONE);
+				mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
+				mineLabel.setLayoutData(new GridData(cellSize, cellSize));
+				labels.put(m, mineLabel);
+				mineLabel.addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseDown(MouseEvent e) {
+						if (selectedObject == null) {
+							mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+							selectedObject= m;
+							try {
+								selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
+							} catch (FieldNotFoundException e1) {
+							}
+						} else {
+							Label l = labels.get(selectedObject);
+							l.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
+							if (l == mineLabel) {
+								selectedObject = null;
+								selectedFields = null;
+								
+							} else {
+								mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
+								selectedObject = m;
+								try {
+									selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
+								} catch (FieldNotFoundException ex) {
+								}
+							}
+						}
+						fieldZone.redraw();
+					}
+				});
+			}
+		}
+
+		public boolean open() {
+			shell.open();
+			while (!shell.isDisposed()) {
+				if (!disp.readAndDispatch()) {
+					disp.sleep();
+				}
+			}
+			shell.dispose();
+			return isReady;
+		}
+		
+	}
+	
 	private Controller controller;
 	private boolean isLocal;
 	
@@ -50,20 +408,17 @@ public class LocalPlayer extends Player {
 	private Shell shell;
 	private Canvas ourZone;
 	private Canvas enemyZone;
+	private Text textLog;
 	
 	private int shotX = -1;
 	private int shotY = -1;
-	private final int cellSize = 28;
+	private boolean isMove;
 	
 	private SeaObject selectedObject;
 	private Direction selectedDirection = Direction.RIGHT;
 	private List<Field> selectedFields;
 	private Color currentColor;
-
-	private boolean isMove;
 	private Ship movedShip;
-
-	private Text textLog;
 	
 	public LocalPlayer(Controller c, Display disp, String username, Properties property) {
 		super(username, property);
@@ -88,8 +443,7 @@ public class LocalPlayer extends Player {
 		}
 	}
 
-	public void redraw(boolean isLocalMove) {
-		this.isLocal = isLocalMove;
+	public void redraw() {
 		disp.syncExec(new Runnable() {
 			
 			@Override
@@ -329,7 +683,7 @@ public class LocalPlayer extends Player {
 		return shell;
 	}
 	
-	private void drawRectangle(GC gc, Color color, int x, int y) {
+	private void fillRectangle(GC gc, Color color, int x, int y) {
 		gc.setBackground(color);
 		gc.fillRectangle(x * cellSize, y * cellSize, cellSize, cellSize);
 		gc.setForeground(disp.getSystemColor(SWT.COLOR_BLACK));
@@ -357,22 +711,22 @@ public class LocalPlayer extends Player {
 					e.gc.drawRectangle((i + 1) * cellSize, (j + 1) * cellSize, cellSize, cellSize);
 					break;
 				case CHECKED_FIELD_STATE:
-					drawRectangle(e.gc, new Color(disp, new RGB(176, 224, 230)), i + 1, j + 1); //Powder Blue
+					fillRectangle(e.gc, new Color(disp, new RGB(176, 224, 230)), i + 1, j + 1); //Powder Blue
 					break;
 				case MINE_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_YELLOW), i + 1, j + 1);
+					fillRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_YELLOW), i + 1, j + 1);
 					break;
 				case KILLED_MINE_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_YELLOW), i + 1, j + 1);
+					fillRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_YELLOW), i + 1, j + 1);
 					break;
 				case SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_GRAY), i + 1, j + 1);
+					fillRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_GRAY), i + 1, j + 1);
 					break;
 				case PADDED_SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_RED), i + 1, j + 1);
+					fillRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_RED), i + 1, j + 1);
 					break;
 				case KILLED_SHIP_STATE:
-					drawRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_RED), i + 1, j + 1);
+					fillRectangle(e.gc, e.display.getSystemColor(SWT.COLOR_DARK_RED), i + 1, j + 1);
 					break;
 				default:
 					break;
@@ -394,361 +748,19 @@ public class LocalPlayer extends Player {
 				currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
 			}
 			for (Field f : selectedFields) {
-				drawRectangle(e.gc, currentColor, (f.getX() + 1), (f.getY() + 1));
+				fillRectangle(e.gc, currentColor, (f.getX() + 1), (f.getY() + 1));
 			}
 		}
 		
 	}
 	
 	public void firstMove() {
-		dialogMove();
-	}
-	
-	public void dialogMove() {
-		Shell shell2 = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
-		GridLayout layout = new GridLayout(2, false);
-		layout.horizontalSpacing = 8;
-		shell2.setLayout(layout);
-		shell2.setImage(Controller.icon);
-		shell2.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("firstMove") + "(" 
-				+ getName()+  ")");
-		
-		Canvas fieldZone = new Canvas(shell2, SWT.BORDER);
-		fieldZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
-		Composite shipGroup = new Composite(shell2, SWT.NONE);
-		shipGroup.setLayout(new GridLayout(1, false));
-
-		Group ship4 = null;
-		Group ship3 = null;
-		Group ship2 = null;
-		Group ship1 = null;
-		Group mine = null;
-		
-		Composite bottom = new Composite(shell2, SWT.NONE);
-		bottom.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, true, false, 2, 1));
-		bottom.setLayout(new GridLayout(2,false));
-		
-		Button bRandom = new Button(bottom, SWT.PUSH);
-		bRandom.setText(Controller.rb.getString("randomButton"));
-		bRandom.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
-		
-		Button bOK = new Button(bottom, SWT.PUSH);
-		bOK.setText(Controller.rb.getString("startButton"));
-		bOK.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false));
-		
-		currentColor = disp.getSystemColor(SWT.COLOR_DARK_RED);
-		
-		HashMap<SeaObject, Label> labels = new HashMap<>();
-		for (Ship s : ships) {
-			Label shipLabel = null;
-			
-			switch (s.getSize()) {
-			case 1:
-				if (ship1 == null) {
-					ship1 = new Group(shipGroup, SWT.NONE);
-					ship1.setText(Controller.rb.getString("destroyers"));
-					ship1.setLayout(new GridLayout(2, false));
-				}
-				shipLabel = new Label(ship1, SWT.NONE);
-				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("destroyer.png")));
-				break;
-			case 2:
-				if (ship2 == null) {
-					ship2 = new Group(shipGroup, SWT.NONE);
-					ship2.setText(Controller.rb.getString("cruisers"));
-					ship2.setLayout(new GridLayout(2, false));
-				}
-				shipLabel = new Label(ship2, SWT.NONE);
-				;
-				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("cruiser.png")));
-				break;
-			case 3:
-				if (ship3 == null) {
-					ship3 = new Group(shipGroup, SWT.NONE);
-					ship3.setText(Controller.rb.getString("battleships"));
-					ship3.setLayout(new GridLayout(2, false));
-				}
-				shipLabel = new Label(ship3, SWT.NONE);
-				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("battleship.png")));
-				break;
-			case 4:
-				if (ship4 == null) {
-					ship4 = new Group(shipGroup, SWT.NONE);
-					ship4.setText(Controller.rb.getString("aerocariers"));
-					ship4.setLayout(new GridLayout(2, false));
-				}
-				shipLabel = new Label(ship4, SWT.NONE);
-				shipLabel.setImage(new Image(disp, getClass().getResourceAsStream("aerocarier.png")));
-				break;
-			default:
-				break;
-			}
-			
-			shipLabel.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
-			shipLabel.setLayoutData(new GridData(cellSize * s.getSize() + 2, cellSize + 2));
-			labels.put(s, shipLabel);
-			shipLabel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDown(MouseEvent e) {
-					if (selectedObject == null) {
-						((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-						selectedObject = s;
-						selectedDirection = Direction.DOWN;
-						try {
-							selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
-						} catch (FieldNotFoundException ex) {
-						}
-					} else {
-						Label l = labels.get(selectedObject);
-						l.setBackground(disp.getSystemColor(SWT.COLOR_TRANSPARENT));
-						if (l == ((Label)e.getSource())) {
-							selectedObject = null;
-							selectedFields = null;
-							
-						} else {
-							((Label)e.getSource()).setBackground(disp.getSystemColor(SWT.COLOR_DARK_GREEN));
-							selectedObject = s;
-							selectedDirection = Direction.DOWN;
-							try {
-								selectedFields = zone.getFields(zone.getField(0, 0), s.getSize(), selectedDirection);
-							} catch (FieldNotFoundException ex) {
-							}
-						}
-					}
-					fieldZone.redraw();
-				}
-			});
+		Shell tempShell = new Shell(disp);
+		ShipPlaceWidget widget = new ShipPlaceWidget(tempShell);
+		if (!widget.open()) {
+			controller.exit();
 		}
-		
-		for (Mine m : mines) {
-			if (mine == null) {
-				mine = new Group(shipGroup, SWT.NONE);
-				mine.setText(Controller.rb.getString("mines"));
-				mine.setLayout(new GridLayout(2, false));
-			}
-			Label mineLabel = new Label(mine, SWT.NONE);
-			mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
-			mineLabel.setLayoutData(new GridData(cellSize, cellSize));
-			labels.put(m, mineLabel);
-			mineLabel.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDown(MouseEvent e) {
-					if (selectedObject == null) {
-						mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
-						selectedObject= m;
-						try {
-							selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
-						} catch (FieldNotFoundException e1) {
-						}
-					} else {
-						Label l = labels.get(selectedObject);
-						l.setBackground(disp.getSystemColor(SWT.COLOR_BLACK));
-						if (l == mineLabel) {
-							selectedObject = null;
-							selectedFields = null;
-							
-						} else {
-							mineLabel.setBackground(disp.getSystemColor(SWT.COLOR_BLUE));
-							selectedObject = m;
-							try {
-								selectedFields = zone.getFields(zone.getField(0, 0), 1, null);
-							} catch (FieldNotFoundException ex) {
-							}
-						}
-					}
-					fieldZone.redraw();
-				}
-			});
-		}
-		
-		shell2.addDisposeListener(new DisposeListener() {
-			
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if(!isReady) {
-					controller.exit();
-				}
-			}
-		});
-		
-		bRandom.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				try {
-					RandomMove();
-				} catch (RandomException e1) {
-					MessageBox message = new MessageBox(shell2);
-					message.setMessage(Controller.rb.getString("randomException"));
-					message.open();
-					for (Label l : labels.values()) {
-						l.setVisible(true);
-					}
-					return;
-				}
-				for (Label l : labels.values()) {
-					l.dispose();
-				}
-				selectedObject = null;
-				selectedFields = null;
-				labels.clear();
-				fieldZone.redraw();
-			}
-		});
-		
-		bOK.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				for (Ship s : ships) {
-					if (s.getFields() == null) {
-						MessageBox message = new MessageBox(shell2);
-						message.setMessage(Controller.rb.getString("notAllShips"));
-						message.open();
-						return;
-					}
-				}
-				for (Mine m : mines) {
-					if (m.getFields() == null) {
-						MessageBox message = new MessageBox(shell2);
-						message.setMessage(Controller.rb.getString("notAllMines"));
-						message.open();
-						return;
-					}
-				}
-				isReady = true;
-				shell2.dispose();
-			}
-		});
-		
-		fieldZone.addPaintListener(new PaintListener() {
-			
-			@Override
-			public void paintControl(PaintEvent e) {
-				paintFields(e, getZone().getFields(), false);
-			}
-		});
-		
-		fieldZone.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent e) {
-				if (e.button == 1 && e.count == 1) {
-					int x = e.x / cellSize - 1;
-					int y = e.y / cellSize - 1;
-					try {
-						if (selectedObject != null) {
-							try {
-								if (selectedObject instanceof Ship) {
-									((Ship)selectedObject).move(zone, zone.getField(x, y), selectedDirection);
-								} else {
-									((Mine)selectedObject).move(zone.getField(x, y));
-								}
-								//Label l = labels.remove(selectedObject);
-								Label l = labels.get(selectedObject);
-								if (l != null) {
-									l.setVisible(false);
-								}
-								selectedObject = null;
-								selectedFields = null;
-								fieldZone.redraw();
-								
-							} catch (MissingFieldsException | ShipIsHittedException e1) {
-							}
-						} else {
-							Field f = getZone().getField(x, y);
-							if (f.getObj() instanceof Ship) {
-								selectedObject = f.getObj();
-								selectedDirection = ((Ship)selectedObject).getDirection();
-								selectedFields = selectedObject.getFields();
-								currentColor = disp.getSystemColor(SWT.COLOR_DARK_GRAY);
-							}
-							if (f.getObj() instanceof Mine) {
-								selectedObject = f.getObj();
-								selectedFields = selectedObject.getFields();
-								currentColor = disp.getSystemColor(SWT.COLOR_GREEN);
-							}
-						}
-					} catch (FieldNotFoundException e1) {
-					}
-				}
-				if (e.button == 3) {
-					selectedObject = null;
-					selectedFields = null;
-				}
-				fieldZone.redraw();
-			}
-			
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				if (e.button == 1) {
-					Field f;
-					try {
-						int x = e.x / cellSize - 1;
-						int y = e.y / cellSize - 1;
-						f = getZone().getField(x, y);
-					} catch (FieldNotFoundException ex){
-						return;
-					}
-					if (f.getObj() instanceof Ship) {
-						selectedObject = f.getObj();
-						selectedDirection = ((Ship)selectedObject).getDirection();
-						try {
-							((Ship)selectedObject).move(zone, f, selectedDirection.getSquare());
-						} catch (FieldNotFoundException | MissingFieldsException ex) {
-							for (Direction d : Direction.values()) {
-								try {
-									if (d.equals(selectedDirection))
-										continue;
-									((Ship)selectedObject).move(zone, f, d);
-								} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
-								}
-							}
-						} catch (ShipIsHittedException ex) {
-							MessageBox message = new MessageBox(shell2);
-							message.setMessage(Controller.rb.getString("shipIsHitted"));
-							message.open();
-						}
-						selectedObject = null;
-						selectedFields = null;							
-					}
-					
-					fieldZone.redraw();
-				}
-			}
-		});
-		
-		fieldZone.addMouseMoveListener(new MouseMoveListener() {
-
-			@Override
-			public void mouseMove(MouseEvent e) {
-				if (selectedObject != null) {
-					int x = e.x / cellSize - 1;
-					int y = e.y / cellSize - 1;
-					try {
-						Field field = getZone().getField(x, y);
-						List<Field> temp = null;
-						if (selectedObject instanceof Ship) {
-							temp = zone.getFields(field, ((Ship)selectedObject).getSize(), selectedDirection);
-						} else {
-							temp = zone.getFields(field, 1, null);
-						}
-						if (!temp.containsAll(selectedFields)) {
-							selectedFields = temp;
-							fieldZone.redraw();
-						}
-					} catch (FieldNotFoundException e1) {
-					}
-				}	
-			}
-		});
-		
-		shell2.pack();
-		shell2.setFocus();
-		shell2.open();
-		while (!shell2.isDisposed()) {
-			if (!disp.readAndDispatch()) {
-				disp.sleep();
-			}
-		}
-		shell2.dispose();	
+		tempShell.dispose();
 	}
 	
 	public void setController(Controller controller) {
@@ -756,7 +768,7 @@ public class LocalPlayer extends Player {
 	}
 	
 	@Override
-	public boolean shot(Ship ship) {
+	public boolean action(Ship ship) {
 		while (true) {
 			isMove = false;
 			shotX = -1;
@@ -787,5 +799,9 @@ public class LocalPlayer extends Player {
 				isMove = true;
 			}
 		}
+	}
+
+	public void setCurrent(Player current) {
+		isLocal = current == this;
 	}
 }

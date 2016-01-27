@@ -72,7 +72,7 @@ public class NetworkPlayer extends Player {
 	}
 	
 	@Override
-	public boolean shot(Ship ship) {
+	public boolean action(Ship ship) {
 		boolean ret = false;
 		try {
 			BattleShipMessage message = MessageFactory.readMessage(socket.getInputStream());
