@@ -13,13 +13,10 @@ import com.example.battleship.exception.ShipIsHittedException;
 
 public class Ship extends SeaObject {
 	private static int nextId = 1;
-	public final static int ALIVE_STATE = 0;
-	public final static int HIT_STATE = 1;
-	public final static int DEAD_STATE = 2;
 	
 	protected int id;
 	protected int size;
-	protected int state = ALIVE_STATE;
+	protected ShipState state = ShipState.ALIVE_STATE;
 	private List<Field> neighboirs;
 	private Direction direction;
 	
@@ -63,7 +60,7 @@ public class Ship extends SeaObject {
 	}
 	
 	public void freeFields() throws ShipIsHittedException {
-		if (state != ALIVE_STATE) {
+		if (state != ShipState.ALIVE_STATE) {
 			throw new ShipIsHittedException();
 		}
 		if (this.fields != null) {
@@ -82,10 +79,10 @@ public class Ship extends SeaObject {
 	}
 	
 	public void destroy() {
-		if (state == DEAD_STATE) {
+		if (state == ShipState.DEAD_STATE) {
 			return;
 		}
-		state = DEAD_STATE;
+		state = ShipState.DEAD_STATE;
 		for (Field field2 : fields) {
 			field2.setState(FieldState.KILLED_SHIP_STATE);
 		}
@@ -123,18 +120,11 @@ public class Ship extends SeaObject {
 		if (isDead()) {
 			destroy();
 		} else {
-			state = HIT_STATE;
+			state = ShipState.HIT_STATE;
 		}
 	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(this.getClass().getSimpleName() + " at x = " + fields.get(0).getX()
-				+ ", y = " + fields.get(0).getY());
-		return sb.toString();
-	}
 
-	public int getState() {
+	public ShipState getState() {
 		return state;
 	}
 	
@@ -146,7 +136,7 @@ public class Ship extends SeaObject {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		id = in.readInt();
 		size = in.readInt();
-		state = in.readInt();
+		state = (ShipState) in.readObject();
 		fields = new LinkedList<>();
 		for (int i = 0 ; i < size; i++) {
 			fields.add((Field) in.readObject());
@@ -158,7 +148,7 @@ public class Ship extends SeaObject {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(id);
 		out.writeInt(size);
-		out.writeInt(state);
+		out.writeObject(state);
 		for (Field f : fields) {
 			out.writeObject(f);
 		}

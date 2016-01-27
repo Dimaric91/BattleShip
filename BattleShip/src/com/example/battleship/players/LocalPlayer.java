@@ -34,6 +34,7 @@ import com.example.battleship.Field;
 import com.example.battleship.Mine;
 import com.example.battleship.SeaObject;
 import com.example.battleship.Ship;
+import com.example.battleship.ShipState;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.RandomException;
@@ -516,7 +517,7 @@ public class LocalPlayer extends Player {
 			@Override
 			public void paintControl(PaintEvent e) {
 				paintFields(e, getZone().getFields(), false);
-				if (isLocal) {
+				if (!isLocal) {
 					e.gc.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 					e.gc.drawRectangle(cellSize, cellSize, zone.getSize() * cellSize, zone.getSize() * cellSize);
 				} 
@@ -553,7 +554,7 @@ public class LocalPlayer extends Player {
 							Field f = getZone().getField(x, y);
 							if (f.getObj() instanceof Ship) {
 								selectedObject = f.getObj();
-								if (((Ship)selectedObject).getState() != Ship.ALIVE_STATE) {
+								if (((Ship)selectedObject).getState() != ShipState.ALIVE_STATE) {
 									MessageBox message = new MessageBox(shell);
 									message.setMessage(Controller.rb.getString("shipIsHitted"));
 									message.open();

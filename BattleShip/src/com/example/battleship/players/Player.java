@@ -13,6 +13,7 @@ import com.example.battleship.Field;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
 import com.example.battleship.Ship;
+import com.example.battleship.ShipState;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.RandomException;
@@ -74,7 +75,7 @@ public abstract class Player {
 	public boolean isGameOver() {
 		LinkedList<Ship> lst = new LinkedList<>(ships);
 		for (Ship ship : lst) {
-			if (ship.getState() == Ship.DEAD_STATE) {
+			if (ship.getState() == ShipState.DEAD_STATE) {
 				ships.remove(ship);
 				System.out.println(Controller.rb.getString("player") + " " + getName() + " " + Controller.rb.getString("lossShip")+ 
 						" x = " + ship.getFields().get(0).getX() + ", y = " + ship.getFields().get(0).getY());
