@@ -7,20 +7,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
-import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
+import com.example.battleship.Ship;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.RandomException;
 import com.example.battleship.exception.ShipIsHittedException;
-import com.example.battleship.ships.Aerocarrier;
-import com.example.battleship.ships.Battleship;
-import com.example.battleship.ships.Cruiser;
-import com.example.battleship.ships.Destroyer;
-import com.example.battleship.ships.Ship;
+import com.example.battleship.widgets.Controller;
 
 public abstract class Player {
 	private String name;
@@ -43,19 +39,19 @@ public abstract class Player {
 		ships = new LinkedList<>();
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("aerocarierCount")); i++) {
-			ships.add(new Aerocarrier(4));
+			ships.add(new Ship(4));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("battleshipCount")); i++) {
-			ships.add(new Battleship(3));
+			ships.add(new Ship(3));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("cruiserCount")); i++) {
-			ships.add(new Cruiser(2));
+			ships.add(new Ship(2));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("destroyerCount")); i++) {
-			ships.add(new Destroyer(1));
+			ships.add(new Ship(1));
 		}
 		
 		for (int i = 0; i < Integer.parseInt(property.getProperty("mineCount")); i++) {

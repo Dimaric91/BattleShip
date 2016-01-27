@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Properties;
-import com.example.battleship.Controller;
+
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
 import com.example.battleship.exception.CannotCreateMessage;
@@ -16,8 +16,9 @@ import com.example.battleship.network.MessageFactory;
 import com.example.battleship.network.MoveMessage;
 import com.example.battleship.network.ReadyMessage;
 import com.example.battleship.network.ShotMessage;
-import com.example.battleship.ships.Ship;
+import com.example.battleship.widgets.Controller;
 import com.example.battleship.Mine;
+import com.example.battleship.Ship;
 
 public class NetworkPlayer extends Player {
 

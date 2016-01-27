@@ -10,30 +10,27 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.example.battleship.Controller;
-
-public class WaitWidget {
-	private Controller controller;
-	private Display disp;
+public class WaitWidget extends Dialog {
 	private Shell shell;
 	private ServerSocket serv;
 	private Socket socket;
 	private boolean isConnect;
 	
-	public WaitWidget(Controller c, Display disp, ServerSocket serv) {
-		this.controller = c;
-		this.disp = disp;
+	public WaitWidget(Shell parent, ServerSocket serv) {
+		super(parent, SWT.TITLE | SWT.RESIZE | SWT.APPLICATION_MODAL);
+		this.shell = new Shell(parent, getStyle());
+		createContent(this.shell);
 		this.serv = serv;
-		this.shell = createShell(disp);
 		this.isConnect = false;
+		
 	}
 
-	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.TITLE | SWT.RESIZE | SWT.APPLICATION_MODAL);
+	private void createContent(final Shell shell) {
 		shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("wait"));
 		
 		GridLayout layout = new GridLayout(1, false);
@@ -59,15 +56,14 @@ public class WaitWidget {
 						e1.printStackTrace();
 					}
 					disposeShell();
-					controller.exit();
 				}
 			}
 		});
 		shell.pack();
-		return shell;
 	}
 	
-	public void start() {
+	public boolean open() {
+		Display disp = getParent().getDisplay();
 		shell.open();
 		new Thread(new Runnable() {
 			
@@ -76,6 +72,7 @@ public class WaitWidget {
 				try {
 					socket = serv.accept();
 					isConnect = true;
+					disposeShell();
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
@@ -85,11 +82,9 @@ public class WaitWidget {
 			if (!disp.readAndDispatch()) {
 				disp.sleep();
 			}
-			if (isConnect){
-				break;
-			}
 		}
-		disposeShell();	
+		disposeShell();
+		return isConnect;
 	}
 
 	public void disposeShell() {

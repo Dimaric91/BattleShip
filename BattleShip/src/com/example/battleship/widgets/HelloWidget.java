@@ -9,39 +9,38 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
-import com.example.battleship.Controller;
-
-public class HelloWidget {
+public class HelloWidget extends Dialog {
 	
-	private Display disp;
 	private Shell shell;
 	
 	private Button localButton;
 	private Button optionsButton;
 	
 	private Properties optProperty;
-	public HelloWidget(Display disp) {
-		this.disp = disp;
-		this.shell = createShell(this.disp);
+	
+	public HelloWidget(Shell parent) {
+		super(parent, SWT.DIALOG_TRIM);
+		this.shell = new Shell(parent, getStyle());
+		createContent(this.shell);
 	}
 
-	private Shell createShell(Display disp) {
+	private void createContent(final Shell shell) {
 		if (Controller.icon == null) {
-			Controller.icon = new Image(disp, getClass().getResourceAsStream("icon.png"));
+			Controller.icon = new Image(getParent().getDisplay(), getClass().getResourceAsStream("icon.png"));
 		}
-		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
 		GridLayout layout = new GridLayout(1, false);
 		layout.verticalSpacing = 13;
 		shell.setLayout(new GridLayout(1, false));
 		shell.setText(Controller.rb.getString("gameName"));
 		shell.setImage(Controller.icon);
 		
-		FormToolkit tool = new FormToolkit(disp);
+		FormToolkit tool = new FormToolkit(getParent().getDisplay());
 		Form form = tool.createForm(shell);
 		form.setLayoutData(new GridData(SWT.FILL,SWT.FILL,true,true));
 		localButton = tool.createButton(form.getBody(), Controller.rb.getString("newGame"), SWT.PUSH);
@@ -74,28 +73,25 @@ public class HelloWidget {
 		});
 		
 		shell.pack();
-		
-		return shell;
 	}
 	
 	private void startOptionWidget() {
-		OptionWidget option = new OptionWidget(disp);
-		option.start();
-		optProperty = option.getOptions();
+		OptionWidget option = new OptionWidget(shell);
+		if(option.open()) {
+			optProperty = option.getOptions();
+		}
 	}
 	
-	public void start() {
+	public boolean open() {
+		Display disp = getParent().getDisplay();
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!disp.readAndDispatch()) {
 				disp.sleep();
 			}
 		}
-		disposeShell();	
-	}
-	
-	public void dispose() {
-		disp.dispose();
+		disposeShell();
+		return isSetOption();
 	}
 
 	public void disposeShell() {
@@ -103,7 +99,7 @@ public class HelloWidget {
 	}
 	
 	public boolean isSetOption() {
-		return (optProperty != null) && optProperty.size() > 1;
+		return optProperty != null;
 	}
 	
 	public Properties getOptions() {

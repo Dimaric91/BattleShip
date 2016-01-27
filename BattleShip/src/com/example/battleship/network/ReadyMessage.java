@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.example.battleship.GameZone;
 import com.example.battleship.Mine;
-import com.example.battleship.ships.Ship;
+import com.example.battleship.Ship;
 
 public class ReadyMessage extends BattleShipMessage {
 

@@ -1,4 +1,4 @@
-package com.example.battleship;
+package com.example.battleship.widgets;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.example.battleship.BattleShipLogger;
 import com.example.battleship.exception.CannotCreateMessage;
 import com.example.battleship.exception.RandomException;
 import com.example.battleship.network.BattleShipMessage;
@@ -27,13 +28,10 @@ import com.example.battleship.players.AIPlayer;
 import com.example.battleship.players.LocalPlayer;
 import com.example.battleship.players.NetworkPlayer;
 import com.example.battleship.players.Player;
-import com.example.battleship.widgets.HelloWidget;
-import com.example.battleship.widgets.WaitWidget;
 
 public class Controller extends Thread {
 
 	public final static ResourceBundle rb = ResourceBundle.getBundle("battleShip");
-
 	public static Image icon;
 	
 	private LocalPlayer player1;
@@ -42,27 +40,27 @@ public class Controller extends Thread {
 	private String winner;
 	
 	private ServerSocket serv = null;
-	public Controller(Display disp, Properties property) {
+	public Controller(Shell shell, Properties property) {
 		this.properties = property;
 		switch(property.getProperty("playerType")) {
 			case "local":
-				this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), property);
+				this.player1 = new LocalPlayer(this, shell.getDisplay(), property.getProperty("username"), property);
 			try {
 				this.player2 = new AIPlayer("AI player", property);
 			} catch (RandomException e1) {
-				Shell tempShell = new Shell(disp);
-				MessageBox message = new MessageBox(tempShell);
+				MessageBox message = new MessageBox(shell);
 				message.setMessage("AI player:" + Controller.rb.getString("randomException"));
 				message.open();
-				tempShell.dispose();
 			}
 				break;
 			case "bind":
 				Socket socket = null;
 				try {
 					serv = new ServerSocket(Integer.parseInt(property.getProperty("port")));
-					WaitWidget wait = new WaitWidget(this, disp, serv);
-					wait.start();			
+					WaitWidget wait = new WaitWidget(shell, serv);
+					if (!wait.open()) {
+						break;
+					}
 					
 					socket = wait.getSocket();
 					
@@ -73,7 +71,7 @@ public class Controller extends Thread {
 							MessageFactory.writeMessage(socket.getOutputStream(), new FailMessage(Controller.rb.getString("userUsed")));
 						} else {
 							MessageFactory.writeMessage(socket.getOutputStream(), new OptionMessage(property));
-							this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), property);
+							this.player1 = new LocalPlayer(this, shell.getDisplay(), property.getProperty("username"), property);
 							this.player2 = new NetworkPlayer(remoteName, socket, property);
 						}
 					} else {
@@ -106,42 +104,34 @@ public class Controller extends Thread {
 					BattleShipMessage msg = MessageFactory.readMessage(socket.getInputStream());
 					
 					if (msg instanceof FailMessage) {
-						Shell shell = new Shell(disp);
 						MessageBox fail = new MessageBox(shell, SWT.OK);
 						fail.setText(Controller.rb.getString("fail"));
 						fail.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("response") + 
 								":\n" + ((FailMessage)msg).getReason());
 						fail.open();
-						shell.dispose();
 					} else if (msg instanceof OptionMessage) {
 						Properties prop = ((OptionMessage)msg).getProperty();
 						prop.put("isRandom", property.getProperty("isRandom"));
-						this.player1 = new LocalPlayer(this, disp, property.getProperty("username"), prop);
+						this.player1 = new LocalPlayer(this, shell.getDisplay(), property.getProperty("username"), prop);
 						this.player2 = new NetworkPlayer(prop.getProperty("username"), socket, prop);
 					} else {
-						Shell shell = new Shell(disp);
 						MessageBox fail = new MessageBox(shell, SWT.OK);
 						fail.setText(Controller.rb.getString("fail"));
 						fail.setMessage(Controller.rb.getString("unknownMessage"));
 						fail.open();
-						shell.dispose();
 					}
 					
 				} catch (SocketTimeoutException e) {
-					Shell shell = new Shell(disp);
 					MessageBox msg = new MessageBox(shell, SWT.OK);
 					msg.setText(Controller.rb.getString("timeout"));
 					msg.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("noResponse"));
 					msg.open();
-					shell.dispose();
 				} catch (ConnectException e) {
-					Shell shell = new Shell(disp);
 					MessageBox msg = new MessageBox(shell, SWT.OK);
 					msg.setText(Controller.rb.getString("errorConnect"));
 					msg.setMessage(host + ":" + String.valueOf(port) + " " + Controller.rb.getString("response") + 
 							":\n" + e.getMessage());
 					msg.open();
-					shell.dispose();
 				}catch (NumberFormatException | IOException | CannotCreateMessage e) {
 					e.printStackTrace();
 				} finally {
@@ -166,20 +156,20 @@ public class Controller extends Thread {
 	
 	public static void main(String[] args) throws Exception {
 		Display disp = new Display();
+		Shell shell = new Shell(disp);
 		
-		HelloWidget hello = new HelloWidget(disp);
-		hello.start();
+		HelloWidget hello = new HelloWidget(shell);
 		
-		if(!hello.isSetOption()) {
+		if(!hello.open()) {
 			return;
 		}
 
-		Controller c = new Controller(disp, hello.getOptions());
+		Controller c = new Controller(shell, hello.getOptions());
 		c.start();
 		
 		c.getPlayer1().start();
-		disp.dispose();
 		c.exit();
+		disp.dispose();
 	}
 
 	public void createLogger() {

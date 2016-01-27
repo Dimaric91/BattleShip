@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
-import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.FieldState;
+import com.example.battleship.Ship;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.RandomException;
-import com.example.battleship.ships.Ship;
+import com.example.battleship.widgets.Controller;
 
 public class AIPlayer extends Player {
 

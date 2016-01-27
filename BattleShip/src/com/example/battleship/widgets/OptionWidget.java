@@ -18,6 +18,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -27,12 +28,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
-import com.example.battleship.Controller;
 import com.example.battleship.exception.InvalidFieldSizeException;
 
-public class OptionWidget {
-	private Display disp;
+public class OptionWidget extends Dialog {
 	private Shell shell;
+	
 	private Spinner aerocarierCount;
 	private Spinner battleshipCount;
 	private Spinner cruiserCount;
@@ -66,14 +66,17 @@ public class OptionWidget {
 	
 	private Properties options;
 	
-	public OptionWidget(Display disp) {
-		this.disp = disp;
-		this.shell = createShell(disp);
+	public OptionWidget(Shell parent) {
+		super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+		this.shell = new Shell(parent, getStyle());
+		createContent(this.shell);
 		this.options = new Properties();
+		//this.disp = disp;
+		//this.shell = createShell(disp);
+		
 	}
 
-	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+	private void createContent(final Shell shell) {
 		shell.setText(Controller.rb.getString("gameName") + " -> " + Controller.rb.getString("options"));
 		GridLayout layout = new GridLayout(1, false);
 		shell.setLayout(layout);
@@ -351,10 +354,11 @@ public class OptionWidget {
 		});
 		
 		shell.pack();
-		return shell;
 	}
+
 	
-	public void start() {
+	public boolean open() {
+		Display disp = getParent().getDisplay();
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!disp.readAndDispatch()) {
@@ -362,10 +366,7 @@ public class OptionWidget {
 			}
 		}
 		disposeShell();	
-	}
-	
-	public void dispose() {
-		disp.dispose();
+		return isSetOption();
 	}
 	
 	public void disposeShell() {
@@ -440,6 +441,10 @@ public class OptionWidget {
 			mineLabel.setEnabled(false);
 			mineCount.setEnabled(false);
 		}
+	}
+	
+	public boolean isSetOption() {
+		return options.size() > 1;
 	}
 	
 	public Properties getOptions() {

@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.example.battleship.Field;
 import com.example.battleship.exception.MissingFieldsException;
-import com.example.battleship.ships.Ship;
 
 public class Mine extends SeaObject {
 

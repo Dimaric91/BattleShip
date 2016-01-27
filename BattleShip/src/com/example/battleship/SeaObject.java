@@ -3,7 +3,6 @@ package com.example.battleship;
 import java.io.Externalizable;
 import java.util.List;
 import com.example.battleship.Field;
-import com.example.battleship.ships.Ship;
 
 public abstract class SeaObject implements Externalizable {
 	

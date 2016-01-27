@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.example.battleship.ships.Ship;
+import com.example.battleship.Ship;
 
 public class MoveMessage extends BattleShipMessage {
 

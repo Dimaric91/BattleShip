@@ -1,4 +1,4 @@
-package com.example.battleship.ships;
+package com.example.battleship;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -7,16 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import com.example.battleship.FieldState;
-import com.example.battleship.GameZone;
-import com.example.battleship.SeaObject;
 import com.example.battleship.exception.FieldNotFoundException;
 import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.ShipIsHittedException;
-import com.example.battleship.Direction;
-import com.example.battleship.Field;
 
-public abstract class Ship extends SeaObject {
+public class Ship extends SeaObject {
 	private static int nextId = 1;
 	public final static int ALIVE_STATE = 0;
 	public final static int HIT_STATE = 1;
