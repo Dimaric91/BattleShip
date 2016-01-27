@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
+import com.example.battleship.Controller;
+
 public class HelloWidget extends Dialog {
 	
 	private Shell shell;

@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.example.battleship.Controller;
 import com.example.battleship.Direction;
 import com.example.battleship.Field;
 import com.example.battleship.Mine;
@@ -39,7 +40,6 @@ import com.example.battleship.exception.MissingFieldsException;
 import com.example.battleship.exception.RandomException;
 import com.example.battleship.exception.ShipIsHittedException;
 import com.example.battleship.network.ReadyMessage;
-import com.example.battleship.widgets.Controller;
 
 public class LocalPlayer extends Player {
 

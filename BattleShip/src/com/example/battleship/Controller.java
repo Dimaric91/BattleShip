@@ -1,4 +1,4 @@
-package com.example.battleship.widgets;
+package com.example.battleship;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -16,7 +16,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import com.example.battleship.BattleShipLogger;
 import com.example.battleship.exception.CannotCreateMessage;
 import com.example.battleship.exception.RandomException;
 import com.example.battleship.network.BattleShipMessage;
@@ -28,6 +27,8 @@ import com.example.battleship.players.AIPlayer;
 import com.example.battleship.players.LocalPlayer;
 import com.example.battleship.players.NetworkPlayer;
 import com.example.battleship.players.Player;
+import com.example.battleship.widgets.HelloWidget;
+import com.example.battleship.widgets.WaitWidget;
 
 public class Controller extends Thread {
 

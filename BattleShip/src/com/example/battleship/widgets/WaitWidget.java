@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.example.battleship.Controller;
+
 public class WaitWidget extends Dialog {
 	private Shell shell;
 	private ServerSocket serv;
