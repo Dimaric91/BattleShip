@@ -74,13 +74,12 @@ public class WaitWidget extends Dialog {
 				try {
 					socket = serv.accept();
 					isConnect = true;
-					disposeShell();
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
 			}
 		}).start();
-		while (!shell.isDisposed()) {
+		while (!shell.isDisposed() && !isConnect) {
 			if (!disp.readAndDispatch()) {
 				disp.sleep();
 			}

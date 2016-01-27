@@ -520,7 +520,7 @@ public class LocalPlayer extends Player {
 			}
 		});
 		
-		enemyListener = new ZonePaintListener(enemy.getZone(), true);
+		enemyListener = new ZonePaintListener(enemy.getZone(), false);
 		
 		enemyZone.addPaintListener(enemyListener);
 		
