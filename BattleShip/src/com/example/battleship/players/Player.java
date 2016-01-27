@@ -87,7 +87,48 @@ public abstract class Player {
 		return name;
 	}
 	
+	private void prepareRandom() {
+		List<Field> fieldsPool = new ArrayList<>();
+		for (Field[] f : Arrays.asList(zone.getFields())) {
+			fieldsPool.addAll(Arrays.asList(f));
+		}
+		for (Ship ship : ships) {
+			List<Field> poolForCurrentShip = new ArrayList<>(fieldsPool);
+			while (true) {
+				Field f = null;
+				Direction selectedDir = Direction.DOWN;
+				try {
+					f = poolForCurrentShip.get(0);
+					ship.move(zone, f, selectedDir);
+					fieldsPool.removeAll(ship.getFields());
+					break;
+				} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e) {
+					for (Direction d : Direction.values()) {
+						try {
+							if (d.equals(selectedDir))
+								continue;
+							ship.move(zone, f, d);
+							fieldsPool.removeAll(ship.getFields());
+						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
+						}
+					}
+					if (ship.getFields() == null) {
+						poolForCurrentShip.remove(f);
+					}
+				}
+			}
+		}
+	}
+	
 	protected void RandomMove() throws RandomException {
+		int shipArea = 0;
+		for (Ship s : ships) {
+			shipArea += (s.getSize() + 1) * 2;
+		}
+		if (shipArea >= 0.75 * zone.getFields().length)  {
+			prepareRandom();
+		}
+		
 		Random rnd = new Random();
 		
 		List<Field> fieldsPool = new ArrayList<>();

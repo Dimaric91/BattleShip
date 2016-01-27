@@ -485,7 +485,7 @@ public class LocalPlayer extends Player {
 	}
 	
 	private Shell createShell(Display disp) {
-		Shell shell = new Shell(disp, SWT.DIALOG_TRIM);
+		Shell shell = new Shell(disp, SWT.DIALOG_TRIM | SWT.RESIZE);
 		GridLayout layout = new GridLayout(2, false);
 		layout.horizontalSpacing = 8;
 		shell.setLayout(layout);
@@ -493,17 +493,17 @@ public class LocalPlayer extends Player {
 		shell.setImage(Controller.icon);
 		
 		Group ourGroup = new Group(shell, SWT.NONE);
-		ourGroup.setText(getName() + " " + Controller.rb.getString("ships"));
+		ourGroup.setText(getName());
 		ourGroup.setLayout(new GridLayout());
 		Group enemyGroup = new Group(shell, SWT.NONE);
-		enemyGroup.setText(getEnemy().getName() + " " + Controller.rb.getString("ships"));
+		enemyGroup.setText(getEnemy().getName());
 		enemyGroup.setLayout(new GridLayout());
 		
 		ourZone = new Canvas(ourGroup, SWT.BORDER);
 		ourZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1 , cellSize * (getZone().getSize() + 1) + 1));
 		enemyZone = new Canvas(enemyGroup, SWT.BORDER);
 		enemyZone.setLayoutData(new GridData(cellSize * (getZone().getSize() + 1) + 1, cellSize * (getZone().getSize() + 1) + 1));
-		textLog = new Text(shell, SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER);
+		textLog = new Text(shell, SWT.MULTI | SWT.V_SCROLL | SWT.READ_ONLY | SWT.BORDER | SWT.WRAP);
 		textLog.setBackground(disp.getSystemColor(SWT.COLOR_WHITE));
 		textLog.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		textLog.setText("\n\n\n\n\n");
