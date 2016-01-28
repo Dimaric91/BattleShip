@@ -113,9 +113,8 @@ public abstract class Player {
 						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
 						}
 					}
-					if (ship.getFields() == null) {
-						poolForCurrentShip.remove(f);
-					}
+					poolForCurrentShip.remove(f);
+					break;
 				}
 			}
 		}
@@ -159,8 +158,9 @@ public abstract class Player {
 						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
 						}
 					}
+					poolForCurrentShip.remove(f);
+					//System.out.println(f.getX() + "<->" + f.getY());
 					if (ship.getFields() == null) {
-						poolForCurrentShip.remove(f);
 						if (poolForCurrentShip.isEmpty()) {
 							for (Ship s : ships) {
 								try {
