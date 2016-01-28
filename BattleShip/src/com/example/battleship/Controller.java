@@ -52,7 +52,8 @@ public class Controller extends Thread {
 			try {
 				this.player2 = new AIPlayer("AI player", property);
 			} catch (RandomException e1) {
-				printMessage(null, "AI player:" + Controller.rb.getString("randomException"));
+				printMessage("AI player:" + Controller.rb.getString("randomException"), 
+						"AI player:" + Controller.rb.getString("randomException"));
 			}
 				break;
 			case "bind":
@@ -173,7 +174,7 @@ public class Controller extends Thread {
 				player1.wait();
 			}
 		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+			return;
 		}
 		createLogger();
 		

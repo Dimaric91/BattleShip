@@ -100,4 +100,27 @@ public class GameZone implements Serializable {
 	public int getSize() {
 		return fields.length;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder result = new StringBuilder();
+		result.append("x\\y");
+		for (int i = 0; i < fields.length; i++) {
+			result.append(i + " ");
+		}
+		result.append("\n");
+		for (int i = 0; i < fields.length + 1; i++) {
+			result.append("--");
+		}
+		result.append("\n");
+		for (int i = 0; i < fields.length; i++) {
+			result.append(i + " |");
+			for (int j = 0; j < fields.length; j++) {
+				result.append(fields[i][j] + " ");
+			}
+			result.append("\n");
+		}
+		return result.toString();
+	}
 }
+

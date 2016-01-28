@@ -660,15 +660,17 @@ public class LocalPlayer extends Player {
 		} else {
 			firstMove();
 		}
-		shell = createShell(disp);
-		textLog.setText("");
-		synchronized (this) {
-			notifyAll();
-		}
-		shell.open();
-		while (!shell.isDisposed()) {
-			if (!disp.readAndDispatch()) {
-				disp.sleep();
+		if (isReady) {
+			shell = createShell(disp);
+			textLog.setText("");
+			synchronized (this) {
+				notifyAll();
+			}
+			shell.open();
+			while (!shell.isDisposed()) {
+				if (!disp.readAndDispatch()) {
+					disp.sleep();
+				}
 			}
 		}
 		dispose();

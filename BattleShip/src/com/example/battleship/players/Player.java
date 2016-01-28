@@ -110,11 +110,14 @@ public abstract class Player {
 								continue;
 							ship.move(zone, f, d);
 							fieldsPool.removeAll(ship.getFields());
+							break;
 						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
 						}
 					}
 					poolForCurrentShip.remove(f);
-					break;
+					if (poolForCurrentShip.isEmpty()) {
+						break;
+					}
 				}
 			}
 		}
@@ -155,22 +158,21 @@ public abstract class Player {
 								continue;
 							ship.move(zone, f, d);
 							fieldsPool.removeAll(ship.getFields());
+							break;
 						} catch (FieldNotFoundException | MissingFieldsException | ShipIsHittedException e2) {
 						}
 					}
 					poolForCurrentShip.remove(f);
-					//System.out.println(f.getX() + "<->" + f.getY());
-					if (ship.getFields() == null) {
-						if (poolForCurrentShip.isEmpty()) {
-							for (Ship s : ships) {
-								try {
-									s.freeFields();
-								} catch (ShipIsHittedException e1) {
-								}
+					if (poolForCurrentShip.isEmpty()) {
+						for (Ship s : ships) {
+							try {
+								s.freeFields();
+							} catch (ShipIsHittedException e1) {
 							}
-							throw new RandomException();
 						}
+						throw new RandomException();
 					}
+					break;
 				}
 			}
 		}
