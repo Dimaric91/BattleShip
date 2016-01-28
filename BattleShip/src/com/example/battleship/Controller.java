@@ -169,6 +169,7 @@ public class Controller extends Thread {
 		
 		try {
 			synchronized (player1) {
+				sleep(1000);
 				player1.wait();
 			}
 		} catch (InterruptedException e1) {
@@ -176,12 +177,20 @@ public class Controller extends Thread {
 		}
 		createLogger();
 		
+		while(!player1.isReady()) {
+			try {
+				sleep(1000);
+			} catch (InterruptedException e) {
+				return;
+			}
+		}
+		
 		if (player2 instanceof NetworkPlayer) {
 			((NetworkPlayer) player2).sendReady(player1.getReady());
 			System.out.println(Controller.rb.getString("player") + " " + player1.getName() + " " + Controller.rb.getString("ready"));
 			while (!player2.isReady()) {
 				try {
-					Thread.sleep(1000);
+					sleep(1000);
 				} catch (InterruptedException e) {
 					return;
 				}

@@ -402,6 +402,7 @@ public class LocalPlayer extends Player {
 	
 	private Controller controller;
 	private boolean isLocal;
+	private boolean isRandom;
 	
 	private Display disp;
 	private Shell shell;
@@ -425,21 +426,8 @@ public class LocalPlayer extends Player {
 		this.selectedDirection = Direction.RIGHT;
 		this.disp = disp;
 		this.controller = c;
+		this.isRandom = Boolean.valueOf(property.getProperty("isRandom"));
 		
-		if (Boolean.valueOf(property.getProperty("isRandom"))) {
-			try {
-				RandomMove();
-			} catch (RandomException e) {
-				Shell tempShell = new Shell(disp);
-				MessageBox message = new MessageBox(tempShell);
-				message.setMessage(username + ":" + Controller.rb.getString("randomException"));
-				message.open();
-				tempShell.dispose();
-				firstMove();
-			}
-		} else {
-			firstMove();
-		}
 	}
 
 	public void redraw() {
@@ -658,6 +646,20 @@ public class LocalPlayer extends Player {
 	}
 	
 	public void start() {
+		if (isRandom) {
+			try {
+				RandomMove();
+			} catch (RandomException e) {
+				Shell tempShell = new Shell(disp);
+				MessageBox message = new MessageBox(tempShell);
+				message.setMessage(getName() + ":" + Controller.rb.getString("randomException"));
+				message.open();
+				tempShell.dispose();
+				firstMove();
+			}
+		} else {
+			firstMove();
+		}
 		shell = createShell(disp);
 		textLog.setText("");
 		synchronized (this) {
@@ -669,7 +671,8 @@ public class LocalPlayer extends Player {
 				disp.sleep();
 			}
 		}
-		dispose();	
+		dispose();
+		controller.exit();
 	}
 	
 	public void dispose() {
